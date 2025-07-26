@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -60,7 +58,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     };
   }
 
-  private static string GenerateApiSignature(IDictionary<string, string> parameters, string secret)
+  internal static string GenerateApiSignature(IDictionary<string, string> parameters, string secret)
   {
     var sorted = parameters.OrderBy(p => p.Key);
     var concat = string.Concat(sorted.Select(p => p.Key + p.Value)) + secret;

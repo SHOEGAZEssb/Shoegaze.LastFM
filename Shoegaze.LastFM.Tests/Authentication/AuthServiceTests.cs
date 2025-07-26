@@ -39,8 +39,11 @@ namespace Shoegaze.LastFM.Tests.Authentication
 
       var httpClient = TestHelper.CreateMockHttpClient(req =>
       {
-        Assert.That(req.Method, Is.EqualTo(HttpMethod.Post));
-        Assert.That(req.RequestUri!.ToString(), Does.Contain("/2.0"));
+        Assert.Multiple(() =>
+        {
+          Assert.That(req.Method, Is.EqualTo(HttpMethod.Post));
+          Assert.That(req.RequestUri!.ToString(), Does.Contain("/2.0"));
+        });
         return fakeResponse;
       });
 
@@ -48,9 +51,11 @@ namespace Shoegaze.LastFM.Tests.Authentication
 
       var session = await auth.GetSessionAsync("token", "", "");
 
-      Assert.That(session.Username, Is.EqualTo("tim"));
-      Assert.That(session.SessionKey, Is.EqualTo("mock_session_key"));
+      Assert.Multiple(() =>
+      {
+        Assert.That(session.Username, Is.EqualTo("tim"));
+        Assert.That(session.SessionKey, Is.EqualTo("mock_session_key"));
+      });
     }
-
   }
 }
