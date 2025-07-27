@@ -669,8 +669,8 @@ namespace Shoegaze.LastFM.Tests.User
   {
     "toptags": {
       "tag": [
-        { "name": "shoegaze", "count": 42, "url": "https://www.last.fm/tag/shoegaze" },
-        { "name": "dreampop", "count": 27, "url": "https://www.last.fm/tag/dreampop" }
+        { "name": "shoegaze", "count": "42", "url": "https://www.last.fm/tag/shoegaze" },
+        { "name": "dreampop", "count": "27", "url": "https://www.last.fm/tag/dreampop" }
       ],
       "@attr": { "user": "ts" }
     }
@@ -685,11 +685,17 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mock.Object);
       var result = await api.GetTopTagsAsync("ts");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Has.Count.EqualTo(2));
-      Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
-      Assert.That(result.Data[0].Count, Is.EqualTo(42));
-      Assert.That(result.Data[0].Url, Is.EqualTo("https://www.last.fm/tag/shoegaze"));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Has.Count.EqualTo(2));
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
+        Assert.That(result.Data[0].Count, Is.EqualTo(42));
+        Assert.That(result.Data[0].Url, Is.EqualTo("https://www.last.fm/tag/shoegaze"));
+      });   
     }
 
     [Test]
@@ -709,8 +715,11 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mock.Object);
       var result = await api.GetTopTagsAsync("ts");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Empty);
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Empty);
+      });
     }
 
     [Test]
@@ -732,9 +741,11 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mock.Object);
       var result = await api.GetTopTagsAsync("ts");
 
-      Assert.That(result.IsSuccess, Is.False);
-      Assert.That(result.Status, Is.EqualTo(ApiStatusCode.UnknownError));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Status, Is.EqualTo(ApiStatusCode.UnknownError));
+      });
     }
-
   }
 }
