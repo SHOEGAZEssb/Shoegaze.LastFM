@@ -14,13 +14,6 @@ namespace Shoegaze.LastFM.User
 
     internal static LovedTrack FromJson(JsonElement root)
     {
-      var name = root.GetProperty("name").GetString() ?? "";
-      var url = root.GetProperty("url").GetString() ?? "";
-
-      var artistElement = root.GetProperty("artist");
-      var artistName = artistElement.GetProperty("name").GetString() ?? "";
-      var artistUrl = artistElement.GetProperty("url").GetString() ?? "";
-
       DateTime? parsedDate = null;
       if (root.TryGetProperty("date", out var dateElem) &&
           dateElem.TryGetProperty("uts", out var utsProp) &&

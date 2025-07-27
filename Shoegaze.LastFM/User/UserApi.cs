@@ -126,7 +126,7 @@ internal class UserApi : IUserApi
         switch (trackElement.ValueKind)
         {
           case JsonValueKind.Array:
-            trackList = trackElement.EnumerateArray().Select(LovedTrack.FromJson).ToList();
+            trackList = [.. trackElement.EnumerateArray().Select(LovedTrack.FromJson)];
             break;
           case JsonValueKind.Object:
             trackList = [LovedTrack.FromJson(trackElement)];

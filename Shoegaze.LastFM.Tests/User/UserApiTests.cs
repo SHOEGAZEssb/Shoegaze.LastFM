@@ -179,8 +179,11 @@ namespace Shoegaze.LastFM.Tests.User
         Assert.That(result.Data, Is.Not.Null);
       });
 
-      Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-      Assert.That(result.Data.Page, Is.EqualTo(1));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
+        Assert.That(result.Data.Page, Is.EqualTo(1));
+      });
 
       var first = result.Data!.Items[0];
       Assert.Multiple(() =>
@@ -299,14 +302,23 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mockInvoker.Object);
       var result = await api.GetLovedTracksAsync("testuser");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
-      Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
-      Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+      });
 
-      var track = result.Data.Items.First();
-      Assert.That(track.Name, Is.EqualTo("Track One"));
-      Assert.That(track.ArtistName, Is.EqualTo("ArtistOne"));
+      var track = result.Data.Items[0];
+      Assert.Multiple(() =>
+      {
+        Assert.That(track.Name, Is.EqualTo("Track One"));
+        Assert.That(track.ArtistName, Is.EqualTo("ArtistOne"));
+      });
     }
 
     [Test]
@@ -334,10 +346,16 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mockInvoker.Object);
       var result = await api.GetLovedTracksAsync("testuser");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
-      Assert.That(result.Data!.Items, Is.Empty);
-      Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Is.Empty);
+        Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+      });
     }
 
     [Test]
@@ -391,12 +409,18 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mockInvoker.Object);
       var result = await api.GetTopTracksAsync("testuser");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
-      Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
-      Assert.That(result.Data.TotalItems, Is.EqualTo(2));
-      Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
-      Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
+        Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+      });
     }
 
     [Test]
@@ -424,8 +448,11 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mockInvoker.Object);
       var result = await api.GetTopTracksAsync("testuser");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
       Assert.That(result.Data!.Items, Is.Empty);
     }
 
@@ -466,13 +493,19 @@ namespace Shoegaze.LastFM.Tests.User
       var api = new UserApi(mockInvoker.Object);
       var result = await api.GetTopTracksAsync("testuser");
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
-      Assert.That(result.Data!.Items.Count, Is.EqualTo(1));
-      Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
-      Assert.That(result.Data.Items[0].ArtistName, Is.EqualTo("OnlyArtist"));
-      Assert.That(result.Data.Items[0].Playcount, Is.EqualTo(999));
-      Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromSeconds(300)));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
+        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
+        Assert.That(result.Data.Items[0].ArtistName, Is.EqualTo("OnlyArtist"));
+        Assert.That(result.Data.Items[0].Playcount, Is.EqualTo(999));
+        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromSeconds(300)));
+      });
     }
 
     [TestFixture]
@@ -536,7 +569,7 @@ namespace Shoegaze.LastFM.Tests.User
         {
           Assert.That(result.IsSuccess, Is.True);
           Assert.That(result.Data, Is.Not.Null);
-          Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
+          Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
           Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
           Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
         });
@@ -576,11 +609,17 @@ namespace Shoegaze.LastFM.Tests.User
 
         var result = await api.GetRecentTracksAsync();
 
-        Assert.That(result.IsSuccess, Is.True);
-        Assert.That(result.Data, Is.Not.Null);
-        Assert.That(result.Data!.Items.Count, Is.EqualTo(1));
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
-        Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+        Assert.Multiple(() =>
+        {
+          Assert.That(result.IsSuccess, Is.True);
+          Assert.That(result.Data, Is.Not.Null);
+        });
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+          Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
+          Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+        });
       }
     }
 
@@ -611,10 +650,16 @@ namespace Shoegaze.LastFM.Tests.User
 
       var result = await api.GetRecentTracksAsync();
 
-      Assert.That(result.IsSuccess, Is.True);
-      Assert.That(result.Data, Is.Not.Null);
-      Assert.That(result.Data!.Items, Is.Empty);
-      Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Is.Empty);
+        Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+      });
     }
 
   }
