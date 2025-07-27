@@ -17,4 +17,5 @@ var friends = await client.User.GetFriendsAsync();
 var loves = await client.User.GetLovedTracksAsync();
 var tt = await client.User.GetTopTracksAsync();
 var rt = await client.User.GetRecentTracksAsync();
+var tags = await client.User.GetTopTagsAsync();
 int i = 0;

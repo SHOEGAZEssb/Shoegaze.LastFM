@@ -45,4 +45,9 @@ public interface IUserApi
     int? page = null,
     CancellationToken ct = default);
 
+  Task<ApiResult<IReadOnlyList<TopTag>>> GetTopTagsAsync(
+  string? username = null,
+  int? limit = null,
+  CancellationToken ct = default);
+
 }

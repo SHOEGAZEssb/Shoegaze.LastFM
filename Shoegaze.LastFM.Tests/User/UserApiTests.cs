@@ -662,5 +662,79 @@ namespace Shoegaze.LastFM.Tests.User
       });
     }
 
+    [Test]
+    public async Task GetTopTagsAsync_ReturnsTags_WhenSuccessful()
+    {
+      var json = """
+  {
+    "toptags": {
+      "tag": [
+        { "name": "shoegaze", "count": 42, "url": "https://www.last.fm/tag/shoegaze" },
+        { "name": "dreampop", "count": 27, "url": "https://www.last.fm/tag/dreampop" }
+      ],
+      "@attr": { "user": "ts" }
+    }
+  }
+  """;
+
+      var doc = JsonDocument.Parse(json);
+      var mock = new Mock<ILastfmRequestInvoker>();
+      mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
+
+      var api = new UserApi(mock.Object);
+      var result = await api.GetTopTagsAsync("ts");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Has.Count.EqualTo(2));
+      Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
+      Assert.That(result.Data[0].Count, Is.EqualTo(42));
+      Assert.That(result.Data[0].Url, Is.EqualTo("https://www.last.fm/tag/shoegaze"));
+    }
+
+    [Test]
+    public async Task GetTopTagsAsync_ReturnsEmpty_WhenNoTags()
+    {
+      var json = """
+  {
+    "toptags": {}
+  }
+  """;
+
+      var doc = JsonDocument.Parse(json);
+      var mock = new Mock<ILastfmRequestInvoker>();
+      mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
+
+      var api = new UserApi(mock.Object);
+      var result = await api.GetTopTagsAsync("ts");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetTopTagsAsync_ReturnsFailure_OnMalformedJson()
+    {
+      var json = """
+  {
+    "toptags": {
+      "tag": { "name": "broken" }
+    }
+  }
+  """;
+
+      var doc = JsonDocument.Parse(json);
+      var mock = new Mock<ILastfmRequestInvoker>();
+      mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
+
+      var api = new UserApi(mock.Object);
+      var result = await api.GetTopTagsAsync("ts");
+
+      Assert.That(result.IsSuccess, Is.False);
+      Assert.That(result.Status, Is.EqualTo(ApiStatusCode.UnknownError));
+    }
+
   }
 }

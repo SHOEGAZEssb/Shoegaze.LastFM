@@ -223,4 +223,40 @@ internal class UserApi : IUserApi
         "Failed to parse recent tracks: " + ex.Message);
     }
   }
+
+  public async Task<ApiResult<IReadOnlyList<TopTag>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>();
+    var requireAuth = string.IsNullOrWhiteSpace(username);
+
+    if (!requireAuth)
+      parameters["user"] = username!;
+
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+
+    var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
+
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<IReadOnlyList<TopTag>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
+
+      var tags = tagArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TopTag.FromJson)],
+        JsonValueKind.Object => [TopTag.FromJson(tagArray)],
+        _ => new List<TopTag>()
+      };
+
+      return ApiResult<IReadOnlyList<TopTag>>.Success(tags, result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<IReadOnlyList<TopTag>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+    }
+  }
+
 }
