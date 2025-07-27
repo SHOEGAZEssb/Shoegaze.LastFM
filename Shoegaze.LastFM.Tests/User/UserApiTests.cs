@@ -107,5 +107,238 @@ namespace Shoegaze.LastFM.Tests.User
         Assert.That(result.ErrorMessage, Is.EqualTo("Session key is missing or invalid."));
       });
     }
+
+    [Test]
+    public async Task GetFriendsAsync_ReturnsFriends_WhenSuccessful()
+    {
+      // Arrange
+      var json = """
+  {
+    "friends": {
+      "@attr": {
+        "page": "1",
+        "totalPages": "3",
+        "total": "109",
+        "perPage": "50"
+      },
+      "user": [
+        {
+          "id": "123",
+          "name": "eartle",
+          "realname": "Michael Coffey",
+          "url": "http://www.last.fm/user/eartle",
+          "country": "UK",
+          "age": "29",
+          "gender": "m",
+          "subscriber": "1",
+          "playcount": "45366",
+          "playlists": "4",
+          "registered": { "unixtime": "1189696970" },
+          "image": [
+            { "#text": "http://.../34.jpg", "size": "small" },
+            { "#text": "http://.../64.jpg", "size": "medium" }
+          ]
+        },
+        {
+          "id": "456",
+          "name": "otheruser",
+          "realname": "",
+          "url": "http://www.last.fm/user/otheruser",
+          "country": "",
+          "age": "0",
+          "gender": "",
+          "subscriber": "0",
+          "playcount": "0",
+          "playlists": "0",
+          "registered": { "unixtime": "1600000000" },
+          "image": { "#text": "http://.../34.jpg", "size": "small" }
+        }
+      ]
+    }
+  }
+  """;
+
+      var invokerMock = new Mock<ILastfmRequestInvoker>();
+
+      var doc = JsonDocument.Parse(json);
+      var apiResult = ApiResult<JsonDocument>.Success(doc, 200);
+
+      invokerMock
+        .Setup(x => x.SendAsync("user.getFriends", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(apiResult);
+
+      var api = new UserApi(invokerMock.Object);
+
+      // Act
+      var result = await api.GetFriendsAsync("joanofarctan");
+
+      Assert.Multiple(() =>
+      {
+        // Assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+
+      Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
+      Assert.That(result.Data.Page, Is.EqualTo(1));
+
+      var first = result.Data!.Items[0];
+      Assert.Multiple(() =>
+      {
+        Assert.That(first.Username, Is.EqualTo("eartle"));
+        Assert.That(first.RealName, Is.EqualTo("Michael Coffey"));
+        Assert.That(first.Images.ContainsKey(ImageSize.Small), Is.True);
+        Assert.That(first.Images[ImageSize.Small], Does.Contain("34.jpg"));
+        Assert.That(result.Data!.Page, Is.EqualTo(1));
+        Assert.That(result.Data.TotalPages, Is.EqualTo(3));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(109));
+        Assert.That(result.Data.PerPage, Is.EqualTo(50));
+      });
+    }
+
+    [Test]
+    public async Task GetFriendsAsync_ReturnsEmptyList_WhenNoFriends()
+    {
+      // arrange
+      var json = """
+  {
+    "friends": {
+      "@attr": {
+        "user": "lonelyuser",
+        "page": "1",
+        "totalPages": "1",
+        "total": "0",
+        "perPage": "50"
+      }
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker.Setup(i => i.SendAsync("user.getFriends", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+
+      // act
+      var result = await api.GetFriendsAsync("lonelyuser");
+
+      Assert.Multiple(() =>
+      {
+        // assert
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items, Is.Empty);
+        Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+        Assert.That(result.Data.Page, Is.EqualTo(1));
+        Assert.That(result.Data.TotalPages, Is.EqualTo(1));
+        Assert.That(result.Data.PerPage, Is.EqualTo(50));
+      });
+    }
+
+    [Test]
+    public async Task GetLovedTracksAsync_ReturnsTracks_WhenPresent()
+    {
+      var json = """
+  {
+    "lovedtracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "2",
+        "totalPages": "1",
+        "total": "2"
+      },
+      "track": [
+        {
+          "name": "Track One",
+          "url": "https://www.last.fm/music/ArtistOne/_/Track+One",
+          "artist": {
+            "name": "ArtistOne",
+            "url": "https://www.last.fm/music/ArtistOne"
+          },
+          "date": {
+            "uts": "1600000000",
+            "#text": "2020-09-13 10:00"
+          },
+          "image": [
+            { "size": "small", "#text": "https://img1.png" },
+            { "size": "medium", "#text": "https://img2.png" }
+          ]
+        },
+        {
+          "name": "Track Two",
+          "url": "https://www.last.fm/music/ArtistTwo/_/Track+Two",
+          "artist": {
+            "name": "ArtistTwo",
+            "url": "https://www.last.fm/music/ArtistTwo"
+          },
+          "date": {
+            "uts": "1601000000",
+            "#text": "2020-09-25 15:30"
+          },
+          "image": [
+            { "size": "large", "#text": "https://img3.png" },
+            { "size": "extralarge", "#text": "https://img4.png" }
+          ]
+        }
+      ]
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker
+        .Setup(i => i.SendAsync("user.getLovedTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+      var result = await api.GetLovedTracksAsync("testuser");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
+      Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+
+      var track = result.Data.Items.First();
+      Assert.That(track.Name, Is.EqualTo("Track One"));
+      Assert.That(track.ArtistName, Is.EqualTo("ArtistOne"));
+    }
+
+    [Test]
+    public async Task GetLovedTracksAsync_ReturnsEmptyList_WhenNonePresent()
+    {
+      var json = """
+  {
+    "lovedtracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "50",
+        "totalPages": "1",
+        "total": "0"
+      }
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker
+        .Setup(i => i.SendAsync("user.getLovedTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+      var result = await api.GetLovedTracksAsync("testuser");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items, Is.Empty);
+      Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+    }
+
   }
 }

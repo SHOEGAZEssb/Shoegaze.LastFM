@@ -60,11 +60,25 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
 
   internal static string GenerateApiSignature(IDictionary<string, string> parameters, string secret)
   {
-    var sorted = parameters.OrderBy(p => p.Key);
-    var concat = string.Concat(sorted.Select(p => p.Key + p.Value)) + secret;
-    var hash = MD5.HashData(Encoding.UTF8.GetBytes(concat));
-    return Convert.ToHexStringLower(hash);
+    var filtered = parameters
+      .Where(kv => kv.Key != "format" && kv.Key != "callback" && kv.Key != "api_sig")
+      .OrderBy(kv => kv.Key, StringComparer.Ordinal);
+
+    var builder = new StringBuilder();
+    foreach (var kv in filtered)
+      builder.Append(kv.Key).Append(kv.Value);
+
+    builder.Append(secret);
+    return CalculateMd5(builder.ToString());
   }
+
+  private static string CalculateMd5(string input)
+  {
+    var inputBytes = Encoding.UTF8.GetBytes(input);
+    var hashBytes = MD5.HashData(inputBytes);
+    return Convert.ToHexStringLower(hashBytes);
+  }
+
 
   public async Task<AuthSession> AuthenticateAsync(CancellationToken cancellationToken = default)
   {
@@ -124,8 +138,6 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     return await GetSessionAsync(token, "", "");
   }
 
-
-
   private static int GetFreePort()
   {
     var listener = new TcpListener(IPAddress.Loopback, 0);
@@ -134,6 +146,4 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     listener.Stop();
     return port;
   }
-
-
 }

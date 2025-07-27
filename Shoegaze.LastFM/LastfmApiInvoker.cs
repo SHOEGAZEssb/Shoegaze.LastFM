@@ -3,20 +3,13 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM
 {
-  internal class LastfmApiInvoker : ILastfmRequestInvoker
+  internal class LastfmApiInvoker(string apiKey, string apiSecret, HttpClient httpClient) : ILastfmRequestInvoker
   {
-    public string ApiKey { get; }
-    public string ApiSecret { get; }
+    public string ApiKey { get; } = apiKey;
+    public string ApiSecret { get; } = apiSecret;
     public string? SessionKey { get; set; }
 
-    private readonly HttpClient _http;
-
-    public LastfmApiInvoker(string apiKey, string apiSecret, HttpClient httpClient)
-    {
-      ApiKey = apiKey;
-      ApiSecret = apiSecret;
-      _http = httpClient;
-    }
+    private readonly HttpClient _http = httpClient;
 
     public async Task<ApiResult<JsonDocument>> SendAsync(string method, IDictionary<string, string> parameters, bool requireAuth = false, CancellationToken ct = default)
     {

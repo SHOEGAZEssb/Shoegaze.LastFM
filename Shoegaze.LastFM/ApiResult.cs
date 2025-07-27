@@ -18,6 +18,19 @@ public enum ApiStatusCode
 }
 
 /// <summary>
+/// Represents Last.fm image sizes returned by the API.
+/// </summary>
+public enum ImageSize
+{
+  Small,
+  Medium,
+  Large,
+  ExtraLarge,
+  Mega,
+  Unknown
+}
+
+/// <summary>
 /// Wraps the result of an API call, including the data and request metadata.
 /// </summary>
 public class ApiResult<T>
