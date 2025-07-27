@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 
 namespace Shoegaze.LastFM.User;
 
@@ -44,12 +45,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(
-    string? username = null,
-    int? page = null,
-    int? limit = null,
-    bool includeRecentTracks = false,
-    CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, int? page = null, int? limit = null, bool includeRecentTracks = false, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -89,23 +85,7 @@ internal class UserApi : IUserApi
         friends = [];
       }
 
-      var attr = friendsElement.GetProperty("@attr");
-
-      var parsedPage = int.TryParse(attr.GetProperty("page").GetString(), out var p) ? p : 1;
-      var totalPages = int.TryParse(attr.GetProperty("totalPages").GetString(), out var tp) ? tp : 1;
-      var totalItems = int.TryParse(attr.GetProperty("total").GetString(), out var t) ? t : friends.Count;
-      var perPage = int.TryParse(attr.GetProperty("perPage").GetString(), out var pp) ? pp : friends.Count;
-
-      var paged = new PagedResult<UserInfo>
-      {
-        Items = friends,
-        Page = parsedPage,
-        TotalPages = totalPages,
-        TotalItems = totalItems,
-        PerPage = perPage
-      };
-
-      return ApiResult<PagedResult<UserInfo>>.Success(paged, result.HttpStatusCode);
+      return ApiResult<PagedResult<UserInfo>>.Success(PagedResult<UserInfo>.FromJson(friendsElement, friends));
     }
     catch (Exception ex)
     {
@@ -154,23 +134,7 @@ internal class UserApi : IUserApi
         }
       }
 
-      // Parse pagination info
-      var attr = root.GetProperty("@attr");
-      var currentPage = int.TryParse(attr.GetProperty("page").GetString(), out var p) ? p : 1;
-      var totalPages = int.TryParse(attr.GetProperty("totalPages").GetString(), out var tp) ? tp : 1;
-      var totalItems = int.TryParse(attr.GetProperty("total").GetString(), out var t) ? t : trackList.Count;
-      var perPage = int.TryParse(attr.GetProperty("perPage").GetString(), out var pp) ? pp : trackList.Count;
-
-      var paged = new PagedResult<LovedTrack>
-      {
-        Items = trackList,
-        Page = currentPage,
-        TotalPages = totalPages,
-        TotalItems = totalItems,
-        PerPage = perPage
-      };
-
-      return ApiResult<PagedResult<LovedTrack>>.Success(paged, result.HttpStatusCode);
+      return ApiResult<PagedResult<LovedTrack>>.Success(PagedResult<LovedTrack>.FromJson(root, trackList));
     }
     catch (Exception ex)
     {
@@ -178,4 +142,85 @@ internal class UserApi : IUserApi
     }
   }
 
+  public async Task<ApiResult<PagedResult<TopTrack>>> GetTopTracksAsync(string? username = null, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>();
+    var requireAuth = string.IsNullOrWhiteSpace(username);
+
+    if (!requireAuth)
+      parameters["user"] = username!;
+
+    if (period.HasValue)
+      parameters["period"] = period.Value.ToApiString();
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+    if (page.HasValue)
+      parameters["page"] = page.Value.ToString();
+
+    var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
+
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<PagedResult<TopTrack>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var topTracksElement = result.Data.RootElement.GetProperty("toptracks");
+
+      var trackElement = topTracksElement.TryGetProperty("track", out var te) ? te : default;
+
+      var tracks = trackElement.ValueKind switch
+      {
+        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TopTrack.FromJson)],
+        JsonValueKind.Object => [TopTrack.FromJson(trackElement)],
+        _ => new List<TopTrack>()
+      };
+
+      return ApiResult<PagedResult<TopTrack>>.Success(PagedResult<TopTrack>.FromJson(topTracksElement, tracks));
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<PagedResult<TopTrack>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tracks: " + ex.Message);
+    }
+  }
+
+  public async Task<ApiResult<PagedResult<RecentTrack>>> GetRecentTracksAsync(string? username = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>();
+    var requireAuth = string.IsNullOrWhiteSpace(username);
+
+    if (!requireAuth)
+      parameters["user"] = username!;
+
+    if (page.HasValue)
+      parameters["page"] = page.Value.ToString();
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+
+    var result = await _invoker.SendAsync("user.getRecentTracks", parameters, requireAuth, ct);
+
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<PagedResult<RecentTrack>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var recentTracksElement = result.Data.RootElement.GetProperty("recenttracks");
+      var trackElement = recentTracksElement.TryGetProperty("track", out var te) ? te : default;
+
+      var tracks = trackElement.ValueKind switch
+      {
+        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(RecentTrack.FromJson)],
+        JsonValueKind.Object => [RecentTrack.FromJson(trackElement)],
+        _ => new List<RecentTrack>()
+      };
+
+      return ApiResult<PagedResult<RecentTrack>>.Success(PagedResult<RecentTrack>.FromJson(recentTracksElement, tracks));
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<PagedResult<RecentTrack>>.Failure(
+        ApiStatusCode.UnknownError,
+        result.HttpStatusCode,
+        "Failed to parse recent tracks: " + ex.Message);
+    }
+  }
 }

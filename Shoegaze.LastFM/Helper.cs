@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shoegaze.LastFM.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,5 +65,19 @@ namespace Shoegaze.LastFM
       if (!string.IsNullOrWhiteSpace(url) && !target.ContainsKey(size))
         target[size] = url;
     }
+  }
+
+  internal static class TimePeriodExtensions
+  {
+    public static string ToApiString(this TimePeriod period) => period switch
+    {
+      TimePeriod.Overall => "overall",
+      TimePeriod.SevenDay => "7day",
+      TimePeriod.OneMonth => "1month",
+      TimePeriod.ThreeMonth => "3month",
+      TimePeriod.SixMonth => "6month",
+      TimePeriod.TwelveMonth => "12month",
+      _ => "overall"
+    };
   }
 }

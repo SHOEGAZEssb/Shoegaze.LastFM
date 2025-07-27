@@ -29,15 +29,15 @@ namespace Shoegaze.LastFM.User
         parsedDate = DateTimeOffset.FromUnixTimeSeconds(uts).DateTime;
       }
 
-      var images = JsonHelper.ParseImageArray(root);
+      var baseTrack = ParseBaseTrack(root);
       return new LovedTrack
       {
-        Name = name,
-        Url = url,
-        ArtistName = artistName,
-        ArtistUrl = artistUrl,
+        Name = baseTrack.Name,
+        Url = baseTrack.Url,
+        ArtistName = baseTrack.ArtistName,
+        ArtistUrl = baseTrack.ArtistUrl,
+        Images = baseTrack.Images,
         Date = parsedDate,
-        Images = images
       };
     }
   }

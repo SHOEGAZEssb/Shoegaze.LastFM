@@ -340,5 +340,282 @@ namespace Shoegaze.LastFM.Tests.User
       Assert.That(result.Data.TotalItems, Is.EqualTo(0));
     }
 
+    [Test]
+    public async Task GetTopTracksAsync_ReturnsTracks_WhenSuccessful()
+    {
+      var json = """
+  {
+    "toptracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "2",
+        "totalPages": "1",
+        "total": "2"
+      },
+      "track": [
+        {
+          "name": "Song A",
+          "url": "https://www.last.fm/music/ArtistA/_/Song+A",
+          "playcount": "123",
+          "duration": "240",
+          "@attr": { "rank": "1" },
+          "artist": {
+            "name": "ArtistA",
+            "url": "https://www.last.fm/music/ArtistA"
+          },
+          "image": []
+        },
+        {
+          "name": "Song B",
+          "url": "https://www.last.fm/music/ArtistB/_/Song+B",
+          "playcount": "45",
+          "duration": "180",
+          "@attr": { "rank": "2" },
+          "artist": {
+            "name": "ArtistB",
+            "url": "https://www.last.fm/music/ArtistB"
+          },
+          "image": []
+        }
+      ]
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker
+        .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+      var result = await api.GetTopTracksAsync("testuser");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
+      Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+      Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
+      Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetTopTracksAsync_ReturnsEmptyList_WhenNoTracks()
+    {
+      var json = """
+  {
+    "toptracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "50",
+        "totalPages": "0",
+        "total": "0"
+      }
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker
+        .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+      var result = await api.GetTopTracksAsync("testuser");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetTopTracksAsync_ReturnsSingleTrack_WhenJsonIsObject()
+    {
+      var json = """
+  {
+    "toptracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "1",
+        "totalPages": "1",
+        "total": "1"
+      },
+      "track": {
+        "name": "Only Song",
+        "url": "https://www.last.fm/music/OnlyArtist/_/Only+Song",
+        "playcount": "999",
+        "duration": "300",
+        "@attr": { "rank": "1" },
+        "artist": {
+          "name": "OnlyArtist",
+          "url": "https://www.last.fm/music/OnlyArtist"
+        },
+        "image": []
+      }
+    }
+  }
+  """;
+
+      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      mockInvoker
+        .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), 200));
+
+      var api = new UserApi(mockInvoker.Object);
+      var result = await api.GetTopTracksAsync("testuser");
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items.Count, Is.EqualTo(1));
+      Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
+      Assert.That(result.Data.Items[0].ArtistName, Is.EqualTo("OnlyArtist"));
+      Assert.That(result.Data.Items[0].Playcount, Is.EqualTo(999));
+      Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromSeconds(300)));
+    }
+
+    [TestFixture]
+    public class UserApiRecentTracksTests
+    {
+      [Test]
+      public async Task GetRecentTracksAsync_ReturnsCorrectTracks_WhenMultipleTracks()
+      {
+        const string json = """
+    {
+      "recenttracks": {
+        "@attr": {
+          "user": "testuser",
+          "page": "1",
+          "perPage": "2",
+          "totalPages": "1",
+          "total": "2"
+        },
+        "track": [
+          {
+            "name": "Song One",
+            "url": "https://www.last.fm/music/Artist/_/Song+One",
+            "artist": {
+              "#text": "Artist",
+              "mbid": "artist-mbid"
+            },
+            "album": {
+              "#text": "Album One",
+              "mbid": "album-mbid"
+            },
+            "image": [
+              { "size": "small", "#text": "http://img1" }
+            ],
+            "date": {
+              "uts": "1710000000"
+            },
+            "streamable": "1"
+          },
+          {
+            "name": "Song Two",
+            "url": "https://www.last.fm/music/Artist/_/Song+Two",
+            "artist": "Another Artist",
+            "streamable": "0"
+          }
+        ]
+      }
+    }
+    """;
+
+        var jsonDoc = JsonDocument.Parse(json);
+        var invoker = new Mock<ILastfmRequestInvoker>();
+        invoker
+          .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
+
+        var api = new UserApi(invoker.Object);
+
+        var result = await api.GetRecentTracksAsync();
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(result.IsSuccess, Is.True);
+          Assert.That(result.Data, Is.Not.Null);
+          Assert.That(result.Data!.Items.Count, Is.EqualTo(2));
+          Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
+          Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
+        });
+      }
+
+      [Test]
+      public async Task GetRecentTracksAsync_ReturnsCorrectTrack_WhenSingleTrack()
+      {
+        const string json = """
+    {
+      "recenttracks": {
+        "@attr": {
+          "user": "testuser",
+          "page": "1",
+          "perPage": "1",
+          "totalPages": "1",
+          "total": "1"
+        },
+        "track":
+        {
+          "name": "Lone Song",
+          "url": "https://www.last.fm/music/Artist/_/Lone+Song",
+          "artist": "Solo Artist",
+          "streamable": "1"
+        }
+      }
+    }
+    """;
+
+        var jsonDoc = JsonDocument.Parse(json);
+        var invoker = new Mock<ILastfmRequestInvoker>();
+        invoker
+          .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
+
+        var api = new UserApi(invoker.Object);
+
+        var result = await api.GetRecentTracksAsync();
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data!.Items.Count, Is.EqualTo(1));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
+        Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+      }
+    }
+
+    [Test]
+    public async Task GetRecentTracksAsync_ReturnsEmptyList_WhenNoTracks()
+    {
+      const string json = """
+  {
+    "recenttracks": {
+      "@attr": {
+        "user": "testuser",
+        "page": "1",
+        "perPage": "50",
+        "totalPages": "1",
+        "total": "0"
+      }
+    }
+  }
+  """;
+
+      var jsonDoc = JsonDocument.Parse(json);
+      var invoker = new Mock<ILastfmRequestInvoker>();
+      invoker
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
+
+      var api = new UserApi(invoker.Object);
+
+      var result = await api.GetRecentTracksAsync();
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Data, Is.Not.Null);
+      Assert.That(result.Data!.Items, Is.Empty);
+      Assert.That(result.Data.TotalItems, Is.EqualTo(0));
+    }
+
   }
 }

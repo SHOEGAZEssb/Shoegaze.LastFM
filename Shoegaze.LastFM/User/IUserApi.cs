@@ -31,4 +31,18 @@ public interface IUserApi
     int? page = null,
     int? limit = null,
     CancellationToken ct = default);
+
+  Task<ApiResult<PagedResult<TopTrack>>> GetTopTracksAsync(
+    string? username = null,
+    TimePeriod? period = null, // e.g. "7day"
+    int? limit = null,
+    int? page = null,
+    CancellationToken ct = default);
+
+  Task<ApiResult<PagedResult<RecentTrack>>> GetRecentTracksAsync(
+    string? username = null,
+    int? limit = null,
+    int? page = null,
+    CancellationToken ct = default);
+
 }
