@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.User;
+﻿using Shoegaze.LastFM.Track;
+using Shoegaze.LastFM.User;
 
 namespace Shoegaze.LastFM;
 
@@ -20,7 +21,7 @@ public interface ILastfmClient
   /// <summary>
   /// Access to track-related API endpoints.
   /// </summary>
-  //ITrackApi Track { get; }
+  ITrackApi Track { get; }
 
   /// <summary>
   /// Sets or updates the session key for authenticated requests.

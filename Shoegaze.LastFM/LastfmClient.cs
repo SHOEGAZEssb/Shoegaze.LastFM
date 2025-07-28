@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.User;
+﻿using Shoegaze.LastFM.Track;
+using Shoegaze.LastFM.User;
 
 namespace Shoegaze.LastFM;
 
@@ -15,12 +16,12 @@ public class LastfmClient : ILastfmClient
 
     User = new UserApi(_invoker);
     //Artist = new ArtistApi(_invoker);
-    //Track = new TrackApi(_invoker);
+    Track = new TrackApi(_invoker);
   }
 
   public IUserApi User { get; }
   //public IArtistApi Artist { get; }
-  //public ITrackApi Track { get; }
+  public ITrackApi Track { get; }
 
   public void SetSessionKey(string sessionKey)
   {

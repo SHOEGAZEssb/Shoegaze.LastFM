@@ -17,21 +17,30 @@ namespace Shoegaze.LastFM
       parameters["api_key"] = ApiKey;
       parameters["format"] = "json";
 
-      if (requireAuth)
-      {
-        if (string.IsNullOrWhiteSpace(SessionKey))
-          return ApiResult<JsonDocument>.Failure(ApiStatusCode.AuthenticationRequired, 401, "Session key is required.");
-
-        parameters["sk"] = SessionKey;
-
-        var apiSig = LastfmAuthService.GenerateApiSignature(parameters, ApiSecret);
-        parameters["api_sig"] = apiSig;
-      }
-
+      HttpResponseMessage? response = null;
       try
       {
-        using var content = new FormUrlEncodedContent(parameters);
-        using var response = await _http.PostAsync("https://ws.audioscrobbler.com/2.0/", content, ct);
+        if (requireAuth)
+        {
+          if (string.IsNullOrWhiteSpace(SessionKey))
+            return ApiResult<JsonDocument>.Failure(ApiStatusCode.AuthenticationRequired, 401, "Session key is required.");
+
+          parameters["sk"] = SessionKey;
+
+          var apiSig = LastfmAuthService.GenerateApiSignature(parameters, ApiSecret);
+          parameters["api_sig"] = apiSig;
+
+          // send as post
+          using var content = new FormUrlEncodedContent(parameters);
+          response = await _http.PostAsync("https://ws.audioscrobbler.com/2.0/", content, ct);
+        }
+        else
+        {
+          // Send as GET
+          var query = string.Join("&", parameters.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}"));
+          response = await _http.GetAsync($"https://ws.audioscrobbler.com/2.0/?{query}", ct);
+        }
+
         var json = await response.Content.ReadAsStringAsync(ct);
 
         if (!response.IsSuccessStatusCode)
@@ -52,6 +61,10 @@ namespace Shoegaze.LastFM
       catch (Exception ex)
       {
         return ApiResult<JsonDocument>.Failure(ApiStatusCode.UnknownError, 0, ex.Message);
+      }
+      finally
+      {
+        response?.Dispose();
       }
     }
   }

@@ -12,10 +12,11 @@ Console.WriteLine($"Hello, {session.Username}. Session key: {session.SessionKey}
 
 var client = new LastfmClient("69fbfa5fdc2cc1a158ec3bffab4be7a7", "30a6ed8a75dad2aa6758fa607c53adb5", http);
 client.SetSessionKey(session.SessionKey);
-var ui = await client.User.GetInfoAsync();
-var friends = await client.User.GetFriendsAsync();
-var loves = await client.User.GetLovedTracksAsync();
-var tt = await client.User.GetTopTracksAsync();
-var rt = await client.User.GetRecentTracksAsync();
-var tags = await client.User.GetTopTagsAsync();
+//var ui = await client.User.GetInfoAsync();
+//var friends = await client.User.GetFriendsAsync();
+//var loves = await client.User.GetLovedTracksAsync();
+//var tt = await client.User.GetTopTracksAsync();
+//var rt = await client.User.GetRecentTracksAsync();
+//var tags = await client.User.GetTopTagsAsync();
+var tracks = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coczero", true);
 int i = 0;

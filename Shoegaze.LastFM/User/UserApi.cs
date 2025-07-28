@@ -224,7 +224,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<IReadOnlyList<TopTag>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
+  public async Task<ApiResult<IReadOnlyList<UserTopTag>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -238,7 +238,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<TopTag>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<UserTopTag>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
 
     try
     {
@@ -246,16 +246,16 @@ internal class UserApi : IUserApi
 
       var tags = tagArray.ValueKind switch
       {
-        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TopTag.FromJson)],
-        JsonValueKind.Object => [TopTag.FromJson(tagArray)],
-        _ => new List<TopTag>()
+        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(UserTopTag.FromJson)],
+        JsonValueKind.Object => [UserTopTag.FromJson(tagArray)],
+        _ => new List<UserTopTag>()
       };
 
-      return ApiResult<IReadOnlyList<TopTag>>.Success(tags, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<UserTopTag>>.Success(tags, result.HttpStatusCode);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<TopTag>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<UserTopTag>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
     }
   }
 

@@ -2,11 +2,13 @@
 using Shoegaze.LastFM.User;
 using System.Text.Json;
 
-namespace Shoegaze.LastFM.Tests.User
+namespace Shoegaze.LastFM.Tests.Api
 {
   [TestFixture]
   public class UserApiTests
   {
+    #region GetInfoAsync
+
     [Test]
     public async Task GetInfoAsync_ReturnsUserInfo_WhenSuccessful()
     {
@@ -107,6 +109,10 @@ namespace Shoegaze.LastFM.Tests.User
         Assert.That(result.ErrorMessage, Is.EqualTo("Session key is missing or invalid."));
       });
     }
+
+    #endregion GetInfoAsync
+
+    #region GetFriendsAsync
 
     [Test]
     public async Task GetFriendsAsync_ReturnsFriends_WhenSuccessful()
@@ -243,6 +249,10 @@ namespace Shoegaze.LastFM.Tests.User
       });
     }
 
+    #endregion GetFriendsAsync
+
+    #region GetLovedTracksAsync
+
     [Test]
     public async Task GetLovedTracksAsync_ReturnsTracks_WhenPresent()
     {
@@ -357,6 +367,10 @@ namespace Shoegaze.LastFM.Tests.User
         Assert.That(result.Data.TotalItems, Is.EqualTo(0));
       });
     }
+
+    #endregion GetLovedTracksAsync
+
+    #region GetTopTracksAsync
 
     [Test]
     public async Task GetTopTracksAsync_ReturnsTracks_WhenSuccessful()
@@ -508,13 +522,14 @@ namespace Shoegaze.LastFM.Tests.User
       });
     }
 
-    [TestFixture]
-    public class UserApiRecentTracksTests
+    #endregion GetTopTracksAsync
+
+    #region GetRecentTracksAsync
+
+    [Test]
+    public async Task GetRecentTracksAsync_ReturnsCorrectTracks_WhenMultipleTracks()
     {
-      [Test]
-      public async Task GetRecentTracksAsync_ReturnsCorrectTracks_WhenMultipleTracks()
-      {
-        const string json = """
+      const string json = """
     {
       "recenttracks": {
         "@attr": {
@@ -555,30 +570,30 @@ namespace Shoegaze.LastFM.Tests.User
     }
     """;
 
-        var jsonDoc = JsonDocument.Parse(json);
-        var invoker = new Mock<ILastfmRequestInvoker>();
-        invoker
-          .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
-          .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
+      var jsonDoc = JsonDocument.Parse(json);
+      var invoker = new Mock<ILastfmRequestInvoker>();
+      invoker
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
 
-        var api = new UserApi(invoker.Object);
+      var api = new UserApi(invoker.Object);
 
-        var result = await api.GetRecentTracksAsync();
+      var result = await api.GetRecentTracksAsync();
 
-        Assert.Multiple(() =>
-        {
-          Assert.That(result.IsSuccess, Is.True);
-          Assert.That(result.Data, Is.Not.Null);
-          Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-          Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
-          Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
-        });
-      }
-
-      [Test]
-      public async Task GetRecentTracksAsync_ReturnsCorrectTrack_WhenSingleTrack()
+      Assert.Multiple(() =>
       {
-        const string json = """
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
+        Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
+      });
+    }
+
+    [Test]
+    public async Task GetRecentTracksAsync_ReturnsCorrectTrack_WhenSingleTrack()
+    {
+      const string json = """
     {
       "recenttracks": {
         "@attr": {
@@ -599,29 +614,29 @@ namespace Shoegaze.LastFM.Tests.User
     }
     """;
 
-        var jsonDoc = JsonDocument.Parse(json);
-        var invoker = new Mock<ILastfmRequestInvoker>();
-        invoker
-          .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
-          .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
+      var jsonDoc = JsonDocument.Parse(json);
+      var invoker = new Mock<ILastfmRequestInvoker>();
+      invoker
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc, 200));
 
-        var api = new UserApi(invoker.Object);
+      var api = new UserApi(invoker.Object);
 
-        var result = await api.GetRecentTracksAsync();
+      var result = await api.GetRecentTracksAsync();
 
-        Assert.Multiple(() =>
-        {
-          Assert.That(result.IsSuccess, Is.True);
-          Assert.That(result.Data, Is.Not.Null);
-        });
-        Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
-        Assert.Multiple(() =>
-        {
-          Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
-          Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
-        });
-      }
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data, Is.Not.Null);
+      });
+      Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
+      Assert.Multiple(() =>
+      {
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
+        Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+      });
     }
+
 
     [Test]
     public async Task GetRecentTracksAsync_ReturnsEmptyList_WhenNoTracks()
@@ -694,9 +709,13 @@ namespace Shoegaze.LastFM.Tests.User
       {
         Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
         Assert.That(result.Data[0].Count, Is.EqualTo(42));
-        Assert.That(result.Data[0].Url, Is.EqualTo("https://www.last.fm/tag/shoegaze"));
-      });   
+        Assert.That(result.Data[0].Url.ToString(), Is.EqualTo("https://www.last.fm/tag/shoegaze"));
+      });
     }
+
+    #endregion GetRecentTracksAsync
+
+    #region GetTopTagsAsync
 
     [Test]
     public async Task GetTopTagsAsync_ReturnsEmpty_WhenNoTags()
@@ -747,5 +766,7 @@ namespace Shoegaze.LastFM.Tests.User
         Assert.That(result.Status, Is.EqualTo(ApiStatusCode.UnknownError));
       });
     }
+
+    #endregion GetTopTagsAsync
   }
 }
