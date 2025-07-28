@@ -1,4 +1,6 @@
-﻿namespace Shoegaze.LastFM.User;
+﻿using Shoegaze.LastFM.Tag;
+
+namespace Shoegaze.LastFM.User;
 
 /// <summary>
 /// Access to user-related Last.fm API methods.
@@ -45,7 +47,7 @@ public interface IUserApi
     int? page = null,
     CancellationToken ct = default);
 
-  Task<ApiResult<IReadOnlyList<UserTopTag>>> GetTopTagsAsync(
+  Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(
     string? username = null,
     int? limit = null,
     CancellationToken ct = default);

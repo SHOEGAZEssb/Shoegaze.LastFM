@@ -1,6 +1,4 @@
-﻿using Shoegaze.LastFM.User;
-using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Shoegaze.LastFM
 {

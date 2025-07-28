@@ -708,7 +708,7 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
-        Assert.That(result.Data[0].Count, Is.EqualTo(42));
+        Assert.That(result.Data[0].UserUsedCount, Is.EqualTo(42));
         Assert.That(result.Data[0].Url.ToString(), Is.EqualTo("https://www.last.fm/tag/shoegaze"));
       });
     }

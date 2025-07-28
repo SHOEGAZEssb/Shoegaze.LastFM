@@ -1,7 +1,5 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
@@ -17,7 +15,7 @@ namespace Shoegaze.LastFM.Track
     public bool IsUserLoved { get; init; }
 
     public AlbumBase? Album { get; init; }
-    public IReadOnlyList<TagBase> TopTags { get; init; } = [];
+    public IReadOnlyList<TagInfo> TopTags { get; init; } = [];
     public WikiInfo? Wiki { get; init; }
 
     public static TrackInfo FromJson(JsonElement root)
@@ -43,16 +41,16 @@ namespace Shoegaze.LastFM.Track
         album = AlbumBase.FromJson(albumProp);
       }
 
-      var tags = new List<TagBase>();
+      var tags = new List<TagInfo>();
       if (root.TryGetProperty("toptags", out var tagContainer) && tagContainer.TryGetProperty("tag", out var tagArr))
       {
         if (tagArr.ValueKind == JsonValueKind.Array)
         {
-          tags.AddRange(tagArr.EnumerateArray().Select(TagBase.FromJson));
+          tags.AddRange(tagArr.EnumerateArray().Select(TagInfo.FromJson));
         }
         else if (tagArr.ValueKind == JsonValueKind.Object)
         {
-          tags.Add(TagBase.FromJson(tagArr));
+          tags.Add(TagInfo.FromJson(tagArr));
         }
       }
 

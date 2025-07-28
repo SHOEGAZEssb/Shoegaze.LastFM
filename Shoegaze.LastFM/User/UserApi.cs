@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Shoegaze.LastFM.Tag;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.User;
@@ -224,7 +224,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<IReadOnlyList<UserTopTag>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
+  public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -238,7 +238,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<UserTopTag>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
 
     try
     {
@@ -246,16 +246,16 @@ internal class UserApi : IUserApi
 
       var tags = tagArray.ValueKind switch
       {
-        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(UserTopTag.FromJson)],
-        JsonValueKind.Object => [UserTopTag.FromJson(tagArray)],
-        _ => new List<UserTopTag>()
+        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
+        JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
+        _ => new List<TagInfo>()
       };
 
-      return ApiResult<IReadOnlyList<UserTopTag>>.Success(tags, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<UserTopTag>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
     }
   }
 
