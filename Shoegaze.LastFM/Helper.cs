@@ -5,9 +5,9 @@ namespace Shoegaze.LastFM
 {
   internal static class JsonHelper
   {
-    public static Dictionary<ImageSize, string> ParseImageArray(JsonElement root)
+    public static Dictionary<ImageSize, Uri> ParseImageArray(JsonElement root)
     {
-      var dictionary = new Dictionary<ImageSize, string>();
+      var dictionary = new Dictionary<ImageSize, Uri>();
       if (root.TryGetProperty("image", out var imageToken))
       {
         switch (imageToken.ValueKind)
@@ -24,7 +24,7 @@ namespace Shoegaze.LastFM
           case JsonValueKind.String:
             var url = imageToken.GetString();
             if (!string.IsNullOrWhiteSpace(url))
-              dictionary[ImageSize.Unknown] = url;
+              dictionary[ImageSize.Unknown] = new Uri(url);
             break;
         }
       }
@@ -32,7 +32,7 @@ namespace Shoegaze.LastFM
       return dictionary;
     }
 
-    public static void ParseImageArray(JsonElement imageElement, Dictionary<ImageSize, string> target)
+    public static void ParseImageArray(JsonElement imageElement, Dictionary<ImageSize, Uri> target)
     {
       if (imageElement.ValueKind != JsonValueKind.Object)
         return;
@@ -57,7 +57,7 @@ namespace Shoegaze.LastFM
 
       var url = urlProp.GetString();
       if (!string.IsNullOrWhiteSpace(url) && !target.ContainsKey(size))
-        target[size] = url;
+        target[size] = new Uri(url);
     }
   }
 

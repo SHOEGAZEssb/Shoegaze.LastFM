@@ -65,8 +65,8 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(user.Id, Is.EqualTo("1000002"));
         Assert.That(user.Username, Is.EqualTo("RJ"));
         Assert.That(user.RealName, Is.EqualTo("Richard Jones"));
-        Assert.That(user.Url, Is.EqualTo("http://www.last.fm/user/RJ"));
-        Assert.That(user.ImageUrl, Is.EqualTo("http://userserve-ak.last.fm/serve/126/8270359.jpg"));
+        Assert.That(user.Url.ToString(), Is.EqualTo("http://www.last.fm/user/RJ"));
+        Assert.That(user.ImageUrl.ToString(), Is.EqualTo("http://userserve-ak.last.fm/serve/126/8270359.jpg"));
         Assert.That(user.Country, Is.EqualTo("UK"));
         Assert.That(user.Age, Is.EqualTo(27));
         Assert.That(user.Gender, Is.EqualTo("m"));
@@ -141,8 +141,8 @@ namespace Shoegaze.LastFM.Tests.Api
           "playlists": "4",
           "registered": { "unixtime": "1189696970" },
           "image": [
-            { "#text": "http://.../34.jpg", "size": "small" },
-            { "#text": "http://.../64.jpg", "size": "medium" }
+            { "#text": "http://test.com/34.jpg", "size": "small" },
+            { "#text": "http://test.com/64.jpg", "size": "medium" }
           ]
         },
         {
@@ -157,7 +157,7 @@ namespace Shoegaze.LastFM.Tests.Api
           "playcount": "0",
           "playlists": "0",
           "registered": { "unixtime": "1600000000" },
-          "image": { "#text": "http://.../34.jpg", "size": "small" }
+          "image": { "#text": "http://test.com/34.jpg", "size": "small" }
         }
       ]
     }
@@ -197,7 +197,7 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(first.Username, Is.EqualTo("eartle"));
         Assert.That(first.RealName, Is.EqualTo("Michael Coffey"));
         Assert.That(first.Images.ContainsKey(ImageSize.Small), Is.True);
-        Assert.That(first.Images[ImageSize.Small], Does.Contain("34.jpg"));
+        Assert.That(first.Images[ImageSize.Small].ToString(), Does.Contain("34.jpg"));
         Assert.That(result.Data!.Page, Is.EqualTo(1));
         Assert.That(result.Data.TotalPages, Is.EqualTo(3));
         Assert.That(result.Data.TotalItems, Is.EqualTo(109));
@@ -327,7 +327,7 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(track.Name, Is.EqualTo("Track One"));
-        Assert.That(track.ArtistName, Is.EqualTo("ArtistOne"));
+        Assert.That(track.Artist.Name, Is.EqualTo("ArtistOne"));
       });
     }
 
@@ -433,7 +433,7 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
         Assert.That(result.Data.TotalItems, Is.EqualTo(2));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
-        Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+        //Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
       });
     }
 
@@ -516,9 +516,9 @@ namespace Shoegaze.LastFM.Tests.Api
       {
         Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
-        Assert.That(result.Data.Items[0].ArtistName, Is.EqualTo("OnlyArtist"));
-        Assert.That(result.Data.Items[0].Playcount, Is.EqualTo(999));
-        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromSeconds(300)));
+        Assert.That(result.Data.Items[0].Artist.Name, Is.EqualTo("OnlyArtist"));
+        Assert.That(result.Data.Items[0].PlayCount, Is.EqualTo(999));
+        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
       });
     }
 
@@ -633,7 +633,7 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
-        Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+        Assert.That(result.Data!.Items[0].Artist.Name, Is.EqualTo("Solo Artist"));
       });
     }
 

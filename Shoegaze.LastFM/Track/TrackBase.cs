@@ -8,7 +8,7 @@ namespace Shoegaze.LastFM.Track
     public string Url { get; init; } = "";
     public string ArtistName { get; init; } = "";
     public string ArtistUrl { get; init; } = "";
-    public Dictionary<ImageSize, string> Images { get; init; } = [];
+    public Dictionary<ImageSize, Uri> Images { get; init; } = [];
 
     public override string ToString() => $"{ArtistName} – {Name}";
 

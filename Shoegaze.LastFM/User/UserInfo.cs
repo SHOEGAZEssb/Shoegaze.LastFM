@@ -18,9 +18,9 @@ public class UserInfo
   public int Playcount { get; init; }
   public int Playlists { get; init; }
   public DateTime RegisteredDate { get; init; }
-  public IReadOnlyDictionary<ImageSize, string> Images { get; init; } = new Dictionary<ImageSize, string>();
+  public IReadOnlyDictionary<ImageSize, Uri> Images { get; init; } = new Dictionary<ImageSize, Uri>();
 
-  public string? ImageUrl =>
+  public Uri? ImageUrl =>
       Images.TryGetValue(ImageSize.Mega, out var mega) ? mega :
       Images.TryGetValue(ImageSize.ExtraLarge, out var xl) ? xl :
       Images.TryGetValue(ImageSize.Large, out var l) ? l :

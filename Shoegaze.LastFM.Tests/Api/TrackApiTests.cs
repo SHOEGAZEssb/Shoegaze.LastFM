@@ -64,10 +64,10 @@ public class TrackApiTests
     Assert.Multiple(() =>
     {
       Assert.That(result.Data.Name, Is.EqualTo("Blind"));
-      Assert.That(result.Data.ArtistName, Is.EqualTo("Korn"));
+      Assert.That(result.Data.Artist.Name, Is.EqualTo("Korn"));
       Assert.That(result.Data.Album?.Title, Is.EqualTo("Korn"));
-      Assert.That(result.Data.DurationMs, Is.EqualTo(263000));
-      Assert.That(result.Data.UserPlaycount, Is.EqualTo(15));
+      Assert.That(result.Data.Duration, Is.EqualTo(TimeSpan.FromMilliseconds(263000)));
+      Assert.That(result.Data.UserPlayCount, Is.EqualTo(15));
       Assert.That(result.Data.TopTags, Has.Count.EqualTo(2));
       Assert.That(result.Data.Wiki?.Summary, Is.EqualTo("Sample summary..."));
     });
@@ -131,8 +131,8 @@ public class TrackApiTests
     Assert.Multiple(() =>
     {
       Assert.That(result.Data.Name, Is.EqualTo("Blind"));
-      Assert.That(result.Data.ArtistName, Is.EqualTo("Korn"));
-      Assert.That(result.Data.DurationMs, Is.EqualTo(263000));
+      Assert.That(result.Data.Artist.Name, Is.EqualTo("Korn"));
+      Assert.That(result.Data.Duration, Is.EqualTo(TimeSpan.FromMilliseconds(263000)));
       Assert.That(result.Data.TopTags, Has.Count.EqualTo(1));
       Assert.That(result.Data.Wiki?.Summary, Is.EqualTo("MBID summary..."));
     });
