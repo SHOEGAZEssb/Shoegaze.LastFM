@@ -1,4 +1,5 @@
 ﻿using Shoegaze.LastFM.Tag;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Artist
@@ -29,7 +30,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyDictionary<ImageSize, Uri> Images { get; init; }
+    public required IReadOnlyDictionary<ImageSize, Uri> Images { get; init; } = new Dictionary<ImageSize, Uri>();
 
     public bool? IsStreamable { get; init; }
 
@@ -47,7 +48,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<ArtistInfo> SimilarArtists { get; init; }
+    public required IReadOnlyList<ArtistInfo> SimilarArtists { get; init; } = [];
 
     /// <summary>
     /// List of tags of this artist.
@@ -55,7 +56,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<TagInfo> Tags { get; init; }
+    public required IReadOnlyList<TagInfo> Tags { get; init; } = [];
 
     public WikiInfo? Biography { get; init; }
 
@@ -63,8 +64,25 @@ namespace Shoegaze.LastFM.Artist
     {
       var artist = root.TryGetProperty("artist", out var artistProp) ? artistProp : root;
 
-      var name = artist.GetProperty("name").GetString() ?? "";
-      var url = new Uri(artist.GetProperty("url").GetString() ?? "");
+      if (artist.ValueKind == JsonValueKind.String)
+      {
+        var artistName = artist.GetString() ?? "";
+        return new ArtistInfo
+        {
+          Name = artistName,
+          Url = UriHelper.MakeArtistUri(artistName),
+          Images = new Dictionary<ImageSize, Uri>(),
+          SimilarArtists = [],
+          Tags = []
+        };
+      }
+
+      // name might either be in the name, artist or #text property
+      var name = artist.TryGetProperty("name", out var nameProp)
+        ? nameProp.GetString() ?? ""
+        : (artist.GetProperty("#text").GetString() ?? "");
+
+      var url = artist.TryGetProperty("url", out var urlProp) ? new Uri(urlProp.GetString()!) : UriHelper.MakeArtistUri(name);
 
       var mbid = artist.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null;
 

@@ -530,45 +530,92 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetRecentTracksAsync_ReturnsCorrectTracks_WhenMultipleTracks()
     {
       const string json = """
-    {
-      "recenttracks": {
-        "@attr": {
-          "user": "testuser",
-          "page": "1",
-          "perPage": "2",
-          "totalPages": "1",
-          "total": "2"
-        },
-        "track": [
-          {
-            "name": "Song One",
-            "url": "https://www.last.fm/music/Artist/_/Song+One",
-            "artist": {
-              "#text": "Artist",
-              "mbid": "artist-mbid"
+      {
+        "recenttracks": {
+          "track": [
+            {
+              "artist": {
+                "mbid": "4df5d35b-a9d4-4d4f-91f6-bae55693de31",
+                "#text": "Zebrahead"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                }
+              ],
+              "mbid": "07c4b115-bd04-3846-8915-eb11556358d0",
+              "album": {
+                "mbid": "353d95fc-d4a9-45aa-9d7f-2f0a4b911412",
+                "#text": "Waste of Mind"
+              },
+              "name": "Check",
+              "url": "https://www.last.fm/music/Zebrahead/_/Check",
+              "date": {
+                "uts": "1753790467",
+                "#text": "29 Jul 2025, 12:01"
+              }
             },
-            "album": {
-              "#text": "Album One",
-              "mbid": "album-mbid"
-            },
-            "image": [
-              { "size": "small", "#text": "http://img1" }
-            ],
-            "date": {
-              "uts": "1710000000"
-            },
-            "streamable": "1"
-          },
-          {
-            "name": "Song Two",
-            "url": "https://www.last.fm/music/Artist/_/Song+Two",
-            "artist": "Another Artist",
-            "streamable": "0"
+            {
+              "artist": {
+                "mbid": "",
+                "#text": "The Reverend Horton Heat"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                }
+              ],
+              "mbid": "",
+              "album": {
+                "mbid": "b5876ebd-506f-406d-8b42-7e6736918a05",
+                "#text": "Liquor In The Front"
+              },
+              "name": "I Can't Surf",
+              "url": "https://www.last.fm/music/The+Reverend+Horton+Heat/_/I+Can%27t+Surf",
+              "date": {
+                "uts": "1753790242",
+                "#text": "29 Jul 2025, 11:57"
+              }
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "128279",
+            "page": "1",
+            "perPage": "2",
+            "total": "256557"
           }
-        ]
+        }
       }
-    }
-    """;
+      """;
 
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmRequestInvoker>();
@@ -585,8 +632,8 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Data, Is.Not.Null);
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
-        Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Check"));
+        Assert.That(result.Data!.Items[1].Name, Is.EqualTo("I Can't Surf"));
       });
     }
 
@@ -594,25 +641,56 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetRecentTracksAsync_ReturnsCorrectTrack_WhenSingleTrack()
     {
       const string json = """
-    {
-      "recenttracks": {
-        "@attr": {
-          "user": "testuser",
-          "page": "1",
-          "perPage": "1",
-          "totalPages": "1",
-          "total": "1"
-        },
-        "track":
-        {
-          "name": "Lone Song",
-          "url": "https://www.last.fm/music/Artist/_/Lone+Song",
-          "artist": "Solo Artist",
-          "streamable": "1"
+      {
+        "recenttracks": {
+          "track": [
+            {
+              "artist": {
+                "mbid": "34aacaab-6139-4e8e-975d-7f8b66d4a058",
+                "#text": "Guttermouth"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                }
+              ],
+              "mbid": "39b8e6c4-8d23-3069-96bd-1140fa537679",
+              "album": {
+                "mbid": "5581458e-0c01-4906-9953-90778941135e",
+                "#text": "Covered With Ants"
+              },
+              "name": "I'm Destroying the World",
+              "url": "https://www.last.fm/music/Guttermouth/_/I%27m+Destroying+the+World",
+              "date": {
+                "uts": "1753778967",
+                "#text": "29 Jul 2025, 08:49"
+              }
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "256554",
+            "page": "1",
+            "perPage": "1",
+            "total": "256554"
+          }
         }
       }
-    }
-    """;
+      """;
 
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmRequestInvoker>();
@@ -632,8 +710,8 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
       Assert.Multiple(() =>
       {
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
-        Assert.That(result.Data!.Items[0].Artist.Name, Is.EqualTo("Solo Artist"));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("I'm Destroying the World"));
+        Assert.That(result.Data!.Items[0].Artist.Name, Is.EqualTo("Guttermouth"));
       });
     }
 

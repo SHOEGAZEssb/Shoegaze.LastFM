@@ -61,6 +61,28 @@ namespace Shoegaze.LastFM
     }
   }
 
+  internal static class UriHelper
+  {
+    private const string BASEURL = "https://www.last.fm/";
+    private const string MUSICBASEURL = "https://www.last.fm/music/";
+
+    public static Uri? MakeArtistUri(string artist)
+    {
+      if (string.IsNullOrEmpty(artist))
+        return null;
+
+      return new Uri(MUSICBASEURL + artist);
+    }
+
+    public static Uri? MakeAlbumUri(string artist, string album)
+    {
+      if (string.IsNullOrEmpty(artist) || string.IsNullOrEmpty(album))
+        return null;
+
+      return new Uri($"{MUSICBASEURL}{artist}/{album}");
+    }
+  }
+
   internal static class TimePeriodExtensions
   {
     public static string ToApiString(this TimePeriod period) => period switch

@@ -1,23 +1,33 @@
-﻿using System.Text.Json;
+﻿using Shoegaze.LastFM.Artist;
+using System.Text.Json;
 
 namespace Shoegaze.LastFM.Album
 {
   public class AlbumInfo
   {
-    public required string Artist { get; init; }
+    public ArtistInfo? Artist { get; init; }
     public required string Title { get; init; }
-    public required Uri Url { get; init; }
+    public required Uri? Url { get; init; }
     public string? Mbid { get; init; }
 
     public Dictionary<ImageSize, Uri> Images { get; init; } = [];
 
     internal static AlbumInfo FromJson(JsonElement root)
     {
+      var album = root.TryGetProperty("album", out var albumProp) ? albumProp : root;
+
+      // name might either be in the name or #text property
+      var name = album.TryGetProperty("title", out var nameProp)
+        ? nameProp.GetString() ?? ""
+        : (album.GetProperty("#text").GetString() ?? "");
+
+      ArtistInfo? artist = album.TryGetProperty("artist", out var artistProp) ? ArtistInfo.FromJson(root) : null;
+
       return new AlbumInfo
       {
-        Artist = root.GetProperty("artist").GetString() ?? "",
-        Title = root.GetProperty("title").GetString() ?? "",
-        Url = new Uri(root.GetProperty("url").GetString() ?? ""),
+        Artist = artist,
+        Title = name,
+        Url = album.TryGetProperty("url", out var urlProperty) ? new Uri(urlProperty.GetString() ?? "") : (artist != null ? UriHelper.MakeAlbumUri(artist.Name, name) : null),
         Mbid = root.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null,
         Images = JsonHelper.ParseImageArray(root)
       };
