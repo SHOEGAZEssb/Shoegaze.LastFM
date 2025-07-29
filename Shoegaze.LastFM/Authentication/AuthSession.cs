@@ -5,6 +5,6 @@
 /// </summary>
 public class AuthSession
 {
-  public string Username { get; init; } = default!;
-  public string SessionKey { get; init; } = default!;
+  public string Username { get; set; } = default!;
+  public string SessionKey { get; set; } = default!;
 }

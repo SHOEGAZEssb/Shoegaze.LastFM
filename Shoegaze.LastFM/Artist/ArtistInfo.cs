@@ -9,7 +9,7 @@ namespace Shoegaze.LastFM.Artist
     /// <summary>
     /// Name of this artist.
     /// </summary>
-    public required string Name { get; init; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// Mbid of this artist.
@@ -17,12 +17,12 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be absent.
     /// </remarks>
-    public string? Mbid { get; init; }
+    public string? Mbid { get; set; }
 
     /// <summary>
     /// Url of the last.fm page of this artist.
     /// </summary>
-    public required Uri Url { get; init; }
+    public required Uri Url { get; set; }
 
     /// <summary>
     /// Images of this artist.
@@ -30,17 +30,17 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyDictionary<ImageSize, Uri> Images { get; init; } = new Dictionary<ImageSize, Uri>();
+    public required IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
-    public bool? IsStreamable { get; init; }
+    public bool? IsStreamable { get; set; }
 
-    public bool? OnTour { get; init; }
+    public bool? OnTour { get; set; }
 
-    public int? Listeners { get; init; }
+    public int? Listeners { get; set; }
 
-    public int? Plays { get; init; }
+    public int? Plays { get; set; }
 
-    public int? UserPlayCount { get; init; }
+    public int? UserPlayCount { get; set; }
 
     /// <summary>
     /// List of similar artists.
@@ -48,7 +48,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<ArtistInfo> SimilarArtists { get; init; } = [];
+    public required IReadOnlyList<ArtistInfo> SimilarArtists { get; set; } = [];
 
     /// <summary>
     /// List of tags of this artist.
@@ -56,9 +56,9 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<TagInfo> Tags { get; init; } = [];
+    public required IReadOnlyList<TagInfo> Tags { get; set; } = [];
 
-    public WikiInfo? Biography { get; init; }
+    public WikiInfo? Biography { get; set; }
 
     internal static ArtistInfo FromJson(JsonElement root)
     {

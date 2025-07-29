@@ -7,12 +7,12 @@ namespace Shoegaze.LastFM.Tag
     /// <summary>
     /// Name of the tag.
     /// </summary>
-    public required string Name { get; init; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// Link to the last.fm page of this tag.
     /// </summary>
-    public required Uri Url { get; init; }
+    public required Uri Url { get; set; }
 
     /// <summary>
     /// Amount of times this tag has been used by the user.
@@ -22,7 +22,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be included when using:
     /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/> with included username.
     /// </remarks>
-    public int? UserUsedCount { get; init; }
+    public int? UserUsedCount { get; set; }
 
     internal static TagInfo FromJson(JsonElement root)
     {

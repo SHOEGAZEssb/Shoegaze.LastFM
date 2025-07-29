@@ -35,10 +35,10 @@ public enum ImageSize
 /// </summary>
 public class ApiResult<T>
 {
-  public T? Data { get; init; }
-  public int HttpStatusCode { get; init; }
-  public string? ErrorMessage { get; init; }
-  public ApiStatusCode Status { get; init; }
+  public T? Data { get; set; }
+  public int HttpStatusCode { get; set; }
+  public string? ErrorMessage { get; set; }
+  public ApiStatusCode Status { get; set; }
 
   public bool IsSuccess => Status == ApiStatusCode.Success;
 

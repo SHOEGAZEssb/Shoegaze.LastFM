@@ -5,12 +5,12 @@ namespace Shoegaze.LastFM.Album
 {
   public class AlbumInfo
   {
-    public ArtistInfo? Artist { get; init; }
-    public required string Title { get; init; }
-    public required Uri? Url { get; init; }
-    public string? Mbid { get; init; }
+    public ArtistInfo? Artist { get; set; }
+    public required string Title { get; set; }
+    public required Uri? Url { get; set; }
+    public string? Mbid { get; set; }
 
-    public Dictionary<ImageSize, Uri> Images { get; init; } = [];
+    public Dictionary<ImageSize, Uri> Images { get; set; } = [];
 
     internal static AlbumInfo FromJson(JsonElement root)
     {

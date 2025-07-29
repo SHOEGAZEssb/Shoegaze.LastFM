@@ -135,6 +135,9 @@ internal class UserApi : IUserApi
         }
       }
 
+      foreach (var t in trackList)
+        t.UserLoved = true;
+
       return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(root, trackList));
     }
     catch (Exception ex)

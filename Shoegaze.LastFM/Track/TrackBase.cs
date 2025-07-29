@@ -4,11 +4,11 @@ namespace Shoegaze.LastFM.Track
 {
   public abstract class TrackBase
   {
-    public string Name { get; init; } = "";
-    public string Url { get; init; } = "";
-    public string ArtistName { get; init; } = "";
-    public string ArtistUrl { get; init; } = "";
-    public Dictionary<ImageSize, Uri> Images { get; init; } = [];
+    public string Name { get; set; } = "";
+    public string Url { get; set; } = "";
+    public string ArtistName { get; set; } = "";
+    public string ArtistUrl { get; set; } = "";
+    public Dictionary<ImageSize, Uri> Images { get; set; } = [];
 
     public override string ToString() => $"{ArtistName} – {Name}";
 
