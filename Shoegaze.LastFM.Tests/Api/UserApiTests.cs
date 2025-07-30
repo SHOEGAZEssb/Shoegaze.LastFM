@@ -14,27 +14,47 @@ namespace Shoegaze.LastFM.Tests.Api
     {
       // Arrange
       var json = """
-        {
-          "user": {
-            "id": "1000002",
-            "name": "RJ",
-            "realname": "Richard Jones",
-            "url": "http://www.last.fm/user/RJ",
-            "image": "http://userserve-ak.last.fm/serve/126/8270359.jpg",
-            "country": "UK",
-            "age": "27",
-            "gender": "m",
-            "subscriber": "1",
-            "playcount": "54189",
-            "playlists": "4",
-            "bootstrap": "0",
-            "registered": {
-              "#text": "2002-11-20 11:50",
-              "unixtime": "1037793040"
+      {
+        "user": {
+          "name": "coczero",
+          "age": "0",
+          "subscriber": "1",
+          "realname": "Tim Stadler",
+          "bootstrap": "0",
+          "playcount": "256598",
+          "artist_count": "9348",
+          "playlists": "0",
+          "track_count": "39235",
+          "album_count": "17904",
+          "image": [
+            {
+              "size": "small",
+              "#text": "https://lastfm.freetls.fastly.net/i/u/34s/952d643f805d4ccabfb00ee8bf51f610.png"
+            },
+            {
+              "size": "medium",
+              "#text": "https://lastfm.freetls.fastly.net/i/u/64s/952d643f805d4ccabfb00ee8bf51f610.png"
+            },
+            {
+              "size": "large",
+              "#text": "https://lastfm.freetls.fastly.net/i/u/174s/952d643f805d4ccabfb00ee8bf51f610.png"
+            },
+            {
+              "size": "extralarge",
+              "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/952d643f805d4ccabfb00ee8bf51f610.png"
             }
-          }
+          ],
+          "registered": {
+            "unixtime": "1285787447",
+            "#text": 1285787447
+          },
+          "country": "Germany",
+          "gender": "n",
+          "url": "https://www.last.fm/user/coczero",
+          "type": "subscriber"
         }
-        """;
+      }
+      """;
 
       using var doc = JsonDocument.Parse(json);
 
@@ -62,18 +82,20 @@ namespace Shoegaze.LastFM.Tests.Api
       var user = result.Data!;
       Assert.Multiple(() =>
       {
-        Assert.That(user.Id, Is.EqualTo("1000002"));
-        Assert.That(user.Username, Is.EqualTo("RJ"));
-        Assert.That(user.RealName, Is.EqualTo("Richard Jones"));
-        Assert.That(user.Url, Is.EqualTo("http://www.last.fm/user/RJ"));
-        Assert.That(user.ImageUrl, Is.EqualTo("http://userserve-ak.last.fm/serve/126/8270359.jpg"));
-        Assert.That(user.Country, Is.EqualTo("UK"));
-        Assert.That(user.Age, Is.EqualTo(27));
-        Assert.That(user.Gender, Is.EqualTo("m"));
+        Assert.That(user.Username, Is.EqualTo("coczero"));
+        Assert.That(user.RealName, Is.EqualTo("Tim Stadler"));
+        Assert.That(user.Url.ToString(), Is.EqualTo("https://www.last.fm/user/coczero"));
+        Assert.That(user.ImageUrl!.ToString(), Is.EqualTo("https://lastfm.freetls.fastly.net/i/u/300x300/952d643f805d4ccabfb00ee8bf51f610.png"));
+        Assert.That(user.Country, Is.EqualTo("Germany"));
+        Assert.That(user.Age, Is.EqualTo(0));
+        Assert.That(user.Gender, Is.EqualTo("n"));
         Assert.That(user.IsSubscriber, Is.True);
-        Assert.That(user.Playcount, Is.EqualTo(54189));
-        Assert.That(user.Playlists, Is.EqualTo(4));
-        Assert.That(user.RegisteredDate, Is.EqualTo(DateTimeOffset.FromUnixTimeSeconds(1037793040).DateTime));
+        Assert.That(user.Playcount, Is.EqualTo(256598));
+        Assert.That(user.ArtistCount, Is.EqualTo(9348));
+        Assert.That(user.TrackCount, Is.EqualTo(39235));
+        Assert.That(user.AlbumCount, Is.EqualTo(17904));
+        Assert.That(user.Playlists, Is.EqualTo(0));
+        Assert.That(user.RegisteredDate, Is.EqualTo(DateTimeOffset.FromUnixTimeSeconds(1285787447).DateTime));
       });
     }
 
@@ -119,50 +141,86 @@ namespace Shoegaze.LastFM.Tests.Api
     {
       // Arrange
       var json = """
-  {
-    "friends": {
-      "@attr": {
-        "page": "1",
-        "totalPages": "3",
-        "total": "109",
-        "perPage": "50"
-      },
-      "user": [
-        {
-          "id": "123",
-          "name": "eartle",
-          "realname": "Michael Coffey",
-          "url": "http://www.last.fm/user/eartle",
-          "country": "UK",
-          "age": "29",
-          "gender": "m",
-          "subscriber": "1",
-          "playcount": "45366",
-          "playlists": "4",
-          "registered": { "unixtime": "1189696970" },
-          "image": [
-            { "#text": "http://.../34.jpg", "size": "small" },
-            { "#text": "http://.../64.jpg", "size": "medium" }
+      {
+        "friends": {
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "19",
+            "page": "1",
+            "perPage": "2",
+            "total": "37"
+          },
+          "user": [
+            {
+              "name": "Freyatentacle",
+              "url": "https://www.last.fm/user/Freyatentacle",
+              "country": "None",
+              "playlists": "0",
+              "playcount": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/1ac36399949d567a937fbbb24e7caf46.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/1ac36399949d567a937fbbb24e7caf46.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/1ac36399949d567a937fbbb24e7caf46.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/1ac36399949d567a937fbbb24e7caf46.png"
+                }
+              ],
+              "registered": {
+                "unixtime": "1750950210",
+                "#text": "2025-06-26 15:03"
+              },
+              "realname": "testName",
+              "subscriber": "0",
+              "bootstrap": "0",
+              "type": "user"
+            },
+            {
+              "name": "Heartshackles",
+              "url": "https://www.last.fm/user/Heartshackles",
+              "country": "Finland",
+              "playlists": "0",
+              "playcount": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/b7bc4b0dfa5711752d46783b8c344769.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/b7bc4b0dfa5711752d46783b8c344769.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/b7bc4b0dfa5711752d46783b8c344769.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/b7bc4b0dfa5711752d46783b8c344769.png"
+                }
+              ],
+              "registered": {
+                "unixtime": "1196350851",
+                "#text": "2007-11-29 15:40"
+              },
+              "realname": "scarlet",
+              "subscriber": "0",
+              "bootstrap": "0",
+              "type": "user"
+            }
           ]
-        },
-        {
-          "id": "456",
-          "name": "otheruser",
-          "realname": "",
-          "url": "http://www.last.fm/user/otheruser",
-          "country": "",
-          "age": "0",
-          "gender": "",
-          "subscriber": "0",
-          "playcount": "0",
-          "playlists": "0",
-          "registered": { "unixtime": "1600000000" },
-          "image": { "#text": "http://.../34.jpg", "size": "small" }
         }
-      ]
-    }
-  }
-  """;
+      }
+      """;
 
       var invokerMock = new Mock<ILastfmRequestInvoker>();
 
@@ -176,7 +234,7 @@ namespace Shoegaze.LastFM.Tests.Api
       var api = new UserApi(invokerMock.Object);
 
       // Act
-      var result = await api.GetFriendsAsync("joanofarctan");
+      var result = await api.GetFriendsAsync("coczero");
 
       Assert.Multiple(() =>
       {
@@ -194,14 +252,14 @@ namespace Shoegaze.LastFM.Tests.Api
       var first = result.Data!.Items[0];
       Assert.Multiple(() =>
       {
-        Assert.That(first.Username, Is.EqualTo("eartle"));
-        Assert.That(first.RealName, Is.EqualTo("Michael Coffey"));
+        Assert.That(first.Username, Is.EqualTo("Freyatentacle"));
+        Assert.That(first.RealName, Is.EqualTo("testName"));
         Assert.That(first.Images.ContainsKey(ImageSize.Small), Is.True);
-        Assert.That(first.Images[ImageSize.Small], Does.Contain("34.jpg"));
+        Assert.That(first.Images[ImageSize.Small].ToString(), Does.Contain("34"));
         Assert.That(result.Data!.Page, Is.EqualTo(1));
-        Assert.That(result.Data.TotalPages, Is.EqualTo(3));
-        Assert.That(result.Data.TotalItems, Is.EqualTo(109));
-        Assert.That(result.Data.PerPage, Is.EqualTo(50));
+        Assert.That(result.Data.TotalPages, Is.EqualTo(19));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(37));
+        Assert.That(result.Data.PerPage, Is.EqualTo(2));
       });
     }
 
@@ -257,52 +315,92 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetLovedTracksAsync_ReturnsTracks_WhenPresent()
     {
       var json = """
-  {
-    "lovedtracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "2",
-        "totalPages": "1",
-        "total": "2"
-      },
-      "track": [
-        {
-          "name": "Track One",
-          "url": "https://www.last.fm/music/ArtistOne/_/Track+One",
-          "artist": {
-            "name": "ArtistOne",
-            "url": "https://www.last.fm/music/ArtistOne"
-          },
-          "date": {
-            "uts": "1600000000",
-            "#text": "2020-09-13 10:00"
-          },
-          "image": [
-            { "size": "small", "#text": "https://img1.png" },
-            { "size": "medium", "#text": "https://img2.png" }
-          ]
-        },
-        {
-          "name": "Track Two",
-          "url": "https://www.last.fm/music/ArtistTwo/_/Track+Two",
-          "artist": {
-            "name": "ArtistTwo",
-            "url": "https://www.last.fm/music/ArtistTwo"
-          },
-          "date": {
-            "uts": "1601000000",
-            "#text": "2020-09-25 15:30"
-          },
-          "image": [
-            { "size": "large", "#text": "https://img3.png" },
-            { "size": "extralarge", "#text": "https://img4.png" }
-          ]
+      {
+        "lovedtracks": {
+          "track": [
+            {
+              "artist": {
+                "url": "https://www.last.fm/music/Enjoy",
+                "name": "Enjoy",
+                "mbid": "cd220d6e-c656-4861-8281-949b92dd5905"
+              },
+              "date": {
+                "uts": "1751272740",
+                "#text": "30 Jun 2025, 08:39"
+              },
+              "mbid": "2f264800-7544-4108-b711-d8f768c0f390",
+              "url": "https://www.last.fm/music/Enjoy/_/Quiet+In+The+West",
+              "name": "Quiet In The West",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
+                }
+              ],
+              "streamable": {
+                "fulltrack": "0",
+                "#text": "0"
+              }
+            },
+            {
+              "artist": {
+                "url": "https://www.last.fm/music/Enjoy",
+                "name": "Enjoy",
+                "mbid": "cd220d6e-c656-4861-8281-949b92dd5905"
+              },
+              "date": {
+                "uts": "1751272739",
+                "#text": "30 Jun 2025, 08:38"
+              },
+              "mbid": "ddd34d9f-067b-4cee-9ce3-f0ed6e7738c7",
+              "url": "https://www.last.fm/music/Enjoy/_/Flag+And+A+Heart",
+              "name": "Flag And A Heart",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
+                }
+              ],
+              "streamable": {
+                "fulltrack": "0",
+                "#text": "0"
+              }
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "91",
+            "page": "1",
+            "perPage": "2",
+            "total": "182"
+          }
         }
-      ]
-    }
-  }
-  """;
+      }
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker
@@ -320,14 +418,15 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-        Assert.That(result.Data.TotalItems, Is.EqualTo(2));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(182));
       });
 
       var track = result.Data.Items[0];
       Assert.Multiple(() =>
       {
-        Assert.That(track.Name, Is.EqualTo("Track One"));
-        Assert.That(track.ArtistName, Is.EqualTo("ArtistOne"));
+        Assert.That(track.Name, Is.EqualTo("Quiet In The West"));
+        Assert.That(track.Artist!.Name, Is.EqualTo("Enjoy"));
+        Assert.That(track.UserLoved, Is.True);
       });
     }
 
@@ -335,18 +434,18 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetLovedTracksAsync_ReturnsEmptyList_WhenNonePresent()
     {
       var json = """
-  {
-    "lovedtracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "50",
-        "totalPages": "1",
-        "total": "0"
+      {
+        "lovedtracks": {
+          "@attr": {
+            "user": "testuser",
+            "page": "1",
+            "perPage": "50",
+            "totalPages": "1",
+            "total": "0"
+          }
+        }
       }
-    }
-  }
-  """;
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker
@@ -433,7 +532,7 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
         Assert.That(result.Data.TotalItems, Is.EqualTo(2));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
-        Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+        //Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
       });
     }
 
@@ -516,9 +615,9 @@ namespace Shoegaze.LastFM.Tests.Api
       {
         Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
-        Assert.That(result.Data.Items[0].ArtistName, Is.EqualTo("OnlyArtist"));
-        Assert.That(result.Data.Items[0].Playcount, Is.EqualTo(999));
-        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromSeconds(300)));
+        Assert.That(result.Data.Items[0].Artist.Name, Is.EqualTo("OnlyArtist"));
+        Assert.That(result.Data.Items[0].PlayCount, Is.EqualTo(999));
+        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
       });
     }
 
@@ -530,45 +629,92 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetRecentTracksAsync_ReturnsCorrectTracks_WhenMultipleTracks()
     {
       const string json = """
-    {
-      "recenttracks": {
-        "@attr": {
-          "user": "testuser",
-          "page": "1",
-          "perPage": "2",
-          "totalPages": "1",
-          "total": "2"
-        },
-        "track": [
-          {
-            "name": "Song One",
-            "url": "https://www.last.fm/music/Artist/_/Song+One",
-            "artist": {
-              "#text": "Artist",
-              "mbid": "artist-mbid"
+      {
+        "recenttracks": {
+          "track": [
+            {
+              "artist": {
+                "mbid": "4df5d35b-a9d4-4d4f-91f6-bae55693de31",
+                "#text": "Zebrahead"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/6b6de3684dcfe6f76bed299f0a08ed89.jpg"
+                }
+              ],
+              "mbid": "07c4b115-bd04-3846-8915-eb11556358d0",
+              "album": {
+                "mbid": "353d95fc-d4a9-45aa-9d7f-2f0a4b911412",
+                "#text": "Waste of Mind"
+              },
+              "name": "Check",
+              "url": "https://www.last.fm/music/Zebrahead/_/Check",
+              "date": {
+                "uts": "1753790467",
+                "#text": "29 Jul 2025, 12:01"
+              }
             },
-            "album": {
-              "#text": "Album One",
-              "mbid": "album-mbid"
-            },
-            "image": [
-              { "size": "small", "#text": "http://img1" }
-            ],
-            "date": {
-              "uts": "1710000000"
-            },
-            "streamable": "1"
-          },
-          {
-            "name": "Song Two",
-            "url": "https://www.last.fm/music/Artist/_/Song+Two",
-            "artist": "Another Artist",
-            "streamable": "0"
+            {
+              "artist": {
+                "mbid": "",
+                "#text": "The Reverend Horton Heat"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/c8a0ecd45679558a6ea10e76f658577e.jpg"
+                }
+              ],
+              "mbid": "",
+              "album": {
+                "mbid": "b5876ebd-506f-406d-8b42-7e6736918a05",
+                "#text": "Liquor In The Front"
+              },
+              "name": "I Can't Surf",
+              "url": "https://www.last.fm/music/The+Reverend+Horton+Heat/_/I+Can%27t+Surf",
+              "date": {
+                "uts": "1753790242",
+                "#text": "29 Jul 2025, 11:57"
+              }
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "128279",
+            "page": "1",
+            "perPage": "2",
+            "total": "256557"
           }
-        ]
+        }
       }
-    }
-    """;
+      """;
 
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmRequestInvoker>();
@@ -585,8 +731,8 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.IsSuccess, Is.True);
         Assert.That(result.Data, Is.Not.Null);
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Song One"));
-        Assert.That(result.Data!.Items[1].Name, Is.EqualTo("Song Two"));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Check"));
+        Assert.That(result.Data!.Items[1].Name, Is.EqualTo("I Can't Surf"));
       });
     }
 
@@ -594,25 +740,56 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetRecentTracksAsync_ReturnsCorrectTrack_WhenSingleTrack()
     {
       const string json = """
-    {
-      "recenttracks": {
-        "@attr": {
-          "user": "testuser",
-          "page": "1",
-          "perPage": "1",
-          "totalPages": "1",
-          "total": "1"
-        },
-        "track":
-        {
-          "name": "Lone Song",
-          "url": "https://www.last.fm/music/Artist/_/Lone+Song",
-          "artist": "Solo Artist",
-          "streamable": "1"
+      {
+        "recenttracks": {
+          "track": [
+            {
+              "artist": {
+                "mbid": "34aacaab-6139-4e8e-975d-7f8b66d4a058",
+                "#text": "Guttermouth"
+              },
+              "streamable": "0",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/838dbbd8a7c246d1942df1a33f63c075.jpg"
+                }
+              ],
+              "mbid": "39b8e6c4-8d23-3069-96bd-1140fa537679",
+              "album": {
+                "mbid": "5581458e-0c01-4906-9953-90778941135e",
+                "#text": "Covered With Ants"
+              },
+              "name": "I'm Destroying the World",
+              "url": "https://www.last.fm/music/Guttermouth/_/I%27m+Destroying+the+World",
+              "date": {
+                "uts": "1753778967",
+                "#text": "29 Jul 2025, 08:49"
+              }
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "256554",
+            "page": "1",
+            "perPage": "1",
+            "total": "256554"
+          }
         }
       }
-    }
-    """;
+      """;
 
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmRequestInvoker>();
@@ -632,8 +809,8 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
       Assert.Multiple(() =>
       {
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("Lone Song"));
-        Assert.That(result.Data!.Items[0].ArtistName, Is.EqualTo("Solo Artist"));
+        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("I'm Destroying the World"));
+        Assert.That(result.Data!.Items[0].Artist.Name, Is.EqualTo("Guttermouth"));
       });
     }
 

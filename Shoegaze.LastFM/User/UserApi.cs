@@ -1,4 +1,5 @@
 ﻿using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.User;
@@ -93,7 +94,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<PagedResult<LovedTrack>>> GetLovedTracksAsync(
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetLovedTracksAsync(
   string? username = null,
   int? page = null,
   int? limit = null,
@@ -113,36 +114,39 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getLovedTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<LovedTrack>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
 
     try
     {
       var root = result.Data.RootElement.GetProperty("lovedtracks");
 
       // Extract the track array
-      var trackList = new List<LovedTrack>();
+      var trackList = new List<TrackInfo>();
       if (root.TryGetProperty("track", out var trackElement))
       {
         switch (trackElement.ValueKind)
         {
           case JsonValueKind.Array:
-            trackList = [.. trackElement.EnumerateArray().Select(LovedTrack.FromJson)];
+            trackList = [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)];
             break;
           case JsonValueKind.Object:
-            trackList = [LovedTrack.FromJson(trackElement)];
+            trackList = [TrackInfo.FromJson(trackElement)];
             break;
         }
       }
 
-      return ApiResult<PagedResult<LovedTrack>>.Success(PagedResult<LovedTrack>.FromJson(root, trackList));
+      foreach (var t in trackList)
+        t.UserLoved = true;
+
+      return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(root, trackList));
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<LovedTrack>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse loved tracks: {ex.Message}");
+      return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse loved tracks: {ex.Message}");
     }
   }
 
-  public async Task<ApiResult<PagedResult<TopTrack>>> GetTopTracksAsync(string? username = null, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string? username = null, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -160,7 +164,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<TopTrack>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
 
     try
     {
@@ -170,20 +174,20 @@ internal class UserApi : IUserApi
 
       var tracks = trackElement.ValueKind switch
       {
-        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TopTrack.FromJson)],
-        JsonValueKind.Object => [TopTrack.FromJson(trackElement)],
-        _ => new List<TopTrack>()
+        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)],
+        JsonValueKind.Object => [TrackInfo.FromJson(trackElement)],
+        _ => new List<TrackInfo>()
       };
 
-      return ApiResult<PagedResult<TopTrack>>.Success(PagedResult<TopTrack>.FromJson(topTracksElement, tracks));
+      return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(topTracksElement, tracks));
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<TopTrack>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tracks: " + ex.Message);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tracks: " + ex.Message);
     }
   }
 
-  public async Task<ApiResult<PagedResult<RecentTrack>>> GetRecentTracksAsync(string? username = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -199,7 +203,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getRecentTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<RecentTrack>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
 
     try
     {
@@ -208,16 +212,16 @@ internal class UserApi : IUserApi
 
       var tracks = trackElement.ValueKind switch
       {
-        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(RecentTrack.FromJson)],
-        JsonValueKind.Object => [RecentTrack.FromJson(trackElement)],
-        _ => new List<RecentTrack>()
+        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)],
+        JsonValueKind.Object => [TrackInfo.FromJson(trackElement)],
+        _ => new List<TrackInfo>()
       };
 
-      return ApiResult<PagedResult<RecentTrack>>.Success(PagedResult<RecentTrack>.FromJson(recentTracksElement, tracks));
+      return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(recentTracksElement, tracks));
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<RecentTrack>>.Failure(
+      return ApiResult<PagedResult<TrackInfo>>.Failure(
         ApiStatusCode.UnknownError,
         result.HttpStatusCode,
         "Failed to parse recent tracks: " + ex.Message);

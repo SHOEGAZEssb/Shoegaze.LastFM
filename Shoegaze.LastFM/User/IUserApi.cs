@@ -1,6 +1,17 @@
 ﻿using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 
 namespace Shoegaze.LastFM.User;
+
+public enum TimePeriod
+{
+  Overall,
+  SevenDay,
+  OneMonth,
+  ThreeMonth,
+  SixMonth,
+  TwelveMonth
+}
 
 /// <summary>
 /// Access to user-related Last.fm API methods.
@@ -28,20 +39,20 @@ public interface IUserApi
       bool includeRecentTracks = false,
       CancellationToken ct = default);
 
-  Task<ApiResult<PagedResult<LovedTrack>>> GetLovedTracksAsync(
+  Task<ApiResult<PagedResult<TrackInfo>>> GetLovedTracksAsync(
     string? username = null,
     int? page = null,
     int? limit = null,
     CancellationToken ct = default);
 
-  Task<ApiResult<PagedResult<TopTrack>>> GetTopTracksAsync(
+  Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(
     string? username = null,
     TimePeriod? period = null, // e.g. "7day"
     int? limit = null,
     int? page = null,
     CancellationToken ct = default);
 
-  Task<ApiResult<PagedResult<RecentTrack>>> GetRecentTracksAsync(
+  Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(
     string? username = null,
     int? limit = null,
     int? page = null,
