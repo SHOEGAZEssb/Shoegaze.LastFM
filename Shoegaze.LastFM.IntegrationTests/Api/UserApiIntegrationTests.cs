@@ -1,22 +1,26 @@
-﻿namespace Shoegaze.LastFM.IntegrationTests.Api
+﻿using System.Web;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+
+namespace Shoegaze.LastFM.IntegrationTests.Api
 {
   [TestFixture]
   internal class UserApiIntegrationTests
   {
+    #region GetInfoAsync
+
     [Test]
     public async Task GetInfoAsync_IntegrationTest()
     {
       var client = TestEnvironment.CreateClient();
 
-      var info = await client.User.GetInfoAsync("coczero");
-
+      var response = await client.User.GetInfoAsync("coczero");
       Assert.Multiple(() =>
       {
-        Assert.That(info.IsSuccess, Is.True);
-        Assert.That(info.Data, Is.Not.Null);
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
       });
 
-      var user = info.Data;
+      var user = response.Data;
       Assert.Multiple(() =>
       {
         Assert.That(user.Username, Is.EqualTo("coczero"));
@@ -33,5 +37,425 @@
         Assert.That(user.RegisteredDate, Is.EqualTo(DateTimeOffset.FromUnixTimeSeconds(1285787447).DateTime));
       });
     }
+
+    [Test]
+    public async Task GetInfoAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetInfoAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetInfoAsync
+
+    #region GetFriendsAsync
+
+    [Test]
+    public async Task GetFriendsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetFriendsAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      var friends = pages.Items;
+      Assert.That(friends, Has.Count.GreaterThan(1));
+      foreach (var friend in friends)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(friend.Url.ToString(), Is.Not.Empty);
+          Assert.That(friend.Username, Is.Not.Empty);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetFriendsAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetFriendsAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetFriendsAsync
+
+    #region GetLovedTracksAsync
+
+    [Test]
+    public async Task GetLovedTracksAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetLovedTracksAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      var tracks = pages.Items;
+      foreach (var track in tracks)
+      {
+        Assert.That(track.Artist, Is.Not.Null);
+        var artist = track.Artist;
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+        });
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Album, Is.Null);
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.UserLoved, Is.True);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.Images, Contains.Key(ImageSize.Small));
+          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(track.Images, Contains.Key(ImageSize.Large));
+          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
+          Assert.That(track.Duration, Is.Null);
+          Assert.That(track.UserLovedDate, Is.Not.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetLovedTrackAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetLovedTracksAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetLovedTracksAsync
+
+    #region GetTopTracksAsync
+
+    [Test]
+    public async Task GetTopTracksAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopTracksAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      var tracks = pages.Items;
+      foreach (var track in tracks)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Rank, Is.EqualTo(i++));
+          Assert.That(track.UserPlayCount, Is.GreaterThan(1));
+          Assert.That(track.Duration, Is.Not.Null);
+          Assert.That(track.Images, Contains.Key(ImageSize.Small));
+          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(track.Images, Contains.Key(ImageSize.Large));
+          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
+          Assert.That(track.Album, Is.Null);
+          Assert.That(track.PlayCount, Is.Null);
+          Assert.That(track.PlayedAt, Is.Null);
+          Assert.That(track.IsNowPlaying, Is.Null);
+        });
+
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.IsWellFormedOriginalString(), Is.True);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetTopTracksAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopTracksAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetTopTracksAsync
+
+    #region GetRecentTracksAsync
+
+    [Test]
+    public async Task GetRecentTracksAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetRecentTracksAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      var tracks = pages.Items;
+      foreach (var track in tracks)
+      {
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString, Is.Not.Empty);
+        });
+
+        var album = track.Album;
+        Assert.That(album, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Url, Is.Null);
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.PlayedAt, Is.Not.Null);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.UserLoved, Is.Null);
+          Assert.That(track.UserLovedDate, Is.Null);
+          Assert.That(track.Images, Contains.Key(ImageSize.Small));
+          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(track.Images, Contains.Key(ImageSize.Large));
+          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetRecentTracksAsync_Extended_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetRecentTracksAsync("coczero", extended: true);
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      var tracks = pages.Items;
+      foreach (var track in tracks)
+      {
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString, Is.Not.Empty);
+          Assert.That(artist.Images, Contains.Key(ImageSize.Small));
+          Assert.That(artist.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(artist.Images, Contains.Key(ImageSize.Large));
+          Assert.That(artist.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+
+        var album = track.Album;
+        Assert.That(album, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Url, Is.Null);
+
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.PlayedAt, Is.Not.Null);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.UserLoved, Is.Not.Null);
+          Assert.That(track.UserLovedDate, Is.Null);
+          Assert.That(track.Images, Contains.Key(ImageSize.Small));
+          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(track.Images, Contains.Key(ImageSize.Large));
+          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetRecentTracksAsync_From_To_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetRecentTracksAsync("coczero", extended: false, from: new DateTime(2000, 1, 1), to: DateTime.Now);
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      var tracks = pages.Items;
+      foreach (var track in tracks)
+      {
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString, Is.Not.Empty);
+        });
+
+        var album = track.Album;
+        Assert.That(album, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Url, Is.Null);
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.PlayedAt, Is.Not.Null);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.UserLoved, Is.Null);
+          Assert.That(track.UserLovedDate, Is.Null);
+          Assert.That(track.Images, Contains.Key(ImageSize.Small));
+          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(track.Images, Contains.Key(ImageSize.Large));
+          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetRecentTracksAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetRecentTracksAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetRecentTracksAsync
+
+    #region GetTopTagsAsync
+
+    [Test]
+    public async Task GetTopTagsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopTagsAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var tag in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Name, Is.Not.Empty);
+          Assert.That(tag.UserUsedCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(tag.Url.ToString(), Is.Not.Empty);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetTopTagsAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopTagsAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetTopTagsAsync
   }
 }

@@ -21,7 +21,7 @@ namespace Shoegaze.LastFM.Album
         ? nameProp.GetString() ?? ""
         : (album.GetProperty("#text").GetString() ?? "");
 
-      ArtistInfo? artist = album.TryGetProperty("artist", out var artistProp) ? ArtistInfo.FromJson(root) : null;
+      ArtistInfo? artist = album.TryGetProperty("artist", out var _) ? ArtistInfo.FromJson(root) : null;
 
       return new AlbumInfo
       {

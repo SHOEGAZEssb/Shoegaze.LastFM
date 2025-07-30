@@ -52,11 +52,7 @@ public interface IUserApi
     int? page = null,
     CancellationToken ct = default);
 
-  Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(
-    string? username = null,
-    int? limit = null,
-    int? page = null,
-    CancellationToken ct = default);
+  Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, int? limit = null, int? page = null, CancellationToken ct = default);
 
   Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(
     string? username = null,

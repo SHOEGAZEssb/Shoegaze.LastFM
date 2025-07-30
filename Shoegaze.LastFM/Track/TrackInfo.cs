@@ -70,8 +70,19 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/> with included username.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/> with included username.
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/> with extended = true.
     /// </remarks>
     public bool? UserLoved { get; set; }
+
+    /// <summary>
+    /// The time when the user for which the request has been made has loved this track.
+    /// </summary>
+    /// <remarks>
+    /// May be absent.
+    /// Guaranteed to be available when using:
+    /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public DateTime? UserLovedDate { get; set; }
 
     /// <summary>
     /// Indicates the rank of a track when getting the top tracks for a user.
@@ -149,8 +160,7 @@ namespace Shoegaze.LastFM.Track
         }
         else if (streamableProp.ValueKind == JsonValueKind.String)
           isStreamable = streamableProp.GetString() == "1";
-      }
-          
+      }          
 
       int? listeners = null;
       if (track.TryGetProperty("listeners", out var listenersProp) && int.TryParse(listenersProp.GetString(), out var parsedListeners))
@@ -161,12 +171,21 @@ namespace Shoegaze.LastFM.Track
         playcount = parsedPlaycount;
 
       int? userPlaycount = null;
-      if (track.TryGetProperty("userplaycount", out var upProp) && int.TryParse(upProp.GetString(), out var parsedUp))
+      if (track.TryGetProperty("userplaycount", out var upProp) && int.TryParse(upProp.GetString(), out var parsedUp)
+          || track.TryGetProperty("playcount", out upProp) && int.TryParse(upProp.GetString(), out parsedUp))
         userPlaycount = parsedUp;
 
       bool? isLoved = null;
-      if (track.TryGetProperty("userloved", out var lovedProp))
+      if (track.TryGetProperty("userloved", out var lovedProp)
+          || track.TryGetProperty("loved", out lovedProp))
         isLoved = lovedProp.GetString() == "1";
+
+      DateTime? date = null;
+      if (track.TryGetProperty("date", out var dateProp))
+      {
+        if (dateProp.TryGetProperty("uts", out var dateText))
+          date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!)).DateTime;
+      }
 
       int? rank = null;
       if(track.TryGetProperty("@attr", out var attrProp))
@@ -206,10 +225,12 @@ namespace Shoegaze.LastFM.Track
         Duration = duration,
         IsStreamable = isStreamable,
         Listeners = listeners,
-        PlayCount = playcount,
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
+        PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available
+        UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
         Rank = rank,
+        PlayCount = rank == null ? playcount : null, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount
         Artist = artist!,
         Album = album,
         TopTags = tags,
@@ -217,43 +238,5 @@ namespace Shoegaze.LastFM.Track
         Images = JsonHelper.ParseImageArray(root)
       };
     }
-
-
-    //public static TrackInfo FromJson(JsonElement root)
-    //{
-    //  var name = root.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "";
-    //  var url = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
-
-    //  ArtistInfo? artist = null;
-    //  if (root.TryGetProperty("artist", out var artistProp))
-    //  {
-    //    artist = ArtistInfo.FromJson(artistProp);
-    //    //if (artistProp.ValueKind == JsonValueKind.Object)
-    //    //{
-    //    //  artistName = artistProp.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
-    //    //  artistUrl = artistProp.TryGetProperty("url", out var u) ? u.GetString() ?? "" : "";
-    //    //}
-    //    //else
-    //    //{
-    //    //  artistName = artistProp.GetString() ?? "";
-    //    //}
-    //  }
-
-    //  DateTime? date = null;
-    //  if (root.TryGetProperty("date", out var dateElem) &&
-    //      dateElem.TryGetProperty("uts", out var utsProp) &&
-    //      long.TryParse(utsProp.GetString(), out var uts))
-    //  {
-    //    date = DateTimeOffset.FromUnixTimeSeconds(uts).DateTime;
-    //  }
-
-    //  return new TrackInfo
-    //  {
-    //    Name = name,
-    //    Url = new Uri(url),
-    //    Images = JsonHelper.ParseImageArray(root),
-    //    Date = date
-    //  };
-    //}
   }
 }

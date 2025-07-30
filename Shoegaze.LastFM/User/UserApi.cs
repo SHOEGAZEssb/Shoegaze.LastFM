@@ -187,7 +187,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -195,6 +195,12 @@ internal class UserApi : IUserApi
     if (!requireAuth)
       parameters["user"] = username!;
 
+    if (extended != null)
+      parameters["extended"] = extended.Value ? "1" : "0";
+    if (from != null)
+      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+    if (to != null)
+      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
     if (page.HasValue)
       parameters["page"] = page.Value.ToString();
     if (limit.HasValue)

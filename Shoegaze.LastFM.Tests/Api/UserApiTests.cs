@@ -693,7 +693,7 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Ugly"));
         Assert.That(result.Data.Items[0].Artist!.Name, Is.EqualTo("Yüth Forever"));
-        Assert.That(result.Data.Items[0].PlayCount, Is.EqualTo(431));
+        Assert.That(result.Data.Items[0].UserPlayCount, Is.EqualTo(431));
         Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromMilliseconds(0)));
       });
     }
@@ -886,8 +886,8 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
       Assert.Multiple(() =>
       {
-        Assert.That(result.Data!.Items[0].Name, Is.EqualTo("I'm Destroying the World"));
-        Assert.That(result.Data!.Items[0].Artist.Name, Is.EqualTo("Guttermouth"));
+        Assert.That(result.Data.Items[0].Name, Is.EqualTo("I'm Destroying the World"));
+        Assert.That(result.Data.Items[0].Artist!.Name, Is.EqualTo("Guttermouth"));
       });
     }
 

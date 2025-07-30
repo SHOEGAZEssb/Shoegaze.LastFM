@@ -9,7 +9,7 @@ public class UserInfo
 {
   public string Username { get; set; } = default!;
   public string RealName { get; set; } = default!;
-  public string Url { get; set; } = default!;
+  public Uri Url { get; set; } = default!;
   public string Country { get; set; } = default!;
   public int? Age { get; set; }
   public string? Gender { get; set; } = default!;
@@ -50,7 +50,6 @@ public class UserInfo
   public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
   public Uri? ImageUrl =>
-      Images.TryGetValue(ImageSize.Mega, out var mega) ? mega :
       Images.TryGetValue(ImageSize.ExtraLarge, out var xl) ? xl :
       Images.TryGetValue(ImageSize.Large, out var l) ? l :
       Images.TryGetValue(ImageSize.Medium, out var m) ? m :
@@ -69,7 +68,7 @@ public class UserInfo
     {
       Username = root.GetProperty("name").GetString()!,
       RealName = root.GetProperty("realname").GetString()!,
-      Url = root.GetProperty("url").GetString()!,
+      Url = new Uri(root.GetProperty("url").GetString()!),
       Country = root.GetProperty("country").GetString()!,
       Age = root.TryGetProperty("age", out var ageProp) && int.TryParse(ageProp.GetString(), out var age) ? age : null,
       Gender = root.TryGetProperty("gender", out var genderProp) ? genderProp.GetString() : null,

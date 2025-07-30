@@ -69,7 +69,7 @@ namespace Shoegaze.LastFM.Artist
         return new ArtistInfo
         {
           Name = artistName,
-          Url = UriHelper.MakeArtistUri(artistName),
+          Url = UriHelper.MakeArtistUri(artistName)!,
           Images = new Dictionary<ImageSize, Uri>(),
           SimilarArtists = [],
           Tags = []
@@ -151,7 +151,7 @@ namespace Shoegaze.LastFM.Artist
       return new ArtistInfo
       {
         Name = name,
-        Url = url,
+        Url = url!,
         Mbid = mbid,
         Images = images,
         IsStreamable = isStreamable,
