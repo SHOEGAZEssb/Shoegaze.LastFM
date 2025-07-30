@@ -268,18 +268,18 @@ namespace Shoegaze.LastFM.Tests.Api
     {
       // arrange
       var json = """
-  {
-    "friends": {
-      "@attr": {
-        "user": "lonelyuser",
-        "page": "1",
-        "totalPages": "1",
-        "total": "0",
-        "perPage": "50"
+      {
+        "friends": {
+          "@attr": {
+            "user": "lonelyuser",
+            "page": "1",
+            "totalPages": "1",
+            "total": "0",
+            "perPage": "50"
+          }
+        }
       }
-    }
-  }
-  """;
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker.Setup(i => i.SendAsync("user.getFriends", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
@@ -475,44 +475,94 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTracksAsync_ReturnsTracks_WhenSuccessful()
     {
       var json = """
-  {
-    "toptracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "2",
-        "totalPages": "1",
-        "total": "2"
-      },
-      "track": [
-        {
-          "name": "Song A",
-          "url": "https://www.last.fm/music/ArtistA/_/Song+A",
-          "playcount": "123",
-          "duration": "240",
-          "@attr": { "rank": "1" },
-          "artist": {
-            "name": "ArtistA",
-            "url": "https://www.last.fm/music/ArtistA"
-          },
-          "image": []
-        },
-        {
-          "name": "Song B",
-          "url": "https://www.last.fm/music/ArtistB/_/Song+B",
-          "playcount": "45",
-          "duration": "180",
-          "@attr": { "rank": "2" },
-          "artist": {
-            "name": "ArtistB",
-            "url": "https://www.last.fm/music/ArtistB"
-          },
-          "image": []
+      {
+        "toptracks": {
+          "track": [
+            {
+              "streamable": {
+                "fulltrack": "0",
+                "#text": "0"
+              },
+              "mbid": "",
+              "name": "Ugly",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
+                }
+              ],
+              "artist": {
+                "url": "https://www.last.fm/music/Y%C3%BCth+Forever",
+                "name": "Yüth Forever",
+                "mbid": "3bf16eb5-b334-4b53-9f77-041038280bb6"
+              },
+              "url": "https://www.last.fm/music/Y%C3%BCth+Forever/_/Ugly",
+              "duration": "0",
+              "@attr": {
+                "rank": "1"
+              },
+              "playcount": "431"
+            },
+            {
+              "streamable": {
+                "fulltrack": "0",
+                "#text": "0"
+              },
+              "mbid": "",
+              "name": "Lonely Bastard",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
+                }
+              ],
+              "artist": {
+                "url": "https://www.last.fm/music/Y%C3%BCth+Forever",
+                "name": "Yüth Forever",
+                "mbid": "3bf16eb5-b334-4b53-9f77-041038280bb6"
+              },
+              "url": "https://www.last.fm/music/Y%C3%BCth+Forever/_/Lonely+Bastard",
+              "duration": "0",
+              "@attr": {
+                "rank": "2"
+              },
+              "playcount": "382"
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "19619",
+            "page": "1",
+            "perPage": "2",
+            "total": "39238"
+          }
         }
-      ]
-    }
-  }
-  """;
+      }
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker
@@ -530,9 +580,9 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
-        Assert.That(result.Data.TotalItems, Is.EqualTo(2));
-        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Song A"));
-        //Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
+        Assert.That(result.Data.TotalItems, Is.EqualTo(39238));
+        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Ugly"));
+        Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
       });
     }
 
@@ -540,18 +590,18 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTracksAsync_ReturnsEmptyList_WhenNoTracks()
     {
       var json = """
-  {
-    "toptracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "50",
-        "totalPages": "0",
-        "total": "0"
+      {
+        "toptracks": {
+          "@attr": {
+            "user": "testuser",
+            "page": "1",
+            "perPage": "50",
+            "totalPages": "0",
+            "total": "0"
+          }
+        }
       }
-    }
-  }
-  """;
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker
@@ -573,30 +623,57 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTracksAsync_ReturnsSingleTrack_WhenJsonIsObject()
     {
       var json = """
-  {
-    "toptracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "1",
-        "totalPages": "1",
-        "total": "1"
-      },
-      "track": {
-        "name": "Only Song",
-        "url": "https://www.last.fm/music/OnlyArtist/_/Only+Song",
-        "playcount": "999",
-        "duration": "300",
-        "@attr": { "rank": "1" },
-        "artist": {
-          "name": "OnlyArtist",
-          "url": "https://www.last.fm/music/OnlyArtist"
-        },
-        "image": []
+      {
+        "toptracks": {
+          "track": [
+            {
+              "streamable": {
+                "fulltrack": "0",
+                "#text": "0"
+              },
+              "mbid": "",
+              "name": "Ugly",
+              "image": [
+                {
+                  "size": "small",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "medium",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "large",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
+                },
+                {
+                  "size": "extralarge",
+                  "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
+                }
+              ],
+              "artist": {
+                "url": "https://www.last.fm/music/Y%C3%BCth+Forever",
+                "name": "Yüth Forever",
+                "mbid": "3bf16eb5-b334-4b53-9f77-041038280bb6"
+              },
+              "url": "https://www.last.fm/music/Y%C3%BCth+Forever/_/Ugly",
+              "duration": "0",
+              "@attr": {
+                "rank": "1"
+              },
+              "playcount": "431"
+            }
+          ],
+          "@attr": {
+            "user": "coczero",
+            "totalPages": "39241",
+            "page": "1",
+            "perPage": "1",
+            "total": "39241"
+          }
+        }
       }
-    }
-  }
-  """;
+      """;
 
       var mockInvoker = new Mock<ILastfmRequestInvoker>();
       mockInvoker
@@ -614,10 +691,10 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data!.Items, Has.Count.EqualTo(1));
-        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Only Song"));
-        Assert.That(result.Data.Items[0].Artist.Name, Is.EqualTo("OnlyArtist"));
-        Assert.That(result.Data.Items[0].PlayCount, Is.EqualTo(999));
-        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromMilliseconds(300)));
+        Assert.That(result.Data.Items[0].Name, Is.EqualTo("Ugly"));
+        Assert.That(result.Data.Items[0].Artist!.Name, Is.EqualTo("Yüth Forever"));
+        Assert.That(result.Data.Items[0].PlayCount, Is.EqualTo(431));
+        Assert.That(result.Data.Items[0].Duration, Is.EqualTo(TimeSpan.FromMilliseconds(0)));
       });
     }
 
@@ -819,18 +896,18 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetRecentTracksAsync_ReturnsEmptyList_WhenNoTracks()
     {
       const string json = """
-  {
-    "recenttracks": {
-      "@attr": {
-        "user": "testuser",
-        "page": "1",
-        "perPage": "50",
-        "totalPages": "1",
-        "total": "0"
+      {
+        "recenttracks": {
+          "@attr": {
+            "user": "testuser",
+            "page": "1",
+            "perPage": "50",
+            "totalPages": "1",
+            "total": "0"
+          }
+        }
       }
-    }
-  }
-  """;
+      """;
 
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmRequestInvoker>();
@@ -858,16 +935,26 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTagsAsync_ReturnsTags_WhenSuccessful()
     {
       var json = """
-  {
-    "toptags": {
-      "tag": [
-        { "name": "shoegaze", "count": "42", "url": "https://www.last.fm/tag/shoegaze" },
-        { "name": "dreampop", "count": "27", "url": "https://www.last.fm/tag/dreampop" }
-      ],
-      "@attr": { "user": "ts" }
-    }
-  }
-  """;
+      {
+        "toptags": {
+          "tag": [
+            {
+              "name": "shoegaze",
+              "count": "78",
+              "url": "https://www.last.fm/tag/shoegaze"
+            },
+            {
+              "name": "seen live",
+              "count": "67",
+              "url": "https://www.last.fm/tag/seen+live"
+            }
+          ],
+          "@attr": {
+            "user": "coczero"
+          }
+        }
+      }
+      """;
 
       var doc = JsonDocument.Parse(json);
       var mock = new Mock<ILastfmRequestInvoker>();
@@ -875,7 +962,7 @@ namespace Shoegaze.LastFM.Tests.Api
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
 
       var api = new UserApi(mock.Object);
-      var result = await api.GetTopTagsAsync("ts");
+      var result = await api.GetTopTagsAsync("coczero");
 
       Assert.Multiple(() =>
       {
@@ -885,7 +972,7 @@ namespace Shoegaze.LastFM.Tests.Api
       Assert.Multiple(() =>
       {
         Assert.That(result.Data[0].Name, Is.EqualTo("shoegaze"));
-        Assert.That(result.Data[0].UserUsedCount, Is.EqualTo(42));
+        Assert.That(result.Data[0].UserUsedCount, Is.EqualTo(78));
         Assert.That(result.Data[0].Url.ToString(), Is.EqualTo("https://www.last.fm/tag/shoegaze"));
       });
     }
@@ -898,10 +985,10 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTagsAsync_ReturnsEmpty_WhenNoTags()
     {
       var json = """
-  {
-    "toptags": {}
-  }
-  """;
+      {
+        "toptags": {}
+      }
+      """;
 
       var doc = JsonDocument.Parse(json);
       var mock = new Mock<ILastfmRequestInvoker>();
@@ -922,12 +1009,12 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetTopTagsAsync_ReturnsFailure_OnMalformedJson()
     {
       var json = """
-  {
-    "toptags": {
-      "tag": { "name": "broken" }
-    }
-  }
-  """;
+      {
+        "toptags": {
+          "tag": { "name": "broken" }
+        }
+      }
+      """;
 
       var doc = JsonDocument.Parse(json);
       var mock = new Mock<ILastfmRequestInvoker>();

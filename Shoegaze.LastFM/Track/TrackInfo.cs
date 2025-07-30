@@ -1,8 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
@@ -74,6 +72,16 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public bool? UserLoved { get; set; }
+
+    /// <summary>
+    /// Indicates the rank of a track when getting the top tracks for a user.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public int? Rank { get; set; }
 
     public ArtistInfo? Artist { get; set; }
     public AlbumInfo? Album { get; set; }
@@ -160,6 +168,10 @@ namespace Shoegaze.LastFM.Track
       if (track.TryGetProperty("userloved", out var lovedProp))
         isLoved = lovedProp.GetString() == "1";
 
+      int? rank = null;
+      if(track.TryGetProperty("@attr", out var attrProp))
+        rank = attrProp.TryGetProperty("rank", out var rankProp) ? int.Parse(rankProp.GetString()!) : null;
+
       ArtistInfo? artist = null;
       if(track.TryGetProperty("artist", out var artistProp))
       {
@@ -197,6 +209,7 @@ namespace Shoegaze.LastFM.Track
         PlayCount = playcount,
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
+        Rank = rank,
         Artist = artist!,
         Album = album,
         TopTags = tags,

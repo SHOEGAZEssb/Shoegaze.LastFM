@@ -9,7 +9,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
+    env:
+      LAST_FM_API_KEY: ${{ secrets.LAST_FM_API_KEY }}
+      LAST_FM_API_SECRET: ${{ secrets.LAST_FM_API_SECRET }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -25,11 +27,22 @@ jobs:
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
 
-    - name: Run tests with coverage
-      run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
+    - name: Run all tests with coverage
+      run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+      
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        reportgenerator \
+        -reports:./TestResults/**/coverage.cobertura.xml \
+        -targetdir:./coveragereport \
+        -reporttypes:Htm
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}  # Omit for public repos
+        files: ./TestResults/**/coverage.cobertura.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true

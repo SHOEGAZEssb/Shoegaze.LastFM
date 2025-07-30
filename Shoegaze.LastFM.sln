@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM", "Shoegaze
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM.Playground", "Shoegaze.LastFM.Playground\Shoegaze.LastFM.Playground.csproj", "{48B71D4C-7A08-47F2-98CC-985068810CC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM.IntegrationTests", "Shoegaze.LastFM.IntegrationTests\Shoegaze.LastFM.IntegrationTests.csproj", "{4D326C61-958C-4BCA-8B03-37451C522195}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,9 +59,25 @@ Global
 		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x64.Build.0 = Release|Any CPU
 		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x86.ActiveCfg = Release|Any CPU
 		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x86.Build.0 = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|x64.Build.0 = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D326C61-958C-4BCA-8B03-37451C522195}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0632F55B-B6AD-4B8F-9FAD-E38E04CA68DD} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4D326C61-958C-4BCA-8B03-37451C522195} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {328AEF8F-1F56-419E-8E01-863F2CD8EAF1}
