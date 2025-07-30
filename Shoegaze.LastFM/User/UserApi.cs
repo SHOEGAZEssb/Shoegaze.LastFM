@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Tag;
+﻿using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using System.Text.Json;
 
@@ -46,7 +47,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, int? page = null, int? limit = null, bool includeRecentTracks = false, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? page = null, int? limit = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
     var requireAuth = string.IsNullOrWhiteSpace(username);
@@ -54,12 +55,13 @@ internal class UserApi : IUserApi
     if (!requireAuth)
       parameters["user"] = username!;
 
+    // todo: check if recenttracks is actually supported or deprecated
+    if (includeRecentTracks)
+      parameters["recenttracks"] = "1";
     if (page.HasValue)
       parameters["page"] = page.Value.ToString();
     if (limit.HasValue)
       parameters["limit"] = limit.Value.ToString();
-    if (includeRecentTracks)
-      parameters["recenttracks"] = "1";
 
     var result = await _invoker.SendAsync("user.getFriends", parameters, requireAuth, ct);
 
@@ -269,4 +271,42 @@ internal class UserApi : IUserApi
     }
   }
 
+  public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>
+    {
+      ["user"] = username
+    };
+
+    if (period.HasValue)
+      parameters["period"] = period.Value.ToApiString();
+    if (page.HasValue)
+      parameters["page"] = page.Value.ToString();
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+
+    var result = await _invoker.SendAsync("user.getTopArtists", parameters, false, ct);
+
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var topArtistsProperty = result.Data.RootElement.GetProperty("topartists");
+      var artistArray = topArtistsProperty.TryGetProperty("artist", out var ta) ? ta : default;
+
+      var artists = artistArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. artistArray.EnumerateArray().Select(ArtistInfo.FromJson)],
+        JsonValueKind.Object => [ArtistInfo.FromJson(artistArray)],
+        _ => new List<ArtistInfo>()
+      };
+
+      return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(topArtistsProperty, artists), result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+    }
+  }
 }

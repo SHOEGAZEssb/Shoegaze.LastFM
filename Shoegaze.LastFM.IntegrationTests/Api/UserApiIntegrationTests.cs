@@ -457,5 +457,49 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopTagsAsync
+
+    #region GetTopArtistsAsync
+
+    [Test]
+    public async Task GetTopArtistsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopArtistsAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      foreach (var artist in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+          Assert.That(artist.IsStreamable, Is.Not.Null);
+          Assert.That(artist.UserPlayCount, Is.GreaterThan(1));
+          Assert.That(artist.Rank, Is.EqualTo(i++));
+          Assert.That(artist.PlayCount, Is.Null);
+          Assert.That(artist.Images, Contains.Key(ImageSize.Small));
+          Assert.That(artist.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(artist.Images, Contains.Key(ImageSize.Large));
+          Assert.That(artist.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+      }
+    }
+
+    #endregion GetTopArtistsAsync
   }
 }

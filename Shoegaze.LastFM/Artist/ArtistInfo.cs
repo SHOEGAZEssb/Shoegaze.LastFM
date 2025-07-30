@@ -37,9 +37,27 @@ namespace Shoegaze.LastFM.Artist
 
     public int? Listeners { get; set; }
 
-    public int? Plays { get; set; }
+    public int? PlayCount { get; set; }
 
+    /// <summary>
+    /// Amount of plays of this artist the user has for which the request has been made.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="User.IUserApi.GetTopArtistsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
     public int? UserPlayCount { get; set; }
+
+    /// <summary>
+    /// Indicates the rank of an artist when getting the top artists for a user.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="User.IUserApi.GetTopArtistsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public int? Rank { get; set; }
 
     /// <summary>
     /// List of similar artists.
@@ -108,9 +126,13 @@ namespace Shoegaze.LastFM.Artist
         ? ontourProp.GetString() == "1"
         : (bool?)null;
 
+      int? rank = null;
+      if (artist.TryGetProperty("@attr", out var attributeProp) && attributeProp.TryGetProperty("rank", out var rankProp) && int.TryParse(rankProp.GetString()!, out var rankNum))
+        rank = rankNum;
+
       int? listeners = null;
       int? plays = null;
-      int? userPlayCount = null;
+      //int? userPlayCount = null;
       if (artist.TryGetProperty("stats", out var stats))
       {
         if (stats.TryGetProperty("listeners", out var l) && int.TryParse(l.GetString(), out var parsedListeners))
@@ -119,10 +141,11 @@ namespace Shoegaze.LastFM.Artist
         if (stats.TryGetProperty("playcount", out var p) && int.TryParse(p.GetString(), out var parsedPlays))
           plays = parsedPlays;
 
-        if (stats.TryGetProperty("userplaycount", out var up) && int.TryParse(up.GetString(), out var parsedUserPlayCount))
-          userPlayCount = parsedUserPlayCount;
+        //if (stats.TryGetProperty("userplaycount", out var up) && int.TryParse(up.GetString(), out var parsedUserPlayCount))
+        //  userPlayCount = parsedUserPlayCount;
       }
-
+      else if (artist.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCount))
+        plays = playCount;
 
       var similar = new List<ArtistInfo>();
       if (artist.TryGetProperty("similar", out var similarProp) &&
@@ -157,8 +180,9 @@ namespace Shoegaze.LastFM.Artist
         IsStreamable = isStreamable,
         OnTour = onTour,
         Listeners = listeners,
-        Plays = plays,
-        UserPlayCount = userPlayCount,
+        Rank = rank,
+        PlayCount = rank == null ? plays : null, // if rank is null, playcount property indicates global plays, otherwise userplaycount
+        UserPlayCount = rank == null ? null : plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
         SimilarArtists = similar,
         Tags = tags,
         Biography = bio
