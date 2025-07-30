@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Artist;
+﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 
@@ -61,4 +62,6 @@ public interface IUserApi
     CancellationToken ct = default);
 
   Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
+
+  Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
 }

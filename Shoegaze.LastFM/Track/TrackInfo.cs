@@ -37,7 +37,10 @@ namespace Shoegaze.LastFM.Track
     /// Amount of listeners this track has.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="TrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
+    /// - <see cref="TrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
     public int? Listeners { get; set; }
 
@@ -94,8 +97,37 @@ namespace Shoegaze.LastFM.Track
     /// </remarks>
     public int? Rank { get; set; }
 
+    /// <summary>
+    /// Info about the artist of this track.
+    /// </summary>
+    /// <remarks>
+    /// May be absent.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// </remarks>
     public ArtistInfo? Artist { get; set; }
+
+    /// <summary>
+    /// Info about the album this track is on.
+    /// </summary>
+    /// <remarks>
+    /// May be absent.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// </remarks>
     public AlbumInfo? Album { get; set; }
+
+    /// <summary>
+    /// The wiki of this track.
+    /// </summary>
+    /// <remarks>
+    /// May be absent.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// </remarks>
     public WikiInfo? Wiki { get; set; }
 
     /// <summary>

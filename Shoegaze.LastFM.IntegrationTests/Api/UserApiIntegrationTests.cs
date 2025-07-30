@@ -277,7 +277,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(album, Is.Not.Null);
         Assert.Multiple(() =>
         {
-          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Name, Is.Not.Empty);
           Assert.That(album.Url, Is.Null);
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
@@ -333,7 +333,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(album, Is.Not.Null);
         Assert.Multiple(() =>
         {
-          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Name, Is.Not.Empty);
           Assert.That(album.Url, Is.Null);
 
           Assert.That(track.Name, Is.Not.Empty);
@@ -386,7 +386,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(album, Is.Not.Null);
         Assert.Multiple(() =>
         {
-          Assert.That(album.Title, Is.Not.Empty);
+          Assert.That(album.Name, Is.Not.Empty);
           Assert.That(album.Url, Is.Null);
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
@@ -500,6 +500,74 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       }
     }
 
+    [Test]
+    public async Task GetTopArtistsAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopArtistsAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
     #endregion GetTopArtistsAsync
+
+    #region GetTopAlbumsAsync
+
+    [Test]
+    public async Task GetTopAlbumsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopAlbumsAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      foreach (var album in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Name, Is.Not.Empty);
+          Assert.That(album.Mbid, Is.Not.Null);
+          Assert.That(album.Url!.ToString(), Is.Not.Empty);
+          Assert.That(album.Rank, Is.EqualTo(i++));
+          Assert.That(album.UserPlayCount, Is.GreaterThan(1));
+          Assert.That(album.Images, Contains.Key(ImageSize.Small));
+          Assert.That(album.Images, Contains.Key(ImageSize.Medium));
+          Assert.That(album.Images, Contains.Key(ImageSize.Large));
+          Assert.That(album.Images, Contains.Key(ImageSize.ExtraLarge));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetTopAlbumsAsync_InvalidUser_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetTopAlbumsAsync("SHOEGAZELASTFMINVALIDUSER");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      });
+    }
+
+    #endregion GetTopAlbumsAsync
   }
 }

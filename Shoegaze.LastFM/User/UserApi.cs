@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Artist;
+﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using System.Text.Json;
@@ -306,7 +307,46 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<ArtistInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top artists: " + ex.Message);
+    }
+  }
+
+  public async Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>
+    {
+      ["user"] = username
+    };
+
+    if (period.HasValue)
+      parameters["period"] = period.Value.ToApiString();
+    if (page.HasValue)
+      parameters["page"] = page.Value.ToString();
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+
+    var result = await _invoker.SendAsync("user.getTopAlbums", parameters, false, ct);
+
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var topAlbumsProperty = result.Data.RootElement.GetProperty("topalbums");
+      var albumsArray = topAlbumsProperty.TryGetProperty("album", out var ta) ? ta : default;
+
+      var albums = albumsArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. albumsArray.EnumerateArray().Select(AlbumInfo.FromJson)],
+        JsonValueKind.Object => [AlbumInfo.FromJson(albumsArray)],
+        _ => new List<AlbumInfo>()
+      };
+
+      return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(topAlbumsProperty, albums), result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<PagedResult<AlbumInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top albums: " + ex.Message);
     }
   }
 }
