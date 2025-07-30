@@ -38,7 +38,7 @@ jobs:
         reportgenerator \
         -reports:./TestResults/**/coverage.cobertura.xml \
         -targetdir:./coveragereport \
-        -reporttypes:Htm
+        -reporttypes:Html
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
