@@ -96,7 +96,7 @@ public class TrackApiTests
 
     var api = new TrackApi(mockInvoker.Object);
 
-    var result = await api.GetInfoByNameAsync("Blind", "Korn");
+    var result = await api.GetInfoByNameAsync("Blind", "Korn", "testuser");
 
     Assert.Multiple(() =>
     {

@@ -42,7 +42,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="TrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="TrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public int? Listeners { get; set; }
+    public int? ListenerCount { get; set; }
 
     /// <summary>
     /// Amount of plays this track has.
@@ -256,7 +256,7 @@ namespace Shoegaze.LastFM.Track
         Url = url,
         Duration = duration,
         IsStreamable = isStreamable,
-        Listeners = listeners,
+        ListenerCount = listeners,
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
         PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available

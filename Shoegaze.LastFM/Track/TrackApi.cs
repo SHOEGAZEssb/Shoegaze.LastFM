@@ -31,6 +31,8 @@
       try
       {
         var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("track"));
+        if (username == null)
+          trackInfo.UserPlayCount = null; // manual fix for duplicate playcount property possibility (if username is null, userplaycount will not be available)
         return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
       }
       catch (Exception ex)
@@ -52,7 +54,7 @@
       if (!string.IsNullOrWhiteSpace(username))
         parameters["username"] = username;
 
-      var result = await _invoker.SendAsync("track.getInfo", parameters, username != null, ct);
+      var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
 
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
@@ -60,6 +62,8 @@
       try
       {
         var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("track"));
+        if (username == null)
+          trackInfo.UserPlayCount = null; // manual fix for duplicate playcount property possibility (if username is null, userplaycount will not be available)
         return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
       }
       catch (Exception ex)
