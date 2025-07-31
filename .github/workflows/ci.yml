@@ -26,26 +26,6 @@ jobs:
 
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
-
-    - name: Run all tests with coverage
-      run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
-      
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
-    - name: Generate coverage report
-      run: |
-        reportgenerator \
-        -reports:./TestResults/**/coverage.cobertura.xml \
-        -targetdir:./coveragereport \
-        -reporttypes:Html
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./TestResults/**/coverage.cobertura.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true
     
     - name: Install SonarScanner for .NET
       run: dotnet tool install --global dotnet-sonarscanner
@@ -64,3 +44,20 @@ jobs:
 
     - name: SonarCloud End
       run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        reportgenerator \
+        -reports:./TestResults/**/coverage.cobertura.xml \
+        -targetdir:./coveragereport \
+        -reporttypes:Html
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./TestResults/**/coverage.cobertura.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
