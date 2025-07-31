@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM.Tests", "Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM", "Shoegaze.LastFM\Shoegaze.LastFM.csproj", "{18ED53FD-F0EB-41DD-A15E-EE55377856DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM.Playground", "Shoegaze.LastFM.Playground\Shoegaze.LastFM.Playground.csproj", "{48B71D4C-7A08-47F2-98CC-985068810CC4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoegaze.LastFM.IntegrationTests", "Shoegaze.LastFM.IntegrationTests\Shoegaze.LastFM.IntegrationTests.csproj", "{4D326C61-958C-4BCA-8B03-37451C522195}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
@@ -47,18 +45,6 @@ Global
 		{18ED53FD-F0EB-41DD-A15E-EE55377856DE}.Release|x64.Build.0 = Release|Any CPU
 		{18ED53FD-F0EB-41DD-A15E-EE55377856DE}.Release|x86.ActiveCfg = Release|Any CPU
 		{18ED53FD-F0EB-41DD-A15E-EE55377856DE}.Release|x86.Build.0 = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|x64.Build.0 = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Debug|x86.Build.0 = Debug|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x64.ActiveCfg = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x64.Build.0 = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x86.ActiveCfg = Release|Any CPU
-		{48B71D4C-7A08-47F2-98CC-985068810CC4}.Release|x86.Build.0 = Release|Any CPU
 		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D326C61-958C-4BCA-8B03-37451C522195}.Debug|x64.ActiveCfg = Debug|Any CPU
