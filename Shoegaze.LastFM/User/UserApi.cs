@@ -271,6 +271,44 @@ internal class UserApi : IUserApi
     }
   }
 
+  public async Task<ApiResult<IReadOnlyList<T>>> GetPersonalTagsAsync<T>(string username, string tag, int? limit = null, int? page = null, CancellationToken ct = default) where T : ITagable
+  {
+    var parameters = new Dictionary<string, string>
+    {
+      ["user"] = username,
+      ["tag"] = tag,
+      ["taggingtype"] = GetTypeJsonPropertyName(typeof(T)).ToLower(),
+    };
+
+    if (page.HasValue)
+      parameters["page"] = page.Value.ToString();
+    if (limit.HasValue)
+      parameters["limit"] = limit.Value.ToString();
+
+    var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
+    var result = await _invoker.SendAsync($"user.getPersonalTags", parameters, false, ct);
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var chartArray = result.Data.RootElement.GetProperty($"taggings").GetProperty($"{iTagablePropertyName.ToLower()}s").TryGetProperty(iTagablePropertyName.ToLower(), out var ta) ? ta : default;
+
+      var charts = chartArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(ITagableFromJson<T>)],
+        JsonValueKind.Object => [ITagableFromJson<T>(chartArray)],
+        _ => new List<T>()
+      };
+
+      return ApiResult<IReadOnlyList<T>>.Success(charts, result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<IReadOnlyList<T>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse personal tags: " + ex.Message);
+    }
+  }
+
   public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>
@@ -391,7 +429,7 @@ internal class UserApi : IUserApi
     if (to != null)
       parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
 
-    var iChartablePropertyName = GetIChartableJsonPropertyName(typeof(T));
+    var iChartablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getWeekly{iChartablePropertyName}Chart", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
@@ -415,14 +453,26 @@ internal class UserApi : IUserApi
     }
   }
 
-  internal static string GetIChartableJsonPropertyName(Type chartableType)
+  internal static T ITagableFromJson<T>(JsonElement root) where T : ITagable
   {
-    return chartableType switch
+    if (typeof(T) == typeof(AlbumInfo))
+      return (T)(object)AlbumInfo.FromJson(root);
+    else if (typeof(T) == typeof(ArtistInfo))
+      return (T)(object)ArtistInfo.FromJson(root);
+    else if (typeof(T) == typeof(TrackInfo))
+      return (T)(object)TrackInfo.FromJson(root);
+
+    throw new NotSupportedException($"No FromJson defined for type {typeof(T)}");
+  }
+
+  internal static string GetTypeJsonPropertyName(Type type)
+  {
+    return type switch
     {
       var t when t == typeof(ArtistInfo) => "Artist",
       var t when t == typeof(AlbumInfo) => "Album",
       var t when t == typeof(TrackInfo) => "Track",
-      _ => throw new NotSupportedException($"Unsupported IChartable type: {chartableType}")
+      _ => throw new NotSupportedException($"Unsupported type: {type}")
     };
   }
 

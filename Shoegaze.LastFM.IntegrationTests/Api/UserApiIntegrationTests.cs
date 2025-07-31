@@ -705,5 +705,100 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetWeeklyChartAsync
+
+    #region GetPersonalTagsAsync
+
+    [Test]
+    public async Task GetPersonalTagsAsync_Artist_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetPersonalTagsAsync<ArtistInfo>("coczero", "shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var artist in response.Data.Take(10))
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetPersonalTagsAsync_Album_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetPersonalTagsAsync<AlbumInfo>("coczero", "shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var album in response.Data.Take(10))
+      {
+        var artist = album.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+        });
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Name, Is.Not.Empty);
+          Assert.That(album.Url!.ToString(), Is.Not.Empty);
+          Assert.That(album.Mbid, Is.Not.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetPersonalTagsAsync_Track_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetPersonalTagsAsync<TrackInfo>("coczero", "shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var track in response.Data.Take(10))
+      {
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+        });
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Album, Is.Null);
+        });
+      }
+    }
+
+    #endregion GetPersonalTagsAsync
   }
 }

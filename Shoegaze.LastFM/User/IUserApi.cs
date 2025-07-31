@@ -61,6 +61,8 @@ public interface IUserApi
     int? limit = null,
     CancellationToken ct = default);
 
+  Task<ApiResult<IReadOnlyList<T>>> GetPersonalTagsAsync<T>(string username, string tag, int? limit = null, int? page = null, CancellationToken ct = default) where T : ITagable;
+
   Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
 
   Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
