@@ -46,3 +46,12 @@ jobs:
         files: ./TestResults/**/coverage.cobertura.xml
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
+    
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        organization: shoegazessb
+        projectKey: SHOEGAZEssb_Shoegaze.LastFM
+        scannerMode: CLI
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
