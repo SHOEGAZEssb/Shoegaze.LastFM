@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
 {
-  public sealed class TrackInfo
+  public sealed class TrackInfo : IChartable, IJsonDeserializable<TrackInfo>
   {
     /// <summary>
     /// Name of this track.

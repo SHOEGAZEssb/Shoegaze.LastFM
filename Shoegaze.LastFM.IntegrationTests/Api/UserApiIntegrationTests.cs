@@ -1,4 +1,7 @@
-﻿using System.Web;
+﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Track;
+using System.Web;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
@@ -569,5 +572,138 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopAlbumsAsync
+
+    #region GetWeeklyChartListAsync
+
+    [Test]
+    public async Task GetWeeklyChartListAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetWeeklyChartListAsync("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var chart in response.Data.Take(10))
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(chart.From, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(chart.To, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(new DateTimeOffset(chart.From).ToUnixTimeSeconds(), Is.LessThan(new DateTimeOffset(chart.To).ToUnixTimeSeconds()));
+        });
+      }
+    }
+
+    #endregion GetWeeklyChartListAsync
+
+    #region GetWeeklyChartAsync
+
+    [Test]
+    public async Task GetWeeklyChartAsync_Artist_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetWeeklyChartAsync<ArtistInfo>("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      int i = 1;
+      foreach (var artist in response.Data.Take(10))
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Rank, Is.EqualTo(i++));
+          Assert.That(artist.UserPlayCount, Is.GreaterThanOrEqualTo(1));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetWeeklyChartAsync_Album_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetWeeklyChartAsync<AlbumInfo>("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      int i = 1;
+      foreach (var album in response.Data.Take(10))
+      {
+        var artist = album.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+        });
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Name, Is.Not.Empty);
+          Assert.That(album.Url!.ToString(), Is.Not.Empty);
+          Assert.That(album.Mbid, Is.Not.Null);
+          Assert.That(album.Rank, Is.EqualTo(i++));
+          Assert.That(album.UserPlayCount, Is.GreaterThanOrEqualTo(1));
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetWeeklyChartAsync_Track_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.User.GetWeeklyChartAsync<TrackInfo>("coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      int i = 1;
+      foreach (var track in response.Data.Take(10))
+      {
+        var artist = track.Artist;
+        Assert.That(artist, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+        });
+
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Name, Is.Not.Empty);
+          Assert.That(track.Url.ToString(), Is.Not.Empty);
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Rank, Is.EqualTo(i++));
+          Assert.That(track.UserPlayCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(track.Images, Is.Not.Empty);
+          Assert.That(track.Album, Is.Null);
+        });
+      }
+    }
+
+    #endregion GetWeeklyChartAsync
   }
 }

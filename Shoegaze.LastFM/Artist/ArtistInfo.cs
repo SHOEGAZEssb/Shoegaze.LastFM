@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM.Artist
 {
-  public sealed class ArtistInfo
+  public sealed class ArtistInfo : IChartable, IJsonDeserializable<ArtistInfo>
   {
     /// <summary>
     /// Name of this artist.

@@ -47,7 +47,6 @@ internal class UserApi : IUserApi
       return ApiResult<UserInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse user info: " + ex.Message);
     }
   }
-
   public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? page = null, int? limit = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
@@ -348,5 +347,94 @@ internal class UserApi : IUserApi
     {
       return ApiResult<PagedResult<AlbumInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top albums: " + ex.Message);
     }
+  }
+
+  public async Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(string username, CancellationToken ct = default)
+  {
+    var parameters = new Dictionary<string, string>
+    {
+      ["user"] = username
+    };
+
+    var result = await _invoker.SendAsync("user.getWeeklyChartList", parameters, false, ct);
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var chartArray = result.Data.RootElement.GetProperty("weeklychartlist").TryGetProperty("chart", out var ta) ? ta : default;
+
+      var charts = chartArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(WeeklyChartInfo.FromJson)],
+        JsonValueKind.Object => [WeeklyChartInfo.FromJson(chartArray)],
+        _ => new List<WeeklyChartInfo>()
+      };
+
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Success(charts, result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse weekly chart list: " + ex.Message);
+    }
+  }
+
+  public async Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTime? from = null, DateTime? to = null, CancellationToken ct = default) where T : IChartable
+  {
+    var parameters = new Dictionary<string, string>
+    {
+      ["user"] = username
+    };
+
+    if (from != null)
+      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+    if (to != null)
+      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+
+    var iChartablePropertyName = GetIChartableJsonPropertyName(typeof(T));
+    var result = await _invoker.SendAsync($"user.getWeekly{iChartablePropertyName}Chart", parameters, false, ct);
+    if (!result.IsSuccess || result.Data == null)
+      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+    try
+    {
+      var chartArray = result.Data.RootElement.GetProperty($"weekly{iChartablePropertyName.ToLower()}chart").TryGetProperty(iChartablePropertyName.ToLower(), out var ta) ? ta : default;
+
+      var charts = chartArray.ValueKind switch
+      {
+        JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(IChartableFromJson<T>)],
+        JsonValueKind.Object => [IChartableFromJson<T>(chartArray)],
+        _ => new List<T>()
+      };
+
+      return ApiResult<IReadOnlyList<T>>.Success(charts, result.HttpStatusCode);
+    }
+    catch (Exception ex)
+    {
+      return ApiResult<IReadOnlyList<T>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse weekly {iChartablePropertyName} chart: " + ex.Message);
+    }
+  }
+
+  internal static string GetIChartableJsonPropertyName(Type chartableType)
+  {
+    return chartableType switch
+    {
+      var t when t == typeof(ArtistInfo) => "Artist",
+      var t when t == typeof(AlbumInfo) => "Album",
+      var t when t == typeof(TrackInfo) => "Track",
+      _ => throw new NotSupportedException($"Unsupported IChartable type: {chartableType}")
+    };
+  }
+
+  internal static T IChartableFromJson<T>(JsonElement root) where T : IChartable
+  {
+    if (typeof(T) == typeof(AlbumInfo))
+      return (T)(object)AlbumInfo.FromJson(root);
+    else if (typeof(T) == typeof(ArtistInfo))
+      return (T)(object)ArtistInfo.FromJson(root);
+    else if (typeof(T) == typeof(TrackInfo))
+      return (T)(object)TrackInfo.FromJson(root);
+
+    throw new NotSupportedException($"No FromJson defined for type {typeof(T)}");
   }
 }

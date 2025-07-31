@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM.Album
 {
-  public class AlbumInfo
+  public class AlbumInfo : IChartable, IJsonDeserializable<AlbumInfo>
   {
     /// <summary>
     /// Info about the artist of this album.
@@ -75,6 +75,7 @@ namespace Shoegaze.LastFM.Album
                   ? textProp.GetString() ?? ""
                   : "";
 
+      // throw if name is empty
       if (string.IsNullOrEmpty(name))
         throw new Exception("Album json malformed");
 

@@ -62,8 +62,8 @@ namespace Shoegaze.LastFM
 
   internal static class UriHelper
   {
-    private const string BASEURL = "https://www.last.fm/";
     private const string MUSICBASEURL = "https://www.last.fm/music/";
+    private const string USERBASEURL = "https://www.last.fm/user/";
 
     public static Uri? MakeArtistUri(string artist)
     {
@@ -79,6 +79,14 @@ namespace Shoegaze.LastFM
         return null;
 
       return new Uri($"{MUSICBASEURL}{artist}/{album}");
+    }
+
+    public static Uri? MakeUserUri(string username)
+    {
+      if (string.IsNullOrEmpty(username))
+        return null;
+
+      return new Uri($"{USERBASEURL}{username}");
     }
   }
 

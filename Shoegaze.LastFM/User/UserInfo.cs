@@ -5,16 +5,16 @@ namespace Shoegaze.LastFM.User;
 /// <summary>
 /// Represents a Last.fm user's profile and statistics.
 /// </summary>
-public class UserInfo
+public class UserInfo : IJsonDeserializable<UserInfo>
 {
   public string Username { get; set; } = default!;
-  public string RealName { get; set; } = default!;
+  public string? RealName { get; set; } = default!;
   public Uri Url { get; set; } = default!;
-  public string Country { get; set; } = default!;
+  public string? Country { get; set; } = default!;
   public int? Age { get; set; }
   public string? Gender { get; set; } = default!;
-  public bool IsSubscriber { get; set; }
-  public int Playcount { get; set; }
+  public bool? IsSubscriber { get; set; }
+  public int? Playcount { get; set; }
 
   /// <summary>
   /// Number of artists this user has listened to.
@@ -45,8 +45,8 @@ public class UserInfo
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
   public int? AlbumCount { get; set; }
-  public int Playlists { get; set; }
-  public DateTime RegisteredDate { get; set; }
+  public int? Playlists { get; set; }
+  public DateTime? RegisteredDate { get; set; }
   public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
   public Uri? ImageUrl =>
@@ -60,15 +60,16 @@ public class UserInfo
   /// <summary>
   /// Parses a <c>JsonElement</c> representing a Last.fm user into a <see cref="UserInfo"/> instance.
   /// </summary>
-  public static UserInfo FromJson(JsonElement root)
+  internal static UserInfo FromJson(JsonElement root)
   {
     var images = JsonHelper.ParseImageArray(root);
 
+    var username = root.GetProperty("name").GetString()!;
     return new UserInfo
     {
-      Username = root.GetProperty("name").GetString()!,
+      Username = username,
       RealName = root.GetProperty("realname").GetString()!,
-      Url = new Uri(root.GetProperty("url").GetString()!),
+      Url = UriHelper.MakeUserUri(username)!,
       Country = root.GetProperty("country").GetString()!,
       Age = root.TryGetProperty("age", out var ageProp) && int.TryParse(ageProp.GetString(), out var age) ? age : null,
       Gender = root.TryGetProperty("gender", out var genderProp) ? genderProp.GetString() : null,
@@ -84,6 +85,4 @@ public class UserInfo
       Images = images
     };
   }
-
-
 }

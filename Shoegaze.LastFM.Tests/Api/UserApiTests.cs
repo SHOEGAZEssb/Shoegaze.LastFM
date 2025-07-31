@@ -1,4 +1,5 @@
 ﻿using Moq;
+using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.User;
 using System.Text.Json;
 
@@ -1032,5 +1033,163 @@ namespace Shoegaze.LastFM.Tests.Api
     }
 
     #endregion GetTopTagsAsync
+
+    #region GetWeeklyChartListAsync
+
+    [Test]
+    public async Task GetWeeklyChartListAsync_IntegrationTest()
+    {
+      var json = """
+      {
+        "weeklychartlist": {
+          "chart": [
+            {
+              "#text": "",
+              "from": "1108296000",
+              "to": "1108900800"
+            },
+            {
+              "#text": "",
+              "from": "1108900800",
+              "to": "1109505600"
+            },
+            {
+              "#text": "",
+              "from": "1109505600",
+              "to": "1110110400"
+            },
+            {
+              "#text": "",
+              "from": "1110110400",
+              "to": "1110715200"
+            }
+          ],
+          "@attr": {
+            "user": "testuser"
+          }
+        }
+      }
+      """;
+
+      var doc = JsonDocument.Parse(json);
+      var mock = new Mock<ILastfmRequestInvoker>();
+      mock.Setup(m => m.SendAsync("user.getWeeklyChartList", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
+
+      var api = new UserApi(mock.Object);
+      var response = await api.GetWeeklyChartListAsync("testuser");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var chart in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(chart.From, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(chart.To, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(new DateTimeOffset(chart.From).ToUnixTimeSeconds(), Is.LessThan(new DateTimeOffset(chart.To).ToUnixTimeSeconds()));
+        });
+      }
+    }
+
+    #endregion GetWeeklyChartListAsync
+
+    #region GetWeeklyChartAsync
+
+    [Test]
+    public async Task GetWeeklyChartAsync_Artist_IntegrationTest()
+    {
+      var json = """
+      {
+        "weeklyartistchart": {
+          "artist": [
+            {
+              "mbid": "3e9a8114-f872-46a0-a5f6-ff871556df6f",
+              "url": "https://www.last.fm/music/Blind+Equation",
+              "name": "Blind Equation",
+              "@attr": {
+                "rank": "1"
+              },
+              "playcount": "36"
+            },
+            {
+              "mbid": "16356c85-6462-4fae-8c67-8064a5983632",
+              "url": "https://www.last.fm/music/Vanna",
+              "name": "Vanna",
+              "@attr": {
+                "rank": "2"
+              },
+              "playcount": "19"
+            },
+            {
+              "mbid": "",
+              "url": "https://www.last.fm/music/bedroom+suicide",
+              "name": "bedroom suicide",
+              "@attr": {
+                "rank": "3"
+              },
+              "playcount": "16"
+            },
+            {
+              "mbid": "f6beac20-5dfe-4d1f-ae02-0b0a740aafd6",
+              "url": "https://www.last.fm/music/Tyler,+The+Creator",
+              "name": "Tyler, The Creator",
+              "@attr": {
+                "rank": "4"
+              },
+              "playcount": "14"
+            },
+            {
+              "mbid": "",
+              "url": "https://www.last.fm/music/Kristian+Harting",
+              "name": "Kristian Harting",
+              "@attr": {
+                "rank": "5"
+              },
+              "playcount": "13"
+            }
+          ],
+          "@attr": {
+            "from": "1753272000",
+            "user": "testuser",
+            "to": "1753876800"
+          }
+        }
+      }
+      """;
+
+      var doc = JsonDocument.Parse(json);
+      var mock = new Mock<ILastfmRequestInvoker>();
+      mock.Setup(m => m.SendAsync("user.getWeeklyArtistChart", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(ApiResult<JsonDocument>.Success(doc, 200));
+
+      var api = new UserApi(mock.Object);
+      var response = await api.GetWeeklyChartAsync<ArtistInfo>("testuser");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      int i = 1;
+      foreach (var artist in response.Data.Take(10))
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Name, Is.Not.Empty);
+          Assert.That(artist.Url.ToString(), Is.Not.Empty);
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.Rank, Is.EqualTo(i++));
+          Assert.That(artist.UserPlayCount, Is.GreaterThanOrEqualTo(1));
+        });
+      }
+    }
+
+    #endregion GetWeeklyChartAsync
   }
 }
