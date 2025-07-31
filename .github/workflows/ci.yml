@@ -47,11 +47,20 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
     
-    - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@v2
-      with:
-        organization: shoegazessb
-        projectKey: SHOEGAZEssb_Shoegaze.LastFM
-        scannerMode: CLI
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Install SonarScanner for .NET
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    - name: Add .NET tools to PATH
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: SonarCloud Begin
+      run: dotnet sonarscanner begin /k:"SHOEGAZEssb_Shoegaze.LastFM" /o:"shoegazessb" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+
+    - name: Build (for SonarCloud)
+      run: dotnet build --no-incremental
+
+    - name: Test (for SonarCloud)
+      run: dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+    - name: SonarCloud End
+      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
