@@ -6,7 +6,7 @@
       string track,
       string artist,
       string? username = null,
-      bool autocorrect = false,
+      bool autocorrect = true,
       CancellationToken ct = default);
 
     Task<ApiResult<TrackInfo>> GetInfoByMbidAsync(
@@ -17,6 +17,19 @@
     Task<ApiResult<TrackInfo>> GetCorrectionAsync(
       string track,
       string artist,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByNameAsync(
+      string track,
+      string artist,
+      bool autocorrect = true,
+      int? limit = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByMbidAsync(
+      string mbid,
+      bool autocorrect = true,
+      int? limit = null,
       CancellationToken ct = default);
   }
 }

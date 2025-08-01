@@ -170,5 +170,59 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
 
     #endregion GetCorrectionAsync
+
+    #region GetSimilarByNameAsync
+
+    [Test]
+    public async Task GetSimilarByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetSimilarByNameAsync("Blind", "Korn");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var track in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.PlayCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(track.Match, Is.Not.EqualTo(0.0d));
+        });
+      }
+    }
+
+    #endregion GetSimilarByNameAsync
+
+    #region GetSimilarByMbidAsync
+
+    [Test]
+    public async Task GetSimilarByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetSimilarByMbidAsync("7bc25578-9469-4f46-97ce-1871d9ce1c69");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var track in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.PlayCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(track.Match, Is.Not.EqualTo(0.0d));
+        });
+      }
+    }
+
+    #endregion GetSimilarByMbidAsync
   }
 }

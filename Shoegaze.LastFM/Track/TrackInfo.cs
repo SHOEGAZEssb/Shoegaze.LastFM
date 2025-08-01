@@ -98,6 +98,17 @@ namespace Shoegaze.LastFM.Track
     public int? Rank { get; set; }
 
     /// <summary>
+    /// Indicates the match score of a tracks for which similar
+    /// tracks have been requested.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.GetSimilarByNameAsync(string, string, bool, int?, CancellationToken)"/>.
+    /// </remarks>
+    public double? Match { get; set; }
+
+    /// <summary>
     /// Info about the artist of this track.
     /// </summary>
     /// <remarks>
@@ -179,7 +190,7 @@ namespace Shoegaze.LastFM.Track
       var mbid = track.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null;
 
       TimeSpan? duration = null;
-      if (track.TryGetProperty("duration", out var durProp) && long.TryParse(durProp.GetString(), out var dur))
+      if (track.TryGetProperty("duration", out var durProp) && JsonHelper.TryParseNumber<long>(durProp, out var dur))
         duration = TimeSpan.FromMilliseconds(dur);
 
       bool? isStreamable = null;
@@ -187,24 +198,24 @@ namespace Shoegaze.LastFM.Track
       {
         if (streamableProp.ValueKind == JsonValueKind.Object)
         {
-          if(streamableProp.TryGetProperty("#text", out var streamableText))
+          if (streamableProp.TryGetProperty("#text", out var streamableText))
             isStreamable = streamableText.GetString() == "1";
         }
         else if (streamableProp.ValueKind == JsonValueKind.String)
           isStreamable = streamableProp.GetString() == "1";
-      }          
+      }
 
       int? listeners = null;
-      if (track.TryGetProperty("listeners", out var listenersProp) && int.TryParse(listenersProp.GetString(), out var parsedListeners))
+      if (track.TryGetProperty("listeners", out var listenersProp) && JsonHelper.TryParseNumber<int>(listenersProp, out var parsedListeners))
         listeners = parsedListeners;
 
       int? playcount = null;
-      if (track.TryGetProperty("playcount", out var playProp) && int.TryParse(playProp.GetString(), out var parsedPlaycount))
+      if (track.TryGetProperty("playcount", out var playProp) && JsonHelper.TryParseNumber<int>(playProp, out var parsedPlaycount))
         playcount = parsedPlaycount;
 
       int? userPlaycount = null;
-      if (track.TryGetProperty("userplaycount", out var upProp) && int.TryParse(upProp.GetString(), out var parsedUp)
-          || track.TryGetProperty("playcount", out upProp) && int.TryParse(upProp.GetString(), out parsedUp))
+      if (track.TryGetProperty("userplaycount", out var upProp) && JsonHelper.TryParseNumber<int>(upProp, out var parsedUp)
+          || track.TryGetProperty("playcount", out upProp) && JsonHelper.TryParseNumber<int>(upProp, out parsedUp))
         userPlaycount = parsedUp;
 
       bool? isLoved = null;
@@ -220,11 +231,15 @@ namespace Shoegaze.LastFM.Track
       }
 
       int? rank = null;
-      if(track.TryGetProperty("@attr", out var attrProp))
+      if (track.TryGetProperty("@attr", out var attrProp))
         rank = attrProp.TryGetProperty("rank", out var rankProp) ? int.Parse(rankProp.GetString()!) : null;
 
+      double? match = null;
+      if (track.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
+        match = matchValue;
+
       ArtistInfo? artist = null;
-      if(track.TryGetProperty("artist", out var artistProp))
+      if (track.TryGetProperty("artist", out var artistProp))
       {
         artist = ArtistInfo.FromJson(artistProp);
       }
@@ -263,6 +278,7 @@ namespace Shoegaze.LastFM.Track
         UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
         Rank = rank,
         PlayCount = rank == null ? playcount : null, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount
+        Match = match,
         Artist = artist!,
         Album = album,
         TopTags = tags,

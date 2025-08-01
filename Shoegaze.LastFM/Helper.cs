@@ -58,7 +58,52 @@ namespace Shoegaze.LastFM
       if (!string.IsNullOrWhiteSpace(url) && !target.ContainsKey(size))
         target[size] = new Uri(url);
     }
+
+    public static bool TryParseNumber<T>(JsonElement element, out T value) where T : struct
+    {
+      if (element.ValueKind == JsonValueKind.String)
+      {
+        var str = element.GetString();
+        if (typeof(T) == typeof(int) && int.TryParse(str, out var i))
+        {
+          value = (T)(object)i;
+          return true;
+        }
+        else if (typeof(T) == typeof(long) && long.TryParse(str, out var l))
+        {
+          value = (T)(object)l;
+          return true;
+        }
+        else if (typeof(T) == typeof(double) && double.TryParse(str, out var d))
+        {
+          value = (T)(object)d;
+          return true;
+        }
+      }
+      else if (element.ValueKind == JsonValueKind.Number)
+      {
+        if (typeof(T) == typeof(int) && element.TryGetInt32(out var i))
+        {
+          value = (T)(object)i;
+          return true;
+        }
+        else if (typeof(T) == typeof(long) && element.TryGetInt64(out var l))
+        {
+          value = (T)(object)l;
+          return true;
+        }
+        else if (typeof(T) == typeof(double) && element.TryGetDouble(out var d))
+        {
+          value = (T)(object)d;
+          return true;
+        }
+      }
+
+      value = default;
+      return false;
+    }
   }
+
 
   internal static class UriHelper
   {
