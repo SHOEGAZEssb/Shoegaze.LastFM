@@ -165,7 +165,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
       var artist = track.Artist;
       Assert.That(artist, Is.Not.Null);
-      Assert.That(artist.Name, Is.EqualTo("Guns N' Roses"));      
+      Assert.That(artist.Name, Is.EqualTo("Guns N' Roses"));
     }
 
 
@@ -278,5 +278,34 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetUserTagsByMbidAsync
+
+    #region GetTopTagsByNameAsync
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetTopTagsByName("soon", "my bloody valentine");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var tag in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Name, Is.Not.Empty);
+          Assert.That(tag.Url.ToString(), Is.Not.Empty);
+          Assert.That(tag.Count, Is.GreaterThanOrEqualTo(1));
+          Assert.That(tag.UserUsedCount, Is.Null);
+        });
+      }
+    }
+
+    #endregion GetTopTagsByNameAsync
   }
 }

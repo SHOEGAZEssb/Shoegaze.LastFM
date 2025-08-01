@@ -46,5 +46,11 @@ namespace Shoegaze.LastFM.Track
       string? username = null,
       bool autocorrect = true,
       CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByName(
+      string track,
+      string artist,
+      bool autocorrect = true,
+      CancellationToken ct = default);
   }
 }

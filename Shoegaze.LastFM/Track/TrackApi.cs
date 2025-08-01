@@ -219,5 +219,45 @@ namespace Shoegaze.LastFM.Track
         return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByName(string track, string artist, bool autocorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = track,
+        ["artist"] = artist,
+        ["autocorrect"] = autocorrect ? "1" : "0"
+      };
+
+      return await GetTopTags(parameters, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTags(Dictionary<string, string> parameters, CancellationToken ct)
+    {
+      var result = await _invoker.SendAsync("track.getTopTags", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+      try
+      {
+        var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
+
+        var tags = tagArray.ValueKind switch
+        {
+          JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
+          JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
+          _ => new List<TagInfo>()
+        };
+
+        foreach (var tag in tags)
+          tag.UserUsedCount = null; // not used in this function, but json property has same count as name
+
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
+      }
+    }
   }
 }
