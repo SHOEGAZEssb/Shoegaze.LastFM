@@ -1,9 +1,4 @@
 ﻿using Shoegaze.LastFM.Track;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
 {
@@ -12,7 +7,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
   {
     #region GetInfoByNameAsync
 
-    internal static void AssertGetInfoTrackInfo(TrackInfo track, bool usernameIncluded)
+    private static void AssertGetInfoTrackInfo(TrackInfo track, bool usernameIncluded)
     {
       Assert.Multiple(() =>
       {
@@ -145,5 +140,35 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetInfoByMbidAsync
+
+    #region GetCorrectionAsync
+
+    [Test]
+    public async Task GetCorrectionAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetCorrectionAsync("Mrbrownstone", "guns and roses");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var track = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(track.Name, Is.EqualTo("Mr. Brownstone"));
+        Assert.That(track.Mbid, Is.Not.Empty);
+        Assert.That(track.Url.ToString(), Is.Not.Empty);
+      });
+
+      var artist = track.Artist;
+      Assert.That(artist, Is.Not.Null);
+      Assert.That(artist.Name, Is.EqualTo("Guns N' Roses"));      
+    }
+
+
+    #endregion GetCorrectionAsync
   }
 }

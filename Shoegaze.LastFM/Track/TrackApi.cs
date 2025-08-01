@@ -71,6 +71,30 @@
         return ApiResult<TrackInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<TrackInfo>> GetCorrectionAsync(string track, string artist, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = track,
+        ["artist"] = artist
+      };
+
+      var result = await _invoker.SendAsync("track.getCorrection", parameters, false, ct);
+
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+      try
+      {
+        var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("corrections").GetProperty("correction"));
+        return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<TrackInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track info: " + ex.Message);
+      }
+    }
   }
 
 }

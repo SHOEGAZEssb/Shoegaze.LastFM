@@ -1,8 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Track;
-using System.Web;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
 {

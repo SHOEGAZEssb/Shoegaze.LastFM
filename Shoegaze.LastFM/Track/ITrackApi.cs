@@ -13,5 +13,10 @@
       string mbid,
       string? username = null,
       CancellationToken ct = default);
+
+    Task<ApiResult<TrackInfo>> GetCorrectionAsync(
+      string track,
+      string artist,
+      CancellationToken ct = default);
   }
 }
