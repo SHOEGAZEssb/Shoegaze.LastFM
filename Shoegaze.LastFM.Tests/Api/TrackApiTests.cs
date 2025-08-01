@@ -7,6 +7,8 @@ namespace Shoegaze.LastFM.Tests.Api;
 [TestFixture]
 public class TrackApiTests
 {
+  #region GetInfoByNameAsync
+
   [Test]
   public async Task GetInfoByNameAsync_ReturnsTrackInfo_WhenSuccessful()
   {
@@ -115,6 +117,10 @@ public class TrackApiTests
       Assert.That(result.Data.Wiki?.Summary, Does.Contain("self-titled"));
     });
   }
+
+  #endregion GetInfoByNameAsync
+
+  #region GetInfoByMbidAsync
 
   [Test]
   public async Task GetInfoByMbidAsync_ReturnsTrackInfo_WhenSuccessful()
@@ -225,4 +231,5 @@ public class TrackApiTests
     });
   }
 
+  #endregion GetInfoByMbidAsync
 }

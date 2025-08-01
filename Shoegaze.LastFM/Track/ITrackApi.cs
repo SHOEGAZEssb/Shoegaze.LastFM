@@ -1,4 +1,6 @@
-﻿namespace Shoegaze.LastFM.Track
+﻿using Shoegaze.LastFM.Tag;
+
+namespace Shoegaze.LastFM.Track
 {
   public interface ITrackApi
   {
@@ -30,6 +32,19 @@
       string mbid,
       bool autocorrect = true,
       int? limit = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByName(
+      string track,
+      string artist,
+      string? username = null,
+      bool autocorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByMbid(
+      string mbid,
+      string? username = null,
+      bool autocorrect = true,
       CancellationToken ct = default);
   }
 }

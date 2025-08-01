@@ -224,5 +224,59 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetSimilarByMbidAsync
+
+    #region GetUserTagsByNameAsync
+
+    [Test]
+    public async Task GetUserTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetUserTagsByName("soon", "my bloody valentine", "coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var tag in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Name, Is.Not.Empty);
+          Assert.That(tag.Url.ToString(), Is.Not.Empty);
+        });
+      }
+    }
+
+    #endregion GetUserTagsByNameAsync
+
+    #region GetUserTagsByMbidAsync
+
+    [Test]
+    public async Task GetUserTagsByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.GetUserTagsByMbid("55f39cd9-9326-3ca0-bd7c-ed21f61b30b5", "coczero");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var tag in response.Data)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Name, Is.Not.Empty);
+          Assert.That(tag.Url.ToString(), Is.Not.Empty);
+        });
+      }
+    }
+
+    #endregion GetUserTagsByMbidAsync
   }
 }

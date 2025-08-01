@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.User;
+﻿using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.User;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
@@ -165,6 +166,57 @@ namespace Shoegaze.LastFM.Track
       catch (Exception ex)
       {
         return ApiResult<IReadOnlyList<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse similar track list: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByName(string track, string artist, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = track,
+        ["artist"] = artist,
+        ["autocorrect"] = autocorrect ? "1" : "0"
+      };
+
+      return await GetUserTags(parameters, username, ct);
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByMbid(string mbid, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["mbid"] = mbid,
+        ["autocorrect"] = autocorrect ? "1" : "0"
+      };
+
+      return await GetUserTags(parameters, username, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTags(Dictionary<string, string> parameters, string? username, CancellationToken ct)
+    {
+      if (username != null)
+        parameters.Add("user", username);
+
+      var result = await _invoker.SendAsync("track.getTags", parameters, username == null, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+      try
+      {
+        var tagArray = result.Data.RootElement.GetProperty("tags").TryGetProperty("tag", out var ta) ? ta : default;
+
+        var tags = tagArray.ValueKind switch
+        {
+          JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
+          JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
+          _ => new List<TagInfo>()
+        };
+
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
       }
     }
   }
