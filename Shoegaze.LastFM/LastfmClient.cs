@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Track;
+﻿using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
 
 namespace Shoegaze.LastFM;
@@ -8,6 +9,10 @@ namespace Shoegaze.LastFM;
 /// </summary>
 public class LastfmClient : ILastfmClient
 {
+  public IUserApi User { get; }
+  public ITrackApi Track { get; }
+  public ITagApi Tag { get; }
+
   private readonly LastfmApiInvoker _invoker;
 
   public LastfmClient(string apiKey, string apiSecret, HttpClient httpClient)
@@ -15,13 +20,9 @@ public class LastfmClient : ILastfmClient
     _invoker = new LastfmApiInvoker(apiKey, apiSecret, httpClient);
 
     User = new UserApi(_invoker);
-    //Artist = new ArtistApi(_invoker);
     Track = new TrackApi(_invoker);
+    Tag = new TagApi(_invoker);
   }
-
-  public IUserApi User { get; }
-  //public IArtistApi Artist { get; }
-  public ITrackApi Track { get; }
 
   public void SetSessionKey(string sessionKey)
   {

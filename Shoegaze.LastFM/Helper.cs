@@ -133,6 +133,7 @@ namespace Shoegaze.LastFM
   {
     private const string MUSICBASEURL = "https://www.last.fm/music/";
     private const string USERBASEURL = "https://www.last.fm/user/";
+    private const string TAGBASEURL = "https://www.last.fm/tag/";
 
     public static Uri? MakeArtistUri(string artist)
     {
@@ -156,6 +157,11 @@ namespace Shoegaze.LastFM
         return null;
 
       return new Uri($"{USERBASEURL}{username}");
+    }
+
+    public static Uri MakeTagUri(string tag)
+    {
+      return new Uri($"{TAGBASEURL}{tag.Replace(" ", "+")}");
     }
   }
 

@@ -77,7 +77,7 @@ namespace Shoegaze.LastFM.Album
 
       // throw if name is empty
       if (string.IsNullOrEmpty(name))
-        throw new Exception("Album json malformed");
+        throw new Exception("Album json malformed - name could not be parsed");
 
       int? rank = null;
       if (album.TryGetProperty("@attr", out var attributeProp) && attributeProp.TryGetProperty("rank", out var rankProp) && int.TryParse(rankProp.GetString()!, out var rankNum))
