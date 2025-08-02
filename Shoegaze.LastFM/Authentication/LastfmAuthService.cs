@@ -138,7 +138,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     return await GetSessionAsync(token, "", "");
   }
 
-  private static int GetFreePort()
+  internal static int GetFreePort()
   {
     var listener = new TcpListener(IPAddress.Loopback, 0);
     listener.Start();

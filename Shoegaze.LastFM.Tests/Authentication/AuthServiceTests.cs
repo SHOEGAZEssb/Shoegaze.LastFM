@@ -57,5 +57,11 @@ namespace Shoegaze.LastFM.Tests.Authentication
         Assert.That(session.SessionKey, Is.EqualTo("mock_session_key"));
       });
     }
+
+    [Test]
+    public void GetFreePort_IsNotZero()
+    {
+      Assert.That(LastfmAuthService.GetFreePort(), Is.Not.EqualTo(0));
+    }
   }
 }
