@@ -52,5 +52,12 @@ namespace Shoegaze.LastFM.Track
       string artist,
       bool autocorrect = true,
       CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<TrackInfo>>> SearchAsync(
+      string track,
+      string? artist = null,
+      int? limit = null,
+      int? page = null,
+      CancellationToken ct = default);
   }
 }

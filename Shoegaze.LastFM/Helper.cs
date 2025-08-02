@@ -102,8 +102,32 @@ namespace Shoegaze.LastFM
       value = default;
       return false;
     }
-  }
 
+    public static T ParseNumber<T>(JsonElement element) where T : struct
+    {
+      if (element.ValueKind == JsonValueKind.String)
+      {
+        var str = element.GetString();
+        if (typeof(T) == typeof(int))
+          return (T)(object)int.Parse(str!);
+        if (typeof(T) == typeof(long))
+          return (T)(object)long.Parse(str!);
+        if (typeof(T) == typeof(double))
+          return (T)(object)double.Parse(str!);
+      }
+      else if (element.ValueKind == JsonValueKind.Number)
+      {
+        if (typeof(T) == typeof(int))
+          return (T)(object)element.GetInt32();
+        if (typeof(T) == typeof(long))
+          return (T)(object)element.GetInt64();
+        if (typeof(T) == typeof(double))
+          return (T)(object)element.GetDouble();
+      }
+
+      throw new FormatException($"Cannot parse JSON element as {typeof(T).Name}: {element}");
+    }
+  }
 
   internal static class UriHelper
   {

@@ -29,7 +29,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
+    public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
     public bool? IsStreamable { get; set; }
 
@@ -65,7 +65,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<ArtistInfo> SimilarArtists { get; set; } = [];
+    public IReadOnlyList<ArtistInfo> SimilarArtists { get; set; } = [];
 
     /// <summary>
     /// List of tags of this artist.
@@ -73,31 +73,29 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public required IReadOnlyList<TagInfo> Tags { get; set; } = [];
+    public IReadOnlyList<TagInfo> Tags { get; set; } = [];
 
     public WikiInfo? Biography { get; set; }
 
     internal static ArtistInfo FromJson(JsonElement root)
     {
-      var artist = root.TryGetProperty("artist", out var artistProp) ? artistProp : root;
+      var artist = root.ValueKind == JsonValueKind.Object ?
+        (root.TryGetProperty("artist", out var artistProp) ? artistProp : root) : root;
 
       if (artist.ValueKind == JsonValueKind.String)
       {
-        var artistName = artist.GetString() ?? "";
+        var artistName = artist.GetString()!;
         return new ArtistInfo
         {
           Name = artistName,
           Url = UriHelper.MakeArtistUri(artistName)!,
-          Images = new Dictionary<ImageSize, Uri>(),
-          SimilarArtists = [],
-          Tags = []
         };
       }
 
       // name might either be in the name, artist or #text property
       var name = artist.TryGetProperty("name", out var nameProp)
         ? nameProp.GetString() ?? ""
-        : (artist.GetProperty("#text").GetString() ?? "");
+        : (artist.GetProperty("#text").GetString()!);
 
       var url = artist.TryGetProperty("url", out var urlProp) ? new Uri(urlProp.GetString()!) : UriHelper.MakeArtistUri(name);
 
@@ -132,7 +130,6 @@ namespace Shoegaze.LastFM.Artist
 
       int? listeners = null;
       int? plays = null;
-      //int? userPlayCount = null;
       if (artist.TryGetProperty("stats", out var stats))
       {
         if (stats.TryGetProperty("listeners", out var l) && int.TryParse(l.GetString(), out var parsedListeners))
@@ -140,9 +137,6 @@ namespace Shoegaze.LastFM.Artist
 
         if (stats.TryGetProperty("playcount", out var p) && int.TryParse(p.GetString(), out var parsedPlays))
           plays = parsedPlays;
-
-        //if (stats.TryGetProperty("userplaycount", out var up) && int.TryParse(up.GetString(), out var parsedUserPlayCount))
-        //  userPlayCount = parsedUserPlayCount;
       }
       else if (artist.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCount))
         plays = playCount;

@@ -307,5 +307,104 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopTagsByNameAsync
+
+    #region SearchAsync
+
+    [Test]
+    public async Task SearchAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.SearchAsync("Blind");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var track in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Images, Is.Not.Empty);
+          Assert.That(track.Artist, Is.Not.Null);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.ListenerCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(track.PlayCount, Is.Null);
+          Assert.That(track.UserPlayCount, Is.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_With_Artist_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.SearchAsync("Blind", "Korn");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var track in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Mbid, Is.Not.Null);
+          Assert.That(track.Images, Is.Not.Empty);
+          Assert.That(track.Artist, Is.Not.Null);
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.ListenerCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(track.PlayCount, Is.Null);
+          Assert.That(track.UserPlayCount, Is.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_Invalid_Track_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Track.SearchAsync("SHOEGAZELASTFMINVALIDTRACK");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.EqualTo(0));
+        Assert.That(pages.TotalItems, Is.EqualTo(0));
+      });
+
+      Assert.That(pages.Items, Is.Empty);
+    }
+
+    #endregion SearchAsync
   }
 }

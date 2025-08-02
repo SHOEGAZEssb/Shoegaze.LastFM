@@ -29,7 +29,7 @@ namespace Shoegaze.LastFM.Track
     /// Duration of this track.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null.
     /// </remarks>
     public TimeSpan? Duration { get; set; }
 
@@ -39,8 +39,9 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
-    /// - <see cref="TrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
-    /// - <see cref="TrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? ListenerCount { get; set; }
 
@@ -48,7 +49,7 @@ namespace Shoegaze.LastFM.Track
     /// Amount of plays this track has.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null.
     /// </remarks>
     public int? PlayCount { get; set; }
 
@@ -56,7 +57,7 @@ namespace Shoegaze.LastFM.Track
     /// Amount of plays the user has for which the request has been made.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null.
     /// Guaranteed to be available when using:
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/> with included username.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/> with included username.
@@ -81,7 +82,7 @@ namespace Shoegaze.LastFM.Track
     /// The time when the user for which the request has been made has loved this track.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null.
     /// Guaranteed to be available when using:
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
     /// </remarks>
@@ -166,7 +167,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, int?, int?, CancellationToken)"/>.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
     /// </remarks>
     public DateTime? PlayedAt { get; set; }
 
@@ -179,6 +180,15 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public bool? IsNowPlaying { get; set; }
+
+    /// <summary>
+    /// If the track can be streamed / previewed on the last.fm website.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
     public bool? IsStreamable { get; set; }
 
     internal static TrackInfo FromJson(JsonElement root)
@@ -231,8 +241,12 @@ namespace Shoegaze.LastFM.Track
       }
 
       int? rank = null;
+      bool? nowPlaying = null;
       if (track.TryGetProperty("@attr", out var attrProp))
+      {
         rank = attrProp.TryGetProperty("rank", out var rankProp) ? int.Parse(rankProp.GetString()!) : null;
+        nowPlaying = attrProp.TryGetProperty("nowplaying", out var nowPlayingProp) ? (bool.TryParse(nowPlayingProp.GetString(), out var nowPlayingValue) ? nowPlayingValue : null) : null;
+      }
 
       double? match = null;
       if (track.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
@@ -274,7 +288,8 @@ namespace Shoegaze.LastFM.Track
         ListenerCount = listeners,
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
-        PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available
+        IsNowPlaying = nowPlaying,
+        PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available (only when not IsNowPlaying)
         UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
         Rank = rank,
         PlayCount = rank == null ? playcount : null, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount

@@ -12,12 +12,23 @@ namespace Shoegaze.LastFM
 
     internal static PagedResult<T> FromJson(JsonElement element, List<T> items)
     {
-      var attr = element.GetProperty("@attr");
+      int parsedPage, totalPages, totalItems, perPage;
 
-      var parsedPage = int.TryParse(attr.GetProperty("page").GetString(), out var p) ? p : 1;
-      var totalPages = int.TryParse(attr.GetProperty("totalPages").GetString(), out var tp) ? tp : 1;
-      var totalItems = int.TryParse(attr.GetProperty("total").GetString(), out var t) ? t : items.Count;
-      var perPage = int.TryParse(attr.GetProperty("perPage").GetString(), out var pp) ? pp : items.Count;
+      if (element.TryGetProperty("opensearch:Query", out var _)) // opensearch format
+      {
+        totalItems = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:totalResults"));
+        perPage = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:itemsPerPage"));
+        totalPages = totalItems / perPage;
+        parsedPage = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:Query").GetProperty("startPage"));
+      }
+      else
+      {
+        var attr = element.GetProperty("@attr");
+        parsedPage = int.TryParse(attr.GetProperty("page").GetString(), out var p) ? p : 1;
+        totalPages = int.TryParse(attr.GetProperty("totalPages").GetString(), out var tp) ? tp : 1;
+        totalItems = int.TryParse(attr.GetProperty("total").GetString(), out var t) ? t : items.Count;
+        perPage = int.TryParse(attr.GetProperty("perPage").GetString(), out var pp) ? pp : items.Count;
+      }
 
       var paged = new PagedResult<T>
       {

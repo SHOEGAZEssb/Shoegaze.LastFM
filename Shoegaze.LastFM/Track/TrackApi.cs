@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Tag;
+﻿using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.User;
 using System.Text.Json;
 
@@ -250,13 +251,52 @@ namespace Shoegaze.LastFM.Track
         };
 
         foreach (var tag in tags)
-          tag.UserUsedCount = null; // not used in this function, but json property has same count as name
+          tag.UserUsedCount = null; // not used in this function, but json property has same name as count
 
         return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
       }
       catch (Exception ex)
       {
         return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<PagedResult<TrackInfo>>> SearchAsync(string track, string? artist = null, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = track
+      };
+
+      if (artist != null)
+        parameters["arttist"] = artist;
+      if (page.HasValue)
+        parameters["page"] = page.Value.ToString();
+      if (limit.HasValue)
+        parameters["limit"] = limit.Value.ToString();
+
+      var result = await _invoker.SendAsync("track.search", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+
+      try
+      {
+        var resultsProperty = result.Data.RootElement.GetProperty("results");
+        var trackMatchesProperty = resultsProperty.GetProperty("trackmatches");
+        var trackArray = trackMatchesProperty.TryGetProperty("track", out var ta) ? ta : default;
+
+        var tracks = trackArray.ValueKind switch
+        {
+          JsonValueKind.Array => [.. trackArray.EnumerateArray().Select(TrackInfo.FromJson)],
+          JsonValueKind.Object => [TrackInfo.FromJson(trackArray)],
+          _ => new List<TrackInfo>()
+        };
+
+        return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(resultsProperty, tracks), result.HttpStatusCode);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse tracks: " + ex.Message);
       }
     }
   }
