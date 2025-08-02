@@ -1,20 +1,24 @@
-﻿namespace Shoegaze.LastFM;
+﻿using System.Net;
 
-/// <summary>
-/// Represents logical categories of API outcomes.
-/// </summary>
-public enum ApiStatusCode
+namespace Shoegaze.LastFM;
+
+public enum LastFmStatusCode
 {
+  UnknownError = -1,
   Success = 0,
-  HttpError = 1,
-  InvalidSignature = 2,
-  AuthenticationRequired = 3,
-  RateLimited = 4,
-  NotFound = 5,
-  InvalidRequest = 6,
-  NetworkError = 7,
-  ServerError = 8,
-  UnknownError = 9
+  InvalidService = 2,
+  AuthenticationFailed = 4,
+  InvalidFormat = 5,
+  InvalidParameters = 6,
+  InvalidResource = 7,
+  OperationFailed = 8,
+  InvalidSessionKey = 9,
+  InvalidApiKey = 10,
+  ServiceOffline = 11,
+  InvalidMethodSignature = 13,
+  TemporaryError = 16,
+  SuspendedApiKey = 26,
+  RateLimitExceeded = 29
 }
 
 /// <summary>
@@ -35,15 +39,15 @@ public enum ImageSize
 public class ApiResult<T>
 {
   public T? Data { get; set; }
-  public int HttpStatusCode { get; set; }
+  public HttpStatusCode? HttpStatus { get; set; }
   public string? ErrorMessage { get; set; }
-  public ApiStatusCode Status { get; set; }
+  public LastFmStatusCode? Status { get; set; }
 
-  public bool IsSuccess => Status == ApiStatusCode.Success;
+  public bool IsSuccess => Status == LastFmStatusCode.Success;
 
-  internal static ApiResult<T> Success(T data, int httpStatus = 200)
-          => new() { Data = data, HttpStatusCode = httpStatus, Status = ApiStatusCode.Success };
+  internal static ApiResult<T> Success(T data, HttpStatusCode httpStatus = HttpStatusCode.OK)
+          => new() { Data = data, HttpStatus = httpStatus, Status = LastFmStatusCode.Success };
 
-  internal static ApiResult<T> Failure(ApiStatusCode status, int httpStatus = 0, string? error = null)
-      => new() { Status = status, HttpStatusCode = httpStatus, ErrorMessage = error };
+  internal static ApiResult<T> Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
+      => new() { Status = status, HttpStatus = httpStatus, ErrorMessage = error };
 }

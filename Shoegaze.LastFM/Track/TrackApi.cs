@@ -31,18 +31,18 @@ namespace Shoegaze.LastFM.Track
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
 
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
         var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("track"));
         if (username == null)
           trackInfo.UserPlayCount = null; // manual fix for duplicate playcount property possibility (if username is null, userplaycount will not be available)
-        return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
+        return ApiResult<TrackInfo>.Success(trackInfo);
       }
       catch (Exception ex)
       {
-        return ApiResult<TrackInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track info: " + ex.Message);
+        return ApiResult<TrackInfo>.Failure(null, result.HttpStatus, "Failed to parse track info: " + ex.Message);
       }
     }
 
@@ -62,18 +62,18 @@ namespace Shoegaze.LastFM.Track
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
 
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
         var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("track"));
         if (username == null)
           trackInfo.UserPlayCount = null; // manual fix for duplicate playcount property possibility (if username is null, userplaycount will not be available)
-        return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
+        return ApiResult<TrackInfo>.Success(trackInfo);
       }
       catch (Exception ex)
       {
-        return ApiResult<TrackInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track info: " + ex.Message);
+        return ApiResult<TrackInfo>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse track info: " + ex.Message);
       }
     }
 
@@ -88,16 +88,16 @@ namespace Shoegaze.LastFM.Track
       var result = await _invoker.SendAsync("track.getCorrection", parameters, false, ct);
 
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
         var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("corrections").GetProperty("correction"));
-        return ApiResult<TrackInfo>.Success(trackInfo, result.HttpStatusCode);
+        return ApiResult<TrackInfo>.Success(trackInfo);
       }
       catch (Exception ex)
       {
-        return ApiResult<TrackInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track info: " + ex.Message);
+        return ApiResult<TrackInfo>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse track info: " + ex.Message);
       }
     }
 
@@ -115,7 +115,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -128,11 +128,11 @@ namespace Shoegaze.LastFM.Track
           _ => new List<TrackInfo>()
         };
 
-        return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks, result.HttpStatusCode);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks);
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse similar track list: " + ex.Message);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse similar track list: " + ex.Message);
       }
     }
 
@@ -149,7 +149,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -162,11 +162,11 @@ namespace Shoegaze.LastFM.Track
           _ => new List<TrackInfo>()
         };
 
-        return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks, result.HttpStatusCode);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks);
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse similar track list: " + ex.Message);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse similar track list: " + ex.Message);
       }
     }
 
@@ -200,7 +200,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getTags", parameters, username == null, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -213,11 +213,11 @@ namespace Shoegaze.LastFM.Track
           _ => new List<TagInfo>()
         };
 
-        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse track tag list: " + ex.Message);
       }
     }
 
@@ -237,7 +237,7 @@ namespace Shoegaze.LastFM.Track
     {
       var result = await _invoker.SendAsync("track.getTopTags", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -253,11 +253,11 @@ namespace Shoegaze.LastFM.Track
         foreach (var tag in tags)
           tag.UserUsedCount = null; // not used in this function, but json property has same name as count
 
-        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse track tag list: " + ex.Message);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse track tag list: " + ex.Message);
       }
     }
 
@@ -277,7 +277,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.search", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -292,11 +292,11 @@ namespace Shoegaze.LastFM.Track
           _ => new List<TrackInfo>()
         };
 
-        return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(resultsProperty, tracks), result.HttpStatusCode);
+        return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(resultsProperty, tracks));
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse tracks: " + ex.Message);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
   }

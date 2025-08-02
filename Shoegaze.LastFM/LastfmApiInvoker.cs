@@ -1,4 +1,5 @@
 ﻿using Shoegaze.LastFM.Authentication;
+using System.Net;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM
@@ -23,7 +24,7 @@ namespace Shoegaze.LastFM
         if (requireAuth)
         {
           if (string.IsNullOrWhiteSpace(SessionKey))
-            return ApiResult<JsonDocument>.Failure(ApiStatusCode.AuthenticationRequired, 401, "Session key is required.");
+            return ApiResult<JsonDocument>.Failure(LastFmStatusCode.AuthenticationFailed, HttpStatusCode.Unauthorized, "Session key is required.");
 
           parameters["sk"] = SessionKey;
 
@@ -46,26 +47,60 @@ namespace Shoegaze.LastFM
         if (!response.IsSuccessStatusCode)
         {
           return ApiResult<JsonDocument>.Failure(
-              status: ApiStatusCode.HttpError,
-              httpStatus: (int)response.StatusCode,
+              status: LastFmStatusCode.UnknownError,
+              httpStatus: response.StatusCode,
               error: $"HTTP {response.StatusCode}: {json}"
           );
         }
 
-        return ApiResult<JsonDocument>.Success(JsonDocument.Parse(json), (int)response.StatusCode);
+        var jsonDoc = JsonDocument.Parse(json);
+        if (TryParseLastFmError(jsonDoc.RootElement, out var lfmCode, out var msg))
+          return ApiResult<JsonDocument>.Failure(lfmCode, response.StatusCode, msg);
+        else
+          return ApiResult<JsonDocument>.Success(jsonDoc, response.StatusCode);
       }
       catch (HttpRequestException ex)
       {
-        return ApiResult<JsonDocument>.Failure(ApiStatusCode.NetworkError, 0, ex.Message);
+        return ApiResult<JsonDocument>.Failure(LastFmStatusCode.UnknownError, ex.StatusCode, ex.Message);
       }
       catch (Exception ex)
       {
-        return ApiResult<JsonDocument>.Failure(ApiStatusCode.UnknownError, 0, ex.Message);
+        return ApiResult<JsonDocument>.Failure(LastFmStatusCode.UnknownError, 0, ex.Message);
       }
       finally
       {
         response?.Dispose();
       }
+    }
+
+    private static bool TryParseLastFmError(JsonElement root, out LastFmStatusCode statusCode, out string? errorMessage)
+    {
+      statusCode = LastFmStatusCode.UnknownError;
+      errorMessage = null;
+      try
+      {
+        if (root.TryGetProperty("error", out var errorProp) && JsonHelper.TryParseNumber(errorProp, out int error))
+        {
+          statusCode = ParseEnumOrDefault(error, LastFmStatusCode.UnknownError);
+          if (root.TryGetProperty("message", out var messageProp))
+            errorMessage = messageProp.GetString();
+
+          return true;
+        }
+
+        return false;
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    private static TEnum ParseEnumOrDefault<TEnum>(int value, TEnum defaultValue) where TEnum : struct, Enum
+    {
+      return Enum.IsDefined(typeof(TEnum), value)
+        ? (TEnum)(object)value
+        : defaultValue;
     }
   }
 }

@@ -32,7 +32,7 @@ internal class UserApi : IUserApi
     {
       return ApiResult<UserInfo>.Failure(
           result.Status,
-          result.HttpStatusCode,
+          result.HttpStatus,
           result.ErrorMessage
       );
     }
@@ -40,11 +40,11 @@ internal class UserApi : IUserApi
     try
     {
       var root = result.Data.RootElement.GetProperty("user");
-      return ApiResult<UserInfo>.Success(UserInfo.FromJson(root), result.HttpStatusCode);
+      return ApiResult<UserInfo>.Success(UserInfo.FromJson(root));
     }
     catch (Exception ex)
     {
-      return ApiResult<UserInfo>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse user info: " + ex.Message);
+      return ApiResult<UserInfo>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse user info: " + ex.Message);
     }
   }
   public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? page = null, int? limit = null, CancellationToken ct = default)
@@ -66,7 +66,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getFriends", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<UserInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<UserInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -92,7 +92,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<UserInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse friends list: " + ex.Message);
+      return ApiResult<PagedResult<UserInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse friends list: " + ex.Message);
     }
   }
 
@@ -116,7 +116,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getLovedTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -144,7 +144,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse loved tracks: {ex.Message}");
+      return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse loved tracks: {ex.Message}");
     }
   }
 
@@ -166,7 +166,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -185,7 +185,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<TrackInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tracks: " + ex.Message);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top tracks: " + ex.Message);
     }
   }
 
@@ -211,7 +211,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getRecentTracks", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -230,8 +230,8 @@ internal class UserApi : IUserApi
     catch (Exception ex)
     {
       return ApiResult<PagedResult<TrackInfo>>.Failure(
-        ApiStatusCode.UnknownError,
-        result.HttpStatusCode,
+        LastFmStatusCode.UnknownError,
+        result.HttpStatus,
         "Failed to parse recent tracks: " + ex.Message);
     }
   }
@@ -250,7 +250,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -263,11 +263,11 @@ internal class UserApi : IUserApi
         _ => new List<TagInfo>()
       };
 
-      return ApiResult<IReadOnlyList<TagInfo>>.Success(tags, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<TagInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top tags: " + ex.Message);
     }
   }
 
@@ -288,7 +288,7 @@ internal class UserApi : IUserApi
     var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getPersonalTags", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -301,11 +301,11 @@ internal class UserApi : IUserApi
         _ => new List<T>()
       };
 
-      return ApiResult<IReadOnlyList<T>>.Success(charts, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<T>>.Success(charts);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<T>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse personal tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<T>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse personal tags: " + ex.Message);
     }
   }
 
@@ -326,7 +326,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopArtists", parameters, false, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -340,11 +340,11 @@ internal class UserApi : IUserApi
         _ => new List<ArtistInfo>()
       };
 
-      return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(topArtistsProperty, artists), result.HttpStatusCode);
+      return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(topArtistsProperty, artists));
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<ArtistInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top artists: " + ex.Message);
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top artists: " + ex.Message);
     }
   }
 
@@ -365,7 +365,7 @@ internal class UserApi : IUserApi
     var result = await _invoker.SendAsync("user.getTopAlbums", parameters, false, ct);
 
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -379,11 +379,11 @@ internal class UserApi : IUserApi
         _ => new List<AlbumInfo>()
       };
 
-      return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(topAlbumsProperty, albums), result.HttpStatusCode);
+      return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(topAlbumsProperty, albums));
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<AlbumInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse top albums: " + ex.Message);
+      return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top albums: " + ex.Message);
     }
   }
 
@@ -396,7 +396,7 @@ internal class UserApi : IUserApi
 
     var result = await _invoker.SendAsync("user.getWeeklyChartList", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -409,11 +409,11 @@ internal class UserApi : IUserApi
         _ => new List<WeeklyChartInfo>()
       };
 
-      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Success(charts, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Success(charts);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, "Failed to parse weekly chart list: " + ex.Message);
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
     }
   }
 
@@ -432,7 +432,7 @@ internal class UserApi : IUserApi
     var iChartablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getWeekly{iChartablePropertyName}Chart", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
-      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatusCode, result.ErrorMessage);
+      return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -445,11 +445,11 @@ internal class UserApi : IUserApi
         _ => new List<T>()
       };
 
-      return ApiResult<IReadOnlyList<T>>.Success(charts, result.HttpStatusCode);
+      return ApiResult<IReadOnlyList<T>>.Success(charts);
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<T>>.Failure(ApiStatusCode.UnknownError, result.HttpStatusCode, $"Failed to parse weekly {iChartablePropertyName} chart: " + ex.Message);
+      return ApiResult<IReadOnlyList<T>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse weekly {iChartablePropertyName} chart: " + ex.Message);
     }
   }
 
