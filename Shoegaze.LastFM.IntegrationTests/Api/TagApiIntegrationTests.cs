@@ -99,5 +99,42 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetSimilarAsync
+
+    #region GetTopAlbumsAsync
+
+    [Test]
+    public async Task GetTopAlbumsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopAlbumsAsync("shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      foreach (var album in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Url, Is.Not.Null);
+          Assert.That(album.Images, Is.Not.Empty);
+          Assert.That(album.Rank, Is.EqualTo(i++));
+          Assert.That(album.Artist, Is.Not.Null);
+        });
+      }
+    }
+
+    #endregion GetTopAlbumsAsync
   }
 }

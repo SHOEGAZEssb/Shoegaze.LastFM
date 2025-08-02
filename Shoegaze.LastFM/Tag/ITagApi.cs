@@ -1,4 +1,6 @@
-﻿namespace Shoegaze.LastFM.Tag
+﻿using Shoegaze.LastFM.Album;
+
+namespace Shoegaze.LastFM.Tag
 {
   public interface ITagApi
   {
@@ -18,6 +20,12 @@
     /// </remarks>
     Task<ApiResult<IReadOnlyList<TagInfo>>> GetSimilarAsync(
       string name,
+      CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(
+      string tagName,
+      int? limit = null,
+      int? page = null,
       CancellationToken ct = default);
   }
 }

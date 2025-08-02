@@ -1012,7 +1012,7 @@ namespace Shoegaze.LastFM.Tests.Api
       var json = """
       {
         "toptags": {
-          "tag": { "name": "broken" }
+          "tag": { "nameee": "broken" }
         }
       }
       """;

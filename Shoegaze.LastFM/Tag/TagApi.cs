@@ -1,10 +1,12 @@
-﻿using Shoegaze.LastFM.Track;
+﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -64,6 +66,42 @@ namespace Shoegaze.LastFM.Tag
       catch (Exception ex)
       {
         return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse similar tag list: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["tag"] = tagName
+      };
+
+      if (page.HasValue)
+        parameters["page"] = page.Value.ToString();
+      if (limit.HasValue)
+        parameters["limit"] = limit.Value.ToString();
+
+      var result = await _invoker.SendAsync("tag.getTopAlbums", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var albumsProperty = result.Data.RootElement.GetProperty("albums");
+        var albumArray = albumsProperty.TryGetProperty("album", out var ta) ? ta : default;
+
+        var albums = albumArray.ValueKind switch
+        {
+          JsonValueKind.Array => [.. albumArray.EnumerateArray().Select(AlbumInfo.FromJson)],
+          JsonValueKind.Object => [AlbumInfo.FromJson(albumArray)],
+          _ => new List<AlbumInfo>()
+        };
+
+        return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(albumsProperty, albums));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse albums: " + ex.Message);
       }
     }
   }

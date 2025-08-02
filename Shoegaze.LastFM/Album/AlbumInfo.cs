@@ -11,6 +11,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
+    /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public ArtistInfo? Artist { get; set; }
@@ -26,6 +27,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
+    /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public required Uri? Url { get; set; }
@@ -35,8 +37,6 @@ namespace Shoegaze.LastFM.Album
     /// </summary>
     /// <remarks>
     /// May be null.
-    /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public string? Mbid { get; set; }
 
@@ -56,10 +56,17 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
+    /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)/>.
     /// </remarks>
     public int? Rank { get; set; }
 
+    /// <summary>
+    /// Images associated with this album.
+    /// </summary>
+    /// <remarks>
+    /// May be empty.
+    /// </remarks>
     public Dictionary<ImageSize, Uri> Images { get; set; } = [];
 
     internal static AlbumInfo FromJson(JsonElement root)
