@@ -1,4 +1,5 @@
 ﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Artist;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -83,6 +84,36 @@ namespace Shoegaze.LastFM.Tag
       catch (Exception ex)
       {
         return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse albums: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["tag"] = tagName
+      };
+
+      if (page.HasValue)
+        parameters["page"] = page.Value.ToString();
+      if (limit.HasValue)
+        parameters["limit"] = limit.Value.ToString();
+
+      var result = await _invoker.SendAsync("tag.getTopArtists", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var artistsProperty = result.Data.RootElement.GetProperty("topartists");
+        var artistArray = artistsProperty.TryGetProperty("artist", out var ta) ? ta : default;
+        var artists = JsonHelper.MakeListFromJsonArray(artistArray, ArtistInfo.FromJson);
+
+        return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(artistsProperty, artists));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse artists: " + ex.Message);
       }
     }
   }

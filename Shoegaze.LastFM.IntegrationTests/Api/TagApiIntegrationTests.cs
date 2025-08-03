@@ -129,6 +129,91 @@
       }
     }
 
+    [Test]
+    public async Task GetTopAlbumsAsync_Invalid_Tag_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopAlbumsAsync("SHOEGAZELASTFMINVALIDTAG");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.EqualTo(0));
+        Assert.That(pages.TotalItems, Is.EqualTo(0));
+        Assert.That(pages.TotalPages, Is.EqualTo(0));
+      });
+
+      Assert.That(pages.Items, Is.Empty);
+    }
+
     #endregion GetTopAlbumsAsync
+
+    #region GetTopArtistsAsync
+
+    [Test]
+    public async Task GetTopArtistsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopArtistsAsync("shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      foreach (var artist in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(artist.Url, Is.Not.Null);
+          Assert.That(artist.Images, Is.Not.Empty);
+          Assert.That(artist.Rank, Is.EqualTo(i++));
+          Assert.That(artist.IsStreamable, Is.Not.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetTopArtistsAsync_Invalid_Tag_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopArtistsAsync("SHOEGAZELASTFMINVALIDTAG");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.EqualTo(0));
+        Assert.That(pages.TotalItems, Is.EqualTo(0));
+        Assert.That(pages.TotalPages, Is.EqualTo(0));
+      });
+
+      Assert.That(pages.Items, Is.Empty);
+    }
+
+    #endregion GetTopArtistsAsync
   }
 }
