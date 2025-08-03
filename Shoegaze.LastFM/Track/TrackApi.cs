@@ -1,6 +1,4 @@
-﻿using Shoegaze.LastFM.Artist;
-using Shoegaze.LastFM.Tag;
-using Shoegaze.LastFM.User;
+﻿using Shoegaze.LastFM.Tag;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
@@ -11,12 +9,7 @@ namespace Shoegaze.LastFM.Track
 
     internal TrackApi(ILastfmRequestInvoker invoker) => _invoker = invoker;
 
-    public async Task<ApiResult<TrackInfo>> GetInfoByNameAsync(
-      string track,
-      string artist,
-      string? username = null,
-      bool autocorrect = true,
-      CancellationToken ct = default)
+    public async Task<ApiResult<TrackInfo>> GetInfoByNameAsync(string track, string artist, string? username = null, bool autocorrect = true, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -29,7 +22,6 @@ namespace Shoegaze.LastFM.Track
         parameters["username"] = username;
 
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
-
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -46,10 +38,7 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
-    public async Task<ApiResult<TrackInfo>> GetInfoByMbidAsync(
-      string mbid,
-      string? username = null,
-      CancellationToken ct = default)
+    public async Task<ApiResult<TrackInfo>> GetInfoByMbidAsync(string mbid, string? username = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -60,7 +49,6 @@ namespace Shoegaze.LastFM.Track
         parameters["username"] = username;
 
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
-
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -86,7 +74,6 @@ namespace Shoegaze.LastFM.Track
       };
 
       var result = await _invoker.SendAsync("track.getCorrection", parameters, false, ct);
-
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -120,13 +107,7 @@ namespace Shoegaze.LastFM.Track
       try
       {
         var trackArray = result.Data.RootElement.GetProperty("similartracks").TryGetProperty("track", out var ta) ? ta : default;
-
-        var tracks = trackArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. trackArray.EnumerateArray().Select(TrackInfo.FromJson)],
-          JsonValueKind.Object => [TrackInfo.FromJson(trackArray)],
-          _ => new List<TrackInfo>()
-        };
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
         return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks);
       }
@@ -154,13 +135,7 @@ namespace Shoegaze.LastFM.Track
       try
       {
         var trackArray = result.Data.RootElement.GetProperty("similartracks").TryGetProperty("track", out var ta) ? ta : default;
-
-        var tracks = trackArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. trackArray.EnumerateArray().Select(TrackInfo.FromJson)],
-          JsonValueKind.Object => [TrackInfo.FromJson(trackArray)],
-          _ => new List<TrackInfo>()
-        };
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
         return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks);
       }
@@ -205,13 +180,7 @@ namespace Shoegaze.LastFM.Track
       try
       {
         var tagArray = result.Data.RootElement.GetProperty("tags").TryGetProperty("tag", out var ta) ? ta : default;
-
-        var tags = tagArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
-          JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
-          _ => new List<TagInfo>()
-        };
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
 
         return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }
@@ -242,13 +211,7 @@ namespace Shoegaze.LastFM.Track
       try
       {
         var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
-
-        var tags = tagArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
-          JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
-          _ => new List<TagInfo>()
-        };
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
 
         foreach (var tag in tags)
           tag.UserUsedCount = null; // not used in this function, but json property has same name as count
@@ -284,13 +247,7 @@ namespace Shoegaze.LastFM.Track
         var resultsProperty = result.Data.RootElement.GetProperty("results");
         var trackMatchesProperty = resultsProperty.GetProperty("trackmatches");
         var trackArray = trackMatchesProperty.TryGetProperty("track", out var ta) ? ta : default;
-
-        var tracks = trackArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. trackArray.EnumerateArray().Select(TrackInfo.FromJson)],
-          JsonValueKind.Object => [TrackInfo.FromJson(trackArray)],
-          _ => new List<TrackInfo>()
-        };
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
         return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(resultsProperty, tracks));
       }

@@ -10,7 +10,7 @@ namespace Shoegaze.LastFM
     public int TotalItems { get; set; }
     public int PerPage { get; set; }
 
-    internal static PagedResult<T> FromJson(JsonElement element, List<T> items)
+    internal static PagedResult<T> FromJson(JsonElement element, IReadOnlyList<T> items)
     {
       int parsedPage, totalPages, totalItems, perPage;
 

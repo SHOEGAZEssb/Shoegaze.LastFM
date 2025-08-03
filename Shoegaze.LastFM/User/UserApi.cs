@@ -27,15 +27,8 @@ internal class UserApi : IUserApi
       parameters["user"] = username!;
 
     var result = await _invoker.SendAsync("user.getInfo", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
-    {
-      return ApiResult<UserInfo>.Failure(
-          result.Status,
-          result.HttpStatus,
-          result.ErrorMessage
-      );
-    }
+      return ApiResult<UserInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
@@ -64,7 +57,6 @@ internal class UserApi : IUserApi
       parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getFriends", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<UserInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -73,20 +65,11 @@ internal class UserApi : IUserApi
       var friendsElement = result.Data.RootElement.GetProperty("friends");
 
       // handle missing "user" key (zero friends)
-      List<UserInfo> friends;
+      IReadOnlyList<UserInfo> friends;
       if (friendsElement.TryGetProperty("user", out var userElement))
-      {
-        friends = userElement.ValueKind switch
-        {
-          JsonValueKind.Array => [.. userElement.EnumerateArray().Select(UserInfo.FromJson)],
-          JsonValueKind.Object => [UserInfo.FromJson(userElement)],
-          _ => []
-        };
-      }
+        friends = JsonHelper.MakeListFromJsonArray(userElement, UserInfo.FromJson);
       else
-      {
         friends = [];
-      }
 
       return ApiResult<PagedResult<UserInfo>>.Success(PagedResult<UserInfo>.FromJson(friendsElement, friends));
     }
@@ -114,33 +97,19 @@ internal class UserApi : IUserApi
       parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getLovedTracks", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
-      var root = result.Data.RootElement.GetProperty("lovedtracks");
+      var lovedTracks = result.Data.RootElement.GetProperty("lovedtracks");
+      var trackArray = lovedTracks.TryGetProperty("track", out var ta) ? ta : default; 
+      var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
-      // Extract the track array
-      var trackList = new List<TrackInfo>();
-      if (root.TryGetProperty("track", out var trackElement))
-      {
-        switch (trackElement.ValueKind)
-        {
-          case JsonValueKind.Array:
-            trackList = [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)];
-            break;
-          case JsonValueKind.Object:
-            trackList = [TrackInfo.FromJson(trackElement)];
-            break;
-        }
-      }
-
-      foreach (var t in trackList)
+      foreach (var t in tracks)
         t.UserLoved = true;
 
-      return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(root, trackList));
+      return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(lovedTracks, tracks));
     }
     catch (Exception ex)
     {
@@ -164,22 +133,14 @@ internal class UserApi : IUserApi
       parameters["page"] = page.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
       var topTracksElement = result.Data.RootElement.GetProperty("toptracks");
-
-      var trackElement = topTracksElement.TryGetProperty("track", out var te) ? te : default;
-
-      var tracks = trackElement.ValueKind switch
-      {
-        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)],
-        JsonValueKind.Object => [TrackInfo.FromJson(trackElement)],
-        _ => new List<TrackInfo>()
-      };
+      var trackArray = topTracksElement.TryGetProperty("track", out var te) ? te : default;
+      var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
       return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(topTracksElement, tracks));
     }
@@ -216,14 +177,8 @@ internal class UserApi : IUserApi
     try
     {
       var recentTracksElement = result.Data.RootElement.GetProperty("recenttracks");
-      var trackElement = recentTracksElement.TryGetProperty("track", out var te) ? te : default;
-
-      var tracks = trackElement.ValueKind switch
-      {
-        JsonValueKind.Array => [.. trackElement.EnumerateArray().Select(TrackInfo.FromJson)],
-        JsonValueKind.Object => [TrackInfo.FromJson(trackElement)],
-        _ => new List<TrackInfo>()
-      };
+      var trackArray = recentTracksElement.TryGetProperty("track", out var te) ? te : default;
+      var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
       return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(recentTracksElement, tracks));
     }
@@ -248,20 +203,13 @@ internal class UserApi : IUserApi
       parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
       var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
-
-      var tags = tagArray.ValueKind switch
-      {
-        JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
-        JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
-        _ => new List<TagInfo>()
-      };
+      var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
 
       return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
     }
@@ -293,7 +241,6 @@ internal class UserApi : IUserApi
     try
     {
       var chartArray = result.Data.RootElement.GetProperty($"taggings").GetProperty($"{iTagablePropertyName.ToLower()}s").TryGetProperty(iTagablePropertyName.ToLower(), out var ta) ? ta : default;
-
       var charts = chartArray.ValueKind switch
       {
         JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(ITagableFromJson<T>)],
@@ -324,7 +271,6 @@ internal class UserApi : IUserApi
       parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopArtists", parameters, false, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -332,13 +278,7 @@ internal class UserApi : IUserApi
     {
       var topArtistsProperty = result.Data.RootElement.GetProperty("topartists");
       var artistArray = topArtistsProperty.TryGetProperty("artist", out var ta) ? ta : default;
-
-      var artists = artistArray.ValueKind switch
-      {
-        JsonValueKind.Array => [.. artistArray.EnumerateArray().Select(ArtistInfo.FromJson)],
-        JsonValueKind.Object => [ArtistInfo.FromJson(artistArray)],
-        _ => new List<ArtistInfo>()
-      };
+      var artists = JsonHelper.MakeListFromJsonArray(artistArray, ArtistInfo.FromJson);
 
       return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(topArtistsProperty, artists));
     }
@@ -371,13 +311,7 @@ internal class UserApi : IUserApi
     {
       var topAlbumsProperty = result.Data.RootElement.GetProperty("topalbums");
       var albumsArray = topAlbumsProperty.TryGetProperty("album", out var ta) ? ta : default;
-
-      var albums = albumsArray.ValueKind switch
-      {
-        JsonValueKind.Array => [.. albumsArray.EnumerateArray().Select(AlbumInfo.FromJson)],
-        JsonValueKind.Object => [AlbumInfo.FromJson(albumsArray)],
-        _ => new List<AlbumInfo>()
-      };
+      var albums = JsonHelper.MakeListFromJsonArray(albumsArray, AlbumInfo.FromJson);
 
       return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(topAlbumsProperty, albums));
     }
@@ -401,13 +335,7 @@ internal class UserApi : IUserApi
     try
     {
       var chartArray = result.Data.RootElement.GetProperty("weeklychartlist").TryGetProperty("chart", out var ta) ? ta : default;
-
-      var charts = chartArray.ValueKind switch
-      {
-        JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(WeeklyChartInfo.FromJson)],
-        JsonValueKind.Object => [WeeklyChartInfo.FromJson(chartArray)],
-        _ => new List<WeeklyChartInfo>()
-      };
+      var charts = JsonHelper.MakeListFromJsonArray(chartArray, WeeklyChartInfo.FromJson);
 
       return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Success(charts);
     }
@@ -437,7 +365,6 @@ internal class UserApi : IUserApi
     try
     {
       var chartArray = result.Data.RootElement.GetProperty($"weekly{iChartablePropertyName.ToLower()}chart").TryGetProperty(iChartablePropertyName.ToLower(), out var ta) ? ta : default;
-
       var charts = chartArray.ValueKind switch
       {
         JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(IChartableFromJson<T>)],

@@ -127,6 +127,16 @@ namespace Shoegaze.LastFM
 
       throw new FormatException($"Cannot parse JSON element as {typeof(T).Name}: {element}");
     }
+
+    public static IReadOnlyList<T> MakeListFromJsonArray<T>(JsonElement arrayProperty, Func<JsonElement, T> fromJson) where T : IJsonDeserializable<T>
+    {
+      return arrayProperty.ValueKind switch
+      {
+        JsonValueKind.Array => [.. arrayProperty.EnumerateArray().Select(fromJson)],
+        JsonValueKind.Object => [fromJson(arrayProperty)],
+        _ => new List<T>()
+      };
+    }
   }
 
   internal static class UriHelper

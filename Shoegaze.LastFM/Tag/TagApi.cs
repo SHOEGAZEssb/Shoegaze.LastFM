@@ -1,12 +1,4 @@
 ﻿using Shoegaze.LastFM.Album;
-using Shoegaze.LastFM.Track;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -53,15 +45,9 @@ namespace Shoegaze.LastFM.Tag
       try
       {
         var tagArray = result.Data.RootElement.GetProperty("similartags").TryGetProperty("tag", out var ta) ? ta : default;
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
 
-        var tracks = tagArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. tagArray.EnumerateArray().Select(TagInfo.FromJson)],
-          JsonValueKind.Object => [TagInfo.FromJson(tagArray)],
-          _ => new List<TagInfo>()
-        };
-
-        return ApiResult<IReadOnlyList<TagInfo>>.Success(tracks);
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }
       catch (Exception ex)
       {
@@ -90,12 +76,7 @@ namespace Shoegaze.LastFM.Tag
         var albumsProperty = result.Data.RootElement.GetProperty("albums");
         var albumArray = albumsProperty.TryGetProperty("album", out var ta) ? ta : default;
 
-        var albums = albumArray.ValueKind switch
-        {
-          JsonValueKind.Array => [.. albumArray.EnumerateArray().Select(AlbumInfo.FromJson)],
-          JsonValueKind.Object => [AlbumInfo.FromJson(albumArray)],
-          _ => new List<AlbumInfo>()
-        };
+        var albums = JsonHelper.MakeListFromJsonArray(albumArray, AlbumInfo.FromJson);
 
         return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(albumsProperty, albums));
       }

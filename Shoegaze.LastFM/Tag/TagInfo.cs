@@ -2,7 +2,7 @@
 
 namespace Shoegaze.LastFM.Tag
 {
-  public class TagInfo
+  public class TagInfo : IJsonDeserializable<TagInfo>
   {
     /// <summary>
     /// Name of the tag.
