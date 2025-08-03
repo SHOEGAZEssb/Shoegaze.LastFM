@@ -116,5 +116,46 @@ namespace Shoegaze.LastFM.Tag
         return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse artists: " + ex.Message);
       }
     }
+
+    /// <summary>
+    /// Fetches the global top tags on Last.fm, sorted by number of times used.
+    /// </summary>
+    /// <param name="limit">Maximum items per page (maximum is 1000).</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Task.</returns>
+    public async Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>();
+
+      if (page.HasValue)
+        parameters["offset"] = (page.Value * (limit ?? 50)).ToString(); // 50 is default if num_res (limit) is not set
+      if (limit.HasValue)
+        parameters["num_res"] = limit.Value.ToString();
+
+      var result = await _invoker.SendAsync("tag.getTopTags", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var topTagProperty = result.Data.RootElement.GetProperty("toptags");
+        var tagArray = topTagProperty.TryGetProperty("tag", out var ta) ? ta : default;
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+        foreach (var tag in tags)
+        {
+          // same name as count property...
+          tag.UserUsedCount = null;
+          tag.CountOnTrack = null;
+        }
+
+        return ApiResult<PagedResult<TagInfo>>.Success(PagedResult<TagInfo>.FromJson(topTagProperty, tags));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tags: " + ex.Message);
+      }
+    }
   }
 }

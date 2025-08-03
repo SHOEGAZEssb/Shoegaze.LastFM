@@ -24,7 +24,7 @@ namespace Shoegaze.LastFM.Tag
     /// - <see cref="Track.ITrackApi.GetTopTagsByName(string, string, bool, CancellationToken)"/>
     /// - <see cref="Track.ITrackApi.GetTopTagsByMbid(string, bool, CancellationToken)"/>
     /// </remarks>
-    public int? Count { get; set; }
+    public int? CountOnTrack { get; set; }
 
     /// <summary>
     /// Amount of users that have used this tag.
@@ -90,10 +90,10 @@ namespace Shoegaze.LastFM.Tag
       {
         Name = name,
         Url = root.TryGetProperty("url", out var urlProp) ? new Uri(urlProp.GetString()!) : UriHelper.MakeTagUri(name),
-        Count = count,
+        CountOnTrack = count,
         UserUsedCount = count,
         Reach = reach,
-        Taggings = total,
+        Taggings = total ?? count,
         Wiki = wiki
       };
     }

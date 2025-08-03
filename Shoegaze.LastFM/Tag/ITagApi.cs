@@ -34,5 +34,17 @@ namespace Shoegaze.LastFM.Tag
       int? limit = null,
       int? page = null,
       CancellationToken ct = default);
+
+    /// <summary>
+    /// Fetches the global top tags on Last.fm, sorted by number of times used.
+    /// </summary>
+    /// <param name="limit">Maximum items per page (maximum is 1000).</param>
+    /// <param name="page">The page to get.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Task.</returns>
+    Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(
+      int? limit = null,
+      int? page = null,
+      CancellationToken ct = default);
   }
 }

@@ -315,7 +315,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         {
           Assert.That(tag.Name, Is.Not.Empty);
           Assert.That(tag.Url.ToString(), Is.Not.Empty);
-          Assert.That(tag.Count, Is.GreaterThanOrEqualTo(1));
+          Assert.That(tag.CountOnTrack, Is.GreaterThanOrEqualTo(1));
           Assert.That(tag.UserUsedCount, Is.Null);
         });
       }

@@ -23,7 +23,7 @@
         Assert.That(tag.Reach, Is.GreaterThan(1));
         Assert.That(tag.Taggings, Is.GreaterThan(1));
         Assert.That(tag.UserUsedCount, Is.Null);
-        Assert.That(tag.Count, Is.Null);
+        Assert.That(tag.CountOnTrack, Is.Null);
       });
 
       var wiki = tag.Wiki;
@@ -54,7 +54,7 @@
         Assert.That(tag.Reach, Is.EqualTo(0));
         Assert.That(tag.Taggings, Is.EqualTo(0));
         Assert.That(tag.UserUsedCount, Is.Null);
-        Assert.That(tag.Count, Is.Null);
+        Assert.That(tag.CountOnTrack, Is.Null);
       });
 
       var wiki = tag.Wiki;
@@ -215,5 +215,77 @@
     }
 
     #endregion GetTopArtistsAsync
+
+    #region GetTopTagsAsync
+
+    [Test]
+    public async Task GetTopTagsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopTagsAsync();
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+        Assert.That(pages.PerPage, Is.EqualTo(50));
+      });
+
+      Assert.That(pages.Items, Has.Count.EqualTo(pages.PerPage));
+      foreach (var tag in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Reach, Is.Not.Null);
+          Assert.That(tag.Taggings, Is.Not.Null);
+          Assert.That(tag.CountOnTrack, Is.Null);
+          Assert.That(tag.Wiki, Is.Null);
+        });
+      }
+    }
+
+    [Test]
+    public async Task GetTopTagsAsync_With_Limit_And_Page_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopTagsAsync(limit: 100, page: 3);
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(3));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+        Assert.That(pages.PerPage, Is.EqualTo(100));
+      });
+
+      Assert.That(pages.Items, Has.Count.EqualTo(pages.PerPage));
+      foreach (var tag in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(tag.Reach, Is.Not.Null);
+          Assert.That(tag.Taggings, Is.Not.Null);
+          Assert.That(tag.CountOnTrack, Is.Null);
+          Assert.That(tag.Wiki, Is.Null);
+        });
+      }
+    }
+
+    #endregion GetTopTagsAsync
   }
 }
