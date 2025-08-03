@@ -287,5 +287,44 @@
     }
 
     #endregion GetTopTagsAsync
+
+    #region GetTopTracksAsync
+
+    [Test]
+    public async Task GetTopTracksAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopTracksAsync("shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      int i = 1;
+      foreach (var track in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(track.Url, Is.Not.Null);
+          Assert.That(track.Images, Is.Not.Empty);
+          Assert.That(track.Rank, Is.EqualTo(i++));
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.Artist, Is.Not.Null);
+          Assert.That(track.Duration, Is.Not.Null);
+        });
+      }
+    }
+
+    #endregion GetTopTracksAsync
   }
 }

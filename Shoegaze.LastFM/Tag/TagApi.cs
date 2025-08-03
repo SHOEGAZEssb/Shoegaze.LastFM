@@ -1,5 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Track;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -58,15 +59,8 @@ namespace Shoegaze.LastFM.Tag
 
     public async Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
     {
-      var parameters = new Dictionary<string, string>
-      {
-        ["tag"] = tagName
-      };
-
-      if (page.HasValue)
-        parameters["page"] = page.Value.ToString();
-      if (limit.HasValue)
-        parameters["limit"] = limit.Value.ToString();
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("tag", tagName);
 
       var result = await _invoker.SendAsync("tag.getTopAlbums", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -89,15 +83,8 @@ namespace Shoegaze.LastFM.Tag
 
     public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
     {
-      var parameters = new Dictionary<string, string>
-      {
-        ["tag"] = tagName
-      };
-
-      if (page.HasValue)
-        parameters["page"] = page.Value.ToString();
-      if (limit.HasValue)
-        parameters["limit"] = limit.Value.ToString();
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("tag", tagName);
 
       var result = await _invoker.SendAsync("tag.getTopArtists", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -127,7 +114,6 @@ namespace Shoegaze.LastFM.Tag
     public async Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>();
-
       if (page.HasValue)
         parameters["offset"] = (page.Value * (limit ?? 50)).ToString(); // 50 is default if num_res (limit) is not set
       if (limit.HasValue)
@@ -155,6 +141,29 @@ namespace Shoegaze.LastFM.Tag
       catch (Exception ex)
       {
         return ApiResult<PagedResult<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tags: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("tag", tagName);
+
+      var result = await _invoker.SendAsync("tag.getTopTracks", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var tracksProperty = result.Data.RootElement.GetProperty("tracks");
+        var trackArray = tracksProperty.TryGetProperty("track", out var ta) ? ta : default;
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
+
+        return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(tracksProperty, tracks));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
   }

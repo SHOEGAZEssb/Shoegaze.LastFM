@@ -1,5 +1,7 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Track;
+using System.Reflection.Metadata;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -43,6 +45,12 @@ namespace Shoegaze.LastFM.Tag
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Task.</returns>
     Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(
+      int? limit = null,
+      int? page = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(
+      string tagName,
       int? limit = null,
       int? page = null,
       CancellationToken ct = default);
