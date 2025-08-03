@@ -27,8 +27,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Install SonarScanner for .NET
-      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Install tools
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet tool install --global dotnet-reportgenerator-globaltool
+      env:
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
 
     - name: Add .NET tools to PATH
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
@@ -43,11 +47,11 @@ jobs:
         /d:sonar.cs.opencover.reportsPaths=TestResults/**/coverage.opencover.xml
 
     - name: Build (for SonarCloud)
-      run: dotnet build --no-incremental
+      run: dotnet build --no-incremental --configuration Release
 
     - name: Test (with OpenCover for SonarCloud)
       run: >
-        dotnet test --no-build
+        dotnet test --no-build --configuration Release
         --results-directory ./TestResults
         --collect:"XPlat Code Coverage"
         -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
@@ -55,19 +59,17 @@ jobs:
     - name: SonarCloud End
       run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
     - name: Generate coverage report
       run: |
         reportgenerator \
-        -reports:./TestResults/**/coverage.opencover.xml \
-        -targetdir:./coveragereport \
-        -reporttypes:Html
+          -reports:./TestResults/**/coverage.opencover.xml \
+          -targetdir:./coveragereport \
+          -reporttypes:Cobertura
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
-        files: ./TestResults/**/coverage.opencover.xml
+        files: ./coveragereport/Cobertura.xml
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
+        verbose: true
