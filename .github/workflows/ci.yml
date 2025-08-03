@@ -16,6 +16,7 @@ jobs:
       LAST_FM_API_KEY: ${{ secrets.LAST_FM_API_KEY }}
       LAST_FM_API_SECRET: ${{ secrets.LAST_FM_API_SECRET }}
       LAST_FM_SESSION_KEY: ${{ secrets.LAST_FM_SESSION_KEY }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -60,5 +61,4 @@ jobs:
       uses: codecov/codecov-action@v4
       with:
         files: ./TestResults/**/coverage.opencover.xml
-        token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
