@@ -226,17 +226,11 @@ namespace Shoegaze.LastFM.Track
 
     public async Task<ApiResult<PagedResult<TrackInfo>>> SearchAsync(string track, string? artist = null, int? limit = null, int? page = null, CancellationToken ct = default)
     {
-      var parameters = new Dictionary<string, string>
-      {
-        ["track"] = track
-      };
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("track", track);
 
       if (artist != null)
-        parameters["arttist"] = artist;
-      if (page.HasValue)
-        parameters["page"] = page.Value.ToString();
-      if (limit.HasValue)
-        parameters["limit"] = limit.Value.ToString();
+        parameters["artist"] = artist;
 
       var result = await _invoker.SendAsync("track.search", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)

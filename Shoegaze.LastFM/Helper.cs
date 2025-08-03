@@ -175,6 +175,28 @@ namespace Shoegaze.LastFM
     }
   }
 
+  internal static class ParameterHelper
+  {
+    public static Dictionary<string, string> MakeLimitAndPageParameters(int? limit, int? page)
+    {
+      var dict = new Dictionary<string, string>();
+      if (limit.HasValue)
+      {
+        if (limit <= 0)
+          throw new ArgumentOutOfRangeException(nameof(limit), "limit must be > 0");
+        dict.Add("limit", limit.Value.ToString());
+      }
+      if (page.HasValue)
+      {
+        if (page <= 0)
+          throw new ArgumentOutOfRangeException(nameof(page), "page must be > 0");
+        dict.Add("page", page.Value.ToString());
+      }
+
+      return dict;
+    }
+  }
+
   internal static class TimePeriodExtensions
   {
     public static string ToApiString(this TimePeriod period) => period switch

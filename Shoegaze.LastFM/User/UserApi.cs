@@ -42,7 +42,7 @@ internal class UserApi : IUserApi
   }
   public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? page = null, int? limit = null, CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>();
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
     var requireAuth = string.IsNullOrWhiteSpace(username);
 
     if (!requireAuth)
@@ -51,10 +51,6 @@ internal class UserApi : IUserApi
     // todo: check if recenttracks is actually supported or deprecated
     if (includeRecentTracks)
       parameters["recenttracks"] = "1";
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getFriends", parameters, requireAuth, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -85,16 +81,11 @@ internal class UserApi : IUserApi
   int? limit = null,
   CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>();
-    var requireAuth = string.IsNullOrWhiteSpace(username);
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
+    var requireAuth = string.IsNullOrWhiteSpace(username);
     if (!requireAuth)
       parameters["user"] = username!;
-
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getLovedTracks", parameters, requireAuth, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -119,18 +110,13 @@ internal class UserApi : IUserApi
 
   public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string? username = null, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>();
-    var requireAuth = string.IsNullOrWhiteSpace(username);
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
+    var requireAuth = string.IsNullOrWhiteSpace(username);
     if (!requireAuth)
       parameters["user"] = username!;
-
     if (period.HasValue)
       parameters["period"] = period.Value.ToApiString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -152,25 +138,19 @@ internal class UserApi : IUserApi
 
   public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>();
-    var requireAuth = string.IsNullOrWhiteSpace(username);
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
+    var requireAuth = string.IsNullOrWhiteSpace(username);
     if (!requireAuth)
       parameters["user"] = username!;
-
     if (extended != null)
       parameters["extended"] = extended.Value ? "1" : "0";
     if (from != null)
       parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
     if (to != null)
       parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getRecentTracks", parameters, requireAuth, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
@@ -194,11 +174,10 @@ internal class UserApi : IUserApi
   public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(string? username = null, int? limit = null, CancellationToken ct = default)
   {
     var parameters = new Dictionary<string, string>();
-    var requireAuth = string.IsNullOrWhiteSpace(username);
 
+    var requireAuth = string.IsNullOrWhiteSpace(username);
     if (!requireAuth)
       parameters["user"] = username!;
-
     if (limit.HasValue)
       parameters["limit"] = limit.Value.ToString();
 
@@ -221,17 +200,10 @@ internal class UserApi : IUserApi
 
   public async Task<ApiResult<IReadOnlyList<T>>> GetPersonalTagsAsync<T>(string username, string tag, int? limit = null, int? page = null, CancellationToken ct = default) where T : ITagable
   {
-    var parameters = new Dictionary<string, string>
-    {
-      ["user"] = username,
-      ["tag"] = tag,
-      ["taggingtype"] = GetTypeJsonPropertyName(typeof(T)).ToLower(),
-    };
-
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+    parameters.Add("user", username);
+    parameters.Add("tag", tag);
+    parameters.Add("taggingtype", GetTypeJsonPropertyName(typeof(T)).ToLower());
 
     var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getPersonalTags", parameters, false, ct);
@@ -258,17 +230,11 @@ internal class UserApi : IUserApi
 
   public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>
-    {
-      ["user"] = username
-    };
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+    parameters.Add("user", username);
 
     if (period.HasValue)
       parameters["period"] = period.Value.ToApiString();
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopArtists", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -290,20 +256,13 @@ internal class UserApi : IUserApi
 
   public async Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
-    var parameters = new Dictionary<string, string>
-    {
-      ["user"] = username
-    };
+    var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+    parameters.Add("user", username);
 
     if (period.HasValue)
       parameters["period"] = period.Value.ToApiString();
-    if (page.HasValue)
-      parameters["page"] = page.Value.ToString();
-    if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
 
     var result = await _invoker.SendAsync("user.getTopAlbums", parameters, false, ct);
-
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
