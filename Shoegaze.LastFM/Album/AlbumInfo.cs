@@ -51,7 +51,7 @@ namespace Shoegaze.LastFM.Album
     public int? UserPlayCount { get; set; }
 
     /// <summary>
-    /// Indicates the rank of a album when getting the top tracks for a user.
+    /// Indicates the rank of an album when getting the top tracks for a user/tag.
     /// </summary>
     /// <remarks>
     /// May be null.

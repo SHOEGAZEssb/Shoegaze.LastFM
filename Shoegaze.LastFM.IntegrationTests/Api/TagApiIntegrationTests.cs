@@ -130,6 +130,41 @@
     }
 
     [Test]
+    public async Task GetTopAlbumsAsync_With_Limit_And_PageIntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetTopAlbumsAsync("shoegaze", limit: 10, page: 2);
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      var pages = response.Data;
+      Assert.Multiple(() =>
+      {
+        Assert.That(pages.Page, Is.EqualTo(2));
+        Assert.That(pages.TotalPages, Is.GreaterThan(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      });
+
+      Assert.That(pages.Items, Has.Count.EqualTo(10));
+
+      int i = 1;
+      foreach (var album in pages.Items)
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(album.Url, Is.Not.Null);
+          Assert.That(album.Images, Is.Not.Empty);
+          Assert.That(album.Rank, Is.EqualTo(i++));
+          Assert.That(album.Artist, Is.Not.Null);
+        });
+      }
+    }
+
+    [Test]
     public async Task GetTopAlbumsAsync_Invalid_Tag_IntegrationTest()
     {
       var client = TestEnvironment.CreateClient();
