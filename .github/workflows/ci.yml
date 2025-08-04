@@ -45,8 +45,5 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./TestResults/**/coverage.opencover.xml
-        flags: unittests
-        name: github-actions
         fail_ci_if_error: true
         verbose: true
-        branch: main  # force-set branch in case detection fails
