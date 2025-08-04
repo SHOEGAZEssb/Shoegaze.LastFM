@@ -1,7 +1,4 @@
 name: CI
-permissions:
-  contents: read
-  checks: write  # required for Codecov to attach coverage info to commits
 
 on:
   push:
@@ -9,13 +6,18 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  checks: write  # required for Codecov to annotate commits
+
 jobs:
-  build-and-test:
+  test-and-coverage:
     runs-on: ubuntu-latest
     env:
       LAST_FM_API_KEY: ${{ secrets.LAST_FM_API_KEY }}
       LAST_FM_API_SECRET: ${{ secrets.LAST_FM_API_SECRET }}
       LAST_FM_SESSION_KEY: ${{ secrets.LAST_FM_SESSION_KEY }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -28,38 +30,23 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Install SonarScanner for .NET
-      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
 
-    - name: Add .NET tools to PATH
-      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-    - name: SonarCloud Begin
+    - name: Run tests with coverage
       run: >
-        dotnet sonarscanner begin
-        /k:"SHOEGAZEssb_Shoegaze.LastFM"
-        /o:"shoegazessb"
-        /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-        /d:sonar.host.url="https://sonarcloud.io"
-        /d:sonar.cs.opencover.reportsPaths=TestResults/**/coverage.opencover.xml
-
-    - name: Build (for SonarCloud)
-      run: dotnet build --no-incremental
-
-    - name: Test (with OpenCover for SonarCloud)
-      run: >
-        dotnet test --no-build
+        dotnet test --no-build --configuration Release
         --results-directory ./TestResults
         --collect:"XPlat Code Coverage"
         -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-
-    - name: SonarCloud End
-      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./TestResults/**/coverage.opencover.xml
+        flags: unittests
+        name: github-actions
         fail_ci_if_error: true
         verbose: true
+        branch: main  # force-set branch in case detection fails
