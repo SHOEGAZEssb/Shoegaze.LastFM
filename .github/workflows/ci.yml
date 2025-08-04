@@ -1,4 +1,7 @@
 name: CI
+permissions:
+  contents: read
+  checks: write  # required for Codecov to attach coverage info to commits
 
 on:
   push:
@@ -6,12 +9,8 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  checks: write  # required for Codecov to annotate commits
-
 jobs:
-  test-and-coverage:
+  build-and-test:
     runs-on: ubuntu-latest
     env:
       LAST_FM_API_KEY: ${{ secrets.LAST_FM_API_KEY }}
@@ -27,23 +26,37 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Install SonarScanner for .NET
+      run: dotnet tool install --global dotnet-sonarscanner
 
-    - name: Build solution
+    - name: Add .NET tools to PATH
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: SonarCloud Begin
+      run: >
+        dotnet sonarscanner begin
+        /k:"SHOEGAZEssb_Shoegaze.LastFM"
+        /o:"shoegazessb"
+        /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        /d:sonar.host.url="https://sonarcloud.io"
+        /d:sonar.cs.opencover.reportsPaths="TestResults/**/*.opencover.xml"
+
+    - name: Build
       run: dotnet build --no-restore --configuration Release
 
-    - name: Run tests with coverage
+    - name: Test with coverage
       run: >
-        dotnet test --no-build --configuration Release
+        dotnet test --no-build
+        --configuration Release
         --results-directory ./TestResults
         --collect:"XPlat Code Coverage"
         -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+    - name: SonarCloud End
+      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/**/coverage.opencover.xml
         fail_ci_if_error: true
-        verbose: true
