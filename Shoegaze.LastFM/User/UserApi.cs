@@ -128,6 +128,9 @@ internal class UserApi : IUserApi
       var trackArray = topTracksElement.TryGetProperty("track", out var te) ? te : default;
       var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
 
+      foreach (var track in tracks)
+        track.PlayCount = null; // userplaycount and playcount have the same json property name; in this case only userplaycount is valid
+
       return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(topTracksElement, tracks));
     }
     catch (Exception ex)
@@ -245,6 +248,9 @@ internal class UserApi : IUserApi
       var topArtistsProperty = result.Data.RootElement.GetProperty("topartists");
       var artistArray = topArtistsProperty.TryGetProperty("artist", out var ta) ? ta : default;
       var artists = JsonHelper.MakeListFromJsonArray(artistArray, ArtistInfo.FromJson);
+
+      foreach (var artist in artists)
+        artist.PlayCount = null; // userplaycount and playcount have the same property name; in this case only userplaycount is valid
 
       return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(topArtistsProperty, artists));
     }

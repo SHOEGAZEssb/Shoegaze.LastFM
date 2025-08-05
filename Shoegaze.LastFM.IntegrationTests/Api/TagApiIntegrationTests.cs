@@ -116,14 +116,12 @@
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       foreach (var album in pages.Items)
       {
         Assert.Multiple(() =>
         {
           Assert.That(album.Url, Is.Not.Null);
           Assert.That(album.Images, Is.Not.Empty);
-          Assert.That(album.Rank, Is.EqualTo(i++));
           Assert.That(album.Artist, Is.Not.Null);
         });
       }
@@ -151,14 +149,12 @@
 
       Assert.That(pages.Items, Has.Count.EqualTo(10));
 
-      int i = 1;
       foreach (var album in pages.Items)
       {
         Assert.Multiple(() =>
         {
           Assert.That(album.Url, Is.Not.Null);
           Assert.That(album.Images, Is.Not.Empty);
-          Assert.That(album.Rank, Is.EqualTo(i++));
           Assert.That(album.Artist, Is.Not.Null);
         });
       }
@@ -212,14 +208,12 @@
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       foreach (var artist in pages.Items)
       {
         Assert.Multiple(() =>
         {
           Assert.That(artist.Url, Is.Not.Null);
           Assert.That(artist.Images, Is.Not.Empty);
-          Assert.That(artist.Rank, Is.EqualTo(i++));
           Assert.That(artist.IsStreamable, Is.Not.Null);
         });
       }
@@ -345,14 +339,12 @@
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       foreach (var track in pages.Items)
       {
         Assert.Multiple(() =>
         {
           Assert.That(track.Url, Is.Not.Null);
           Assert.That(track.Images, Is.Not.Empty);
-          Assert.That(track.Rank, Is.EqualTo(i++));
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.Artist, Is.Not.Null);
           Assert.That(track.Duration, Is.Not.Null);

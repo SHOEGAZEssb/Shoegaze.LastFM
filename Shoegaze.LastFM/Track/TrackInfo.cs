@@ -89,16 +89,6 @@ namespace Shoegaze.LastFM.Track
     public DateTime? UserLovedDate { get; set; }
 
     /// <summary>
-    /// Indicates the rank of a track when getting the top tracks for a user.
-    /// </summary>
-    /// <remarks>
-    /// May be null.
-    /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/>.
-    /// </remarks>
-    public int? Rank { get; set; }
-
-    /// <summary>
     /// Indicates the match score of a tracks for which similar
     /// tracks have been requested.
     /// </summary>
@@ -240,13 +230,9 @@ namespace Shoegaze.LastFM.Track
           date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!)).DateTime;
       }
 
-      int? rank = null;
       bool? nowPlaying = null;
       if (track.TryGetProperty("@attr", out var attrProp))
-      {
-        rank = attrProp.TryGetProperty("rank", out var rankProp) ? int.Parse(rankProp.GetString()!) : null;
         nowPlaying = attrProp.TryGetProperty("nowplaying", out var nowPlayingProp) ? (bool.TryParse(nowPlayingProp.GetString(), out var nowPlayingValue) ? nowPlayingValue : null) : null;
-      }
 
       double? match = null;
       if (track.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
@@ -291,8 +277,7 @@ namespace Shoegaze.LastFM.Track
         IsNowPlaying = nowPlaying,
         PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available (only when not IsNowPlaying)
         UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
-        Rank = rank,
-        PlayCount = rank == null ? playcount : null, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount
+        PlayCount = playcount, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount
         Match = match,
         Artist = artist!,
         Album = album,

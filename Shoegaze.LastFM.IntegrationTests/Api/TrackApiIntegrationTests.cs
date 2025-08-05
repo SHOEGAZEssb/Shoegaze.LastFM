@@ -29,7 +29,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.UserLoved, Is.Null);
           Assert.That(track.UserPlayCount, Is.Null);
         }
-        Assert.That(track.Rank, Is.Null);
         Assert.That(track.PlayedAt, Is.Null);
         Assert.That(track.Images, Is.Empty);
       });

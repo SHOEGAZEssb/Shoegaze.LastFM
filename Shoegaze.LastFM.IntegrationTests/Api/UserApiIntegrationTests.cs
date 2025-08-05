@@ -191,7 +191,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       var tracks = pages.Items;
       foreach (var track in tracks)
       {
@@ -201,7 +200,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.Mbid, Is.Not.Null);
-          Assert.That(track.Rank, Is.EqualTo(i++));
           Assert.That(track.UserPlayCount, Is.GreaterThan(1));
           Assert.That(track.Duration, Is.Not.Null);
           Assert.That(track.Images, Contains.Key(ImageSize.Small));
@@ -245,7 +243,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       var tracks = pages.Items;
       foreach (var track in tracks)
       {
@@ -255,7 +252,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.Mbid, Is.Not.Null);
-          Assert.That(track.Rank, Is.EqualTo(i++));
           Assert.That(track.UserPlayCount, Is.GreaterThan(1));
           Assert.That(track.Duration, Is.Not.Null);
           Assert.That(track.Images, Contains.Key(ImageSize.Small));
@@ -544,7 +540,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       foreach (var artist in pages.Items)
       {
         Assert.Multiple(() =>
@@ -554,7 +549,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(artist.Url.ToString(), Is.Not.Empty);
           Assert.That(artist.IsStreamable, Is.Not.Null);
           Assert.That(artist.UserPlayCount, Is.GreaterThan(1));
-          Assert.That(artist.Rank, Is.EqualTo(i++));
           Assert.That(artist.PlayCount, Is.Null);
           Assert.That(artist.Images, Contains.Key(ImageSize.Small));
           Assert.That(artist.Images, Contains.Key(ImageSize.Medium));
@@ -601,7 +595,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(pages.TotalItems, Is.GreaterThan(1));
       });
 
-      int i = 1;
       foreach (var album in pages.Items)
       {
         Assert.Multiple(() =>
@@ -609,7 +602,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(album.Name, Is.Not.Empty);
           Assert.That(album.Mbid, Is.Not.Null);
           Assert.That(album.Url!.ToString(), Is.Not.Empty);
-          Assert.That(album.Rank, Is.EqualTo(i++));
           Assert.That(album.UserPlayCount, Is.GreaterThan(1));
           Assert.That(album.Images, Contains.Key(ImageSize.Small));
           Assert.That(album.Images, Contains.Key(ImageSize.Medium));
@@ -677,7 +669,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       });
 
       Assert.That(response.Data, Has.Count.GreaterThan(1));
-      int i = 1;
       foreach (var artist in response.Data.Take(10))
       {
         Assert.Multiple(() =>
@@ -685,7 +676,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(artist.Name, Is.Not.Empty);
           Assert.That(artist.Url.ToString(), Is.Not.Empty);
           Assert.That(artist.Mbid, Is.Not.Null);
-          Assert.That(artist.Rank, Is.EqualTo(i++));
           Assert.That(artist.UserPlayCount, Is.GreaterThanOrEqualTo(1));
         });
       }
@@ -704,7 +694,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       });
 
       Assert.That(response.Data, Has.Count.GreaterThan(1));
-      int i = 1;
       foreach (var album in response.Data.Take(10))
       {
         var artist = album.Artist;
@@ -721,7 +710,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(album.Name, Is.Not.Empty);
           Assert.That(album.Url!.ToString(), Is.Not.Empty);
           Assert.That(album.Mbid, Is.Not.Null);
-          Assert.That(album.Rank, Is.EqualTo(i++));
           Assert.That(album.UserPlayCount, Is.GreaterThanOrEqualTo(1));
         });
       }
@@ -740,7 +728,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       });
 
       Assert.That(response.Data, Has.Count.GreaterThan(1));
-      int i = 1;
       foreach (var track in response.Data.Take(10))
       {
         var artist = track.Artist;
@@ -757,7 +744,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           Assert.That(track.Mbid, Is.Not.Null);
-          Assert.That(track.Rank, Is.EqualTo(i++));
           Assert.That(track.UserPlayCount, Is.GreaterThanOrEqualTo(1));
           Assert.That(track.Images, Is.Not.Empty);
           Assert.That(track.Album, Is.Null);

@@ -583,7 +583,6 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(result.Data!.Items, Has.Count.EqualTo(2));
         Assert.That(result.Data.TotalItems, Is.EqualTo(39238));
         Assert.That(result.Data.Items[0].Name, Is.EqualTo("Ugly"));
-        Assert.That(result.Data.Items[0].Rank, Is.EqualTo(1));
       });
     }
 
@@ -1176,7 +1175,6 @@ namespace Shoegaze.LastFM.Tests.Api
       });
 
       Assert.That(response.Data, Has.Count.GreaterThan(1));
-      int i = 1;
       foreach (var artist in response.Data.Take(10))
       {
         Assert.Multiple(() =>
@@ -1184,7 +1182,6 @@ namespace Shoegaze.LastFM.Tests.Api
           Assert.That(artist.Name, Is.Not.Empty);
           Assert.That(artist.Url.ToString(), Is.Not.Empty);
           Assert.That(artist.Mbid, Is.Not.Null);
-          Assert.That(artist.Rank, Is.EqualTo(i++));
           Assert.That(artist.UserPlayCount, Is.GreaterThanOrEqualTo(1));
         });
       }

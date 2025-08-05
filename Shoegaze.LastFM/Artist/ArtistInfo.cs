@@ -50,16 +50,6 @@ namespace Shoegaze.LastFM.Artist
     public int? UserPlayCount { get; set; }
 
     /// <summary>
-    /// Indicates the rank of an artist when getting the top artists for a user.
-    /// </summary>
-    /// <remarks>
-    /// May be null.
-    /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetTopArtistsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
-    /// </remarks>
-    public int? Rank { get; set; }
-
-    /// <summary>
     /// List of similar artists.
     /// </summary>
     /// <remarks>
@@ -124,10 +114,6 @@ namespace Shoegaze.LastFM.Artist
         ? ontourProp.GetString() == "1"
         : (bool?)null;
 
-      int? rank = null;
-      if (artist.TryGetProperty("@attr", out var attributeProp) && attributeProp.TryGetProperty("rank", out var rankProp) && int.TryParse(rankProp.GetString()!, out var rankNum))
-        rank = rankNum;
-
       int? listeners = null;
       int? plays = null;
       if (artist.TryGetProperty("stats", out var stats))
@@ -174,9 +160,8 @@ namespace Shoegaze.LastFM.Artist
         IsStreamable = isStreamable,
         OnTour = onTour,
         Listeners = listeners,
-        Rank = rank,
-        PlayCount = rank == null ? plays : null, // if rank is null, playcount property indicates global plays, otherwise userplaycount
-        UserPlayCount = rank == null ? null : plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
+        PlayCount = plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
+        UserPlayCount = plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
         SimilarArtists = similar,
         Tags = tags,
         Biography = bio
