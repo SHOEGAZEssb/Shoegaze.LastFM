@@ -91,20 +91,7 @@ namespace Shoegaze.LastFM.Artist
 
       var mbid = artist.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null;
 
-      var images = new Dictionary<ImageSize, Uri>();
-      if (artist.TryGetProperty("image", out var imageArray))
-      {
-        foreach (var image in imageArray.EnumerateArray())
-        {
-          var urlText = image.GetProperty("#text").GetString();
-          var sizeText = image.GetProperty("size").GetString();
-          if (!string.IsNullOrWhiteSpace(urlText) &&
-              Enum.TryParse<ImageSize>(sizeText, true, out var size))
-          {
-            images[size] = new Uri(urlText);
-          }
-        }
-      }
+      var images = JsonHelper.ParseImageArray(root);
 
       var isStreamable = artist.TryGetProperty("streamable", out var streamableProp)
         ? streamableProp.GetString() == "1"
@@ -116,13 +103,15 @@ namespace Shoegaze.LastFM.Artist
 
       int? listeners = null;
       int? plays = null;
+      int? userPlayCount = null;
       if (artist.TryGetProperty("stats", out var stats))
       {
         if (stats.TryGetProperty("listeners", out var l) && int.TryParse(l.GetString(), out var parsedListeners))
           listeners = parsedListeners;
-
         if (stats.TryGetProperty("playcount", out var p) && int.TryParse(p.GetString(), out var parsedPlays))
           plays = parsedPlays;
+        if (stats.TryGetProperty("userplaycount", out var up) && int.TryParse(up.GetString(), out var parsedUserPlays))
+          plays = parsedUserPlays;
       }
       else if (artist.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCount))
         plays = playCount;
@@ -160,8 +149,8 @@ namespace Shoegaze.LastFM.Artist
         IsStreamable = isStreamable,
         OnTour = onTour,
         Listeners = listeners,
-        PlayCount = plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
-        UserPlayCount = plays, // if rank is null, playcount property indicates global plays, otherwise userplaycount
+        PlayCount = plays,
+        UserPlayCount = userPlayCount ?? plays,
         SimilarArtists = similar,
         Tags = tags,
         Biography = bio

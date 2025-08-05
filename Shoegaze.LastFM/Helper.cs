@@ -50,6 +50,7 @@ namespace Shoegaze.LastFM
           "medium" => ImageSize.Medium,
           "large" => ImageSize.Large,
           "extralarge" => ImageSize.ExtraLarge,
+          "mega" => ImageSize.Mega,
           _ => ImageSize.Unknown
         };
       }

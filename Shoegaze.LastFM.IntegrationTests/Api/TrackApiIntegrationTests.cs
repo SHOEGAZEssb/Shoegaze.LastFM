@@ -300,7 +300,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateClient();
 
-      var response = await client.Track.GetTopTagsByName("soon", "my bloody valentine");
+      var response = await client.Track.GetTopTagsByName("Blind", "Korn");
       Assert.Multiple(() =>
       {
         Assert.That(response.IsSuccess, Is.True);

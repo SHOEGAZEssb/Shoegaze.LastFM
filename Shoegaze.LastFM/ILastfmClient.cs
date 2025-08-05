@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Tag;
+﻿using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
 
@@ -17,7 +18,7 @@ public interface ILastfmClient
   /// <summary>
   /// Access to artist-related API endpoints.
   /// </summary>
-  //IArtistApi Artist { get; }
+  IArtistApi Artist { get; }
 
   /// <summary>
   /// Access to track-related API endpoints.

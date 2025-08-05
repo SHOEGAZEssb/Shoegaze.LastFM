@@ -30,6 +30,7 @@ public enum ImageSize
   Medium,
   Large,
   ExtraLarge,
+  Mega,
   Unknown
 }
 

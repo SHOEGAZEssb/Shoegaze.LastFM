@@ -19,7 +19,6 @@ namespace Shoegaze.LastFM.Tag
       };
 
       var result = await _invoker.SendAsync("tag.getInfo", parameters, false, ct);
-
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<TagInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
