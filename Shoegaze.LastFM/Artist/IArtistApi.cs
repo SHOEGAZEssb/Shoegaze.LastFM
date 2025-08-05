@@ -19,5 +19,17 @@ namespace Shoegaze.LastFM.Artist
       string? username = null,
       bool autoCorrect = true,
       CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarByNameAsync(
+      string artist,
+      bool autoCorrect = true,
+      int? limit = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarByMbidAsync(
+      string mbid,
+      bool autoCorrect = true,
+      int? limit = null,
+      CancellationToken ct = default);
   }
 }

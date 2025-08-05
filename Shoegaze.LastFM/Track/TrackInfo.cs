@@ -89,7 +89,7 @@ namespace Shoegaze.LastFM.Track
     public DateTime? UserLovedDate { get; set; }
 
     /// <summary>
-    /// Indicates the match score of a tracks for which similar
+    /// Indicates the match score of a track for which similar
     /// tracks have been requested.
     /// </summary>
     /// <remarks>

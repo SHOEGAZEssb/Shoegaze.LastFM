@@ -177,5 +177,53 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetInfoByMbidAsync
+
+    #region GetSimilarByNameAsync
+
+    [Test]
+    public async Task GetSimilarByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetSimilarByNameAsync("My Bloody Valentine");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.EqualTo(100));
+      foreach (var artist in response.Data.Take(10))
+      {
+        Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
+        Assert.That(artist.Images, Is.Not.Empty);
+      }
+    }
+
+    #endregion GetSimilarByNameAsync
+
+    #region GetSimilarByNameAsync
+
+    [Test]
+    public async Task GetSimilarByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetSimilarByMbidAsync("ac865b2e-bba8-4f5a-8756-dd40d5e39f46");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.EqualTo(100));
+      foreach (var artist in response.Data.Take(10))
+      {
+        Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
+        Assert.That(artist.Images, Is.Not.Empty);
+      }
+    }
+
+    #endregion GetSimilarByNameAsync
   }
 }

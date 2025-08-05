@@ -56,5 +56,42 @@ namespace Shoegaze.LastFM.Artist
         return ApiResult<ArtistInfo>.Failure(null, result.HttpStatus, "Failed to parse artist info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarByNameAsync(string artistName, bool autoCorrect = true, int? limit = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
+      parameters.Add("artist", artistName);
+
+      return await GetSimilarAsync(parameters, autoCorrect, ct);
+    }
+
+    public async Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarByMbidAsync(string mbid, bool autoCorrect = true, int? limit = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
+      parameters.Add("mbid", mbid);
+
+      return await GetSimilarAsync(parameters, autoCorrect, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarAsync(Dictionary<string, string> parameters, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      parameters.Add("autocorrect", autoCorrect ? "1" : "0");
+
+      var result = await _invoker.SendAsync("artist.getSimilar", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var artistArray = result.Data.RootElement.GetProperty("similarartists").TryGetProperty("artist", out var ta) ? ta : default;
+        var artists = JsonHelper.MakeListFromJsonArray(artistArray, ArtistInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<ArtistInfo>>.Success(artists);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse artist info: " + ex.Message);
+      }
+    }
   }
 }

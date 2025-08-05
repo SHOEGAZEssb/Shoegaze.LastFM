@@ -50,6 +50,18 @@ namespace Shoegaze.LastFM.Artist
     public int? UserPlayCount { get; set; }
 
     /// <summary>
+    /// Indicates the match score of an artist for which similar
+    /// artists have been requested.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IArtistApi.GetSimilarByNameAsync(string, bool, int?, CancellationToken)"/>.
+    /// - <see cref="IArtistApi.GetSimilarByMbidAsync(string, bool, int?, CancellationToken)"/>.
+    /// </remarks>
+    public double? Match { get; set; }
+
+    /// <summary>
     /// List of similar artists.
     /// </summary>
     /// <remarks>
@@ -116,6 +128,10 @@ namespace Shoegaze.LastFM.Artist
       else if (artist.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCount))
         plays = playCount;
 
+      double? match = null;
+      if (artist.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
+        match = matchValue;
+
       var similar = new List<ArtistInfo>();
       if (artist.TryGetProperty("similar", out var similarProp) &&
           similarProp.TryGetProperty("artist", out var similarArray))
@@ -151,6 +167,7 @@ namespace Shoegaze.LastFM.Artist
         Listeners = listeners,
         PlayCount = plays,
         UserPlayCount = userPlayCount ?? plays,
+        Match = match,
         SimilarArtists = similar,
         Tags = tags,
         Biography = bio

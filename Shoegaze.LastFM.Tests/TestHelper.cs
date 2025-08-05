@@ -1,5 +1,6 @@
 ﻿using Moq;
 using Moq.Protected;
+using System.Text.Json;
 
 namespace Shoegaze.LastFM.Tests
 {
