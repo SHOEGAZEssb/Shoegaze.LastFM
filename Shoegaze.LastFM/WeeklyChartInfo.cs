@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Shoegaze.LastFM.User
+namespace Shoegaze.LastFM
 {
   public class WeeklyChartInfo : IJsonDeserializable<WeeklyChartInfo>
   {

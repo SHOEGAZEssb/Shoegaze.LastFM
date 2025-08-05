@@ -353,5 +353,33 @@
     }
 
     #endregion GetTopTracksAsync
+
+    #region GetWeeklyChartListAsync
+
+    [Test]
+    public async Task GetWeeklyChartListAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Tag.GetWeeklyChartListAsync("shoegaze");
+      Assert.Multiple(() =>
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      });
+
+      Assert.That(response.Data, Has.Count.GreaterThan(1));
+      foreach (var chart in response.Data.Take(10))
+      {
+        Assert.Multiple(() =>
+        {
+          Assert.That(chart.From, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(chart.To, Is.Not.EqualTo(default(DateTime)));
+          Assert.That(new DateTimeOffset(chart.From).ToUnixTimeSeconds(), Is.LessThan(new DateTimeOffset(chart.To).ToUnixTimeSeconds()));
+        });
+      }
+    }
+
+    #endregion GetWeeklyChartListAsync
   }
 }

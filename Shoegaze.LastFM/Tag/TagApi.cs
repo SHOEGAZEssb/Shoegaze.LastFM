@@ -1,6 +1,7 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Track;
+using System.Xml.Linq;
 
 namespace Shoegaze.LastFM.Tag
 {
@@ -164,6 +165,30 @@ namespace Shoegaze.LastFM.Tag
       catch (Exception ex)
       {
         return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(string tagName, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["tag"] = tagName
+      };
+
+      var result = await _invoker.SendAsync("tag.getWeeklyChartList", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var chartArray = result.Data.RootElement.GetProperty("weeklychartlist").TryGetProperty("chart", out var ta) ? ta : default;
+        var charts = JsonHelper.MakeListFromJsonArray(chartArray, WeeklyChartInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Success(charts);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
       }
     }
   }

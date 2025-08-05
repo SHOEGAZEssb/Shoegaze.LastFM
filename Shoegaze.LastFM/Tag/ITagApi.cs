@@ -54,5 +54,9 @@ namespace Shoegaze.LastFM.Tag
       int? limit = null,
       int? page = null,
       CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(
+      string tagName,
+      CancellationToken ct = default);
   }
 }
