@@ -34,24 +34,27 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new TagApi(mock.Object);
       var response = await api.GetInfoAsync("shoegaze");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       var tag = response.Data;
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(tag.Name, Is.EqualTo("shoegaze"));
         Assert.That(tag.Taggings, Is.EqualTo(224095));
         Assert.That(tag.Reach, Is.EqualTo(41944));
         Assert.That(tag.Wiki, Is.Not.Null);
-      });
+      }
 
-      Assert.That(tag.Wiki.Summary, Contains.Substring("alternative rock"));
-      Assert.That(tag.Wiki.Content, Contains.Substring("alternative rock"));
-      Assert.That(tag.Wiki.Published, Is.Null);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(tag.Wiki.Summary, Contains.Substring("alternative rock"));
+        Assert.That(tag.Wiki.Content, Contains.Substring("alternative rock"));
+        Assert.That(tag.Wiki.Published, Is.Null);
+      }
     }
 
     [Test]
@@ -63,11 +66,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new TagApi(mock.Object);
       var response = await api.GetInfoAsync("shoegaze");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
     [Test]
@@ -94,11 +97,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new TagApi(mock.Object);
       var response = await api.GetInfoAsync("shoegaze");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
     #endregion GetInfoAsync

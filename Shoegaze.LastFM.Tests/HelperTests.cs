@@ -10,11 +10,11 @@
       Assert.That(parameters, Has.Count.EqualTo(2));
       Assert.That(parameters, Contains.Key("limit"));
       Assert.That(parameters, Contains.Key("page"));
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(parameters["limit"], Is.EqualTo("10"));
         Assert.That(parameters["page"], Is.EqualTo("5"));
-      });
+      }
     }
 
     [Test]

@@ -39,29 +39,28 @@ namespace Shoegaze.LastFM.Tests.Authentication
 
       var httpClient = TestHelper.CreateMockHttpClient(req =>
       {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
           Assert.That(req.Method, Is.EqualTo(HttpMethod.Post));
           Assert.That(req.RequestUri!.ToString(), Does.Contain("/2.0"));
-        });
+        }
         return fakeResponse;
       });
 
       var auth = new LastfmAuthService(httpClient, "api_key", "secret", "http://localhost");
 
       var session = await auth.GetSessionAsync("token", "", "");
-
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(session.Username, Is.EqualTo("tim"));
         Assert.That(session.SessionKey, Is.EqualTo("mock_session_key"));
-      });
+      }
     }
 
     [Test]
     public void GetFreePort_IsNotZero()
     {
-      Assert.That(LastfmAuthService.GetFreePort(), Is.Not.EqualTo(0));
+      Assert.That(LastfmAuthService.GetFreePort(), Is.Not.Zero);
     }
   }
 }

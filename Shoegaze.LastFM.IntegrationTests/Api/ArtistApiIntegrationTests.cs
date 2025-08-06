@@ -12,7 +12,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
   {
     private static void AssertGetInfoArtist(ArtistInfo artist, bool withUserInfo)
     {
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(artist.Name, Is.Not.Empty);
         Assert.That(artist.Url.ToString(), Is.Not.Empty);
@@ -25,19 +25,19 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(artist.UserPlayCount, Is.GreaterThan(1));
         else
           Assert.That(artist.UserPlayCount, Is.Null);
-      });
+      }
 
       var similar = artist.SimilarArtists;
       Assert.That(similar, Is.Not.Null);
       Assert.That(similar, Has.Count.EqualTo(5));
       foreach (var sa in similar)
       {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
           Assert.That(sa.Name, Is.Not.Empty);
           Assert.That(sa.Url.ToString(), Is.Not.Empty);
           Assert.That(artist.Images, Has.Count.EqualTo(6));
-        });
+        }
       }
 
       var tags = artist.Tags;
@@ -45,22 +45,22 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       Assert.That(tags, Has.Count.EqualTo(5));
       foreach (var tag in tags)
       {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
           Assert.That(tag.Name, Is.Not.Empty);
           Assert.That(tag.Url.ToString(), Is.Not.Empty);
-        });
+        }
       }
 
       var bio = artist.Biography;
       Assert.That(bio, Is.Not.Null);
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(bio.Published, Is.Not.Null);
         Assert.That(bio.Published, Is.Not.EqualTo(default(DateTime)));
         Assert.That(bio.Summary, Is.Not.Empty);
         Assert.That(bio.Content, Is.Not.Empty);
-      });
+      }
     }
 
     #region GetInfoByNameAsync
@@ -71,11 +71,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByNameAsync("My Bloody Valentine");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       AssertGetInfoArtist(response.Data, withUserInfo: false);
     }
@@ -86,11 +86,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByNameAsync("My Bloody Valentine", "coczero");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       AssertGetInfoArtist(response.Data, withUserInfo: true);
     }
@@ -101,11 +101,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByNameAsync("guns and roses", "coczero", autoCorrect: true);
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       var artist = response.Data;
       Assert.That(artist.Name, Is.EqualTo("Guns N' Roses"));
@@ -118,11 +118,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByNameAsync("guns and roses", "coczero", autoCorrect: false);
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       var artist = response.Data;
       Assert.That(artist.Name, Is.EqualTo("Guns and Roses"));
@@ -134,12 +134,12 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByNameAsync("SHOEGAZELASTFMINVALIDARTIST");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
         Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
-      });
+      }
     }
 
     #endregion GetInfoByNameAsync
@@ -152,11 +152,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByMbidAsync("ac865b2e-bba8-4f5a-8756-dd40d5e39f46");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       AssertGetInfoArtist(response.Data, withUserInfo: false);
     }
@@ -167,11 +167,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetInfoByMbidAsync("ac865b2e-bba8-4f5a-8756-dd40d5e39f46", "coczero");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       AssertGetInfoArtist(response.Data, withUserInfo: true);
     }
@@ -186,17 +186,20 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetSimilarByNameAsync("My Bloody Valentine");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       Assert.That(response.Data, Has.Count.EqualTo(100));
       foreach (var artist in response.Data.Take(10))
       {
-        Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
-        Assert.That(artist.Images, Is.Not.Empty);
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(artist.Match, Is.Not.Zero);
+          Assert.That(artist.Images, Is.Not.Empty);
+        }
       }
     }
 
@@ -221,7 +224,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         using (Assert.EnterMultipleScope())
         {
-          Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
+          Assert.That(artist.Match, Is.Not.Zero);
           Assert.That(artist.Images, Is.Not.Empty);
         }
       }

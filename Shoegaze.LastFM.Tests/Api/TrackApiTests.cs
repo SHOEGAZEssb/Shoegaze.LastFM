@@ -99,14 +99,12 @@ public class TrackApiTests
     var api = new TrackApi(mockInvoker.Object);
 
     var result = await api.GetInfoByNameAsync("Blind", "Korn", "testuser");
-
-    Assert.Multiple(() =>
+    using (Assert.EnterMultipleScope())
     {
       Assert.That(result.IsSuccess, Is.True);
       Assert.That(result.Data, Is.Not.Null);
-    });
-
-    Assert.Multiple(() =>
+    }
+    using (Assert.EnterMultipleScope())
     {
       Assert.That(result.Data.Name, Is.EqualTo("Blind"));
       Assert.That(result.Data.Artist!.Name, Is.EqualTo("Korn"));
@@ -115,7 +113,7 @@ public class TrackApiTests
       Assert.That(result.Data.UserPlayCount, Is.EqualTo(15));
       Assert.That(result.Data.TopTags, Has.Count.EqualTo(5));
       Assert.That(result.Data.Wiki?.Summary, Does.Contain("self-titled"));
-    });
+    }
   }
 
   #endregion GetInfoByNameAsync
@@ -214,21 +212,19 @@ public class TrackApiTests
     var api = new TrackApi(mockInvoker.Object);
 
     var result = await api.GetInfoByMbidAsync("e60739a6-eea8-4ee8-acae-d34d5d6ad1d9");
-
-    Assert.Multiple(() =>
+    using (Assert.EnterMultipleScope())
     {
       Assert.That(result.IsSuccess, Is.True);
       Assert.That(result.Data, Is.Not.Null);
-    });
-
-    Assert.Multiple(() =>
+    }
+    using (Assert.EnterMultipleScope())
     {
       Assert.That(result.Data.Name, Is.EqualTo("Blind"));
       Assert.That(result.Data.Artist!.Name, Is.EqualTo("Korn"));
       Assert.That(result.Data.Duration, Is.EqualTo(TimeSpan.FromMilliseconds(263000)));
       Assert.That(result.Data.TopTags, Has.Count.EqualTo(5));
       Assert.That(result.Data.Wiki?.Summary, Does.Contain("self-titled"));
-    });
+    }
   }
 
   #endregion GetInfoByMbidAsync

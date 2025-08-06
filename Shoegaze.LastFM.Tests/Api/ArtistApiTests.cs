@@ -26,11 +26,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetInfoByNameAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
 
@@ -43,11 +43,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetInfoByNameAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
     #endregion GetInfoByNameAsync
@@ -66,11 +66,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetSimilarByNameAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
 
@@ -83,11 +83,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetSimilarByNameAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
     #endregion GetInfoByNameAsync
@@ -106,11 +106,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetCorrectionAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
 
@@ -123,11 +123,11 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetCorrectionAsync("some artist");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-      });
+      }
     }
 
     #endregion GetCorrectionAsync
