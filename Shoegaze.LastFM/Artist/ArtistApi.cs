@@ -115,5 +115,48 @@ namespace Shoegaze.LastFM.Artist
         return ApiResult<ArtistInfo>.Failure(null, result.HttpStatus, "Failed to parse artist info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByNameAsync(string artistName, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["artist"] = artistName,
+      };
+
+      return await GetTagsAsync(parameters, username, autocorrect, ct);
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByMbidAsync(string mbid, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["mbid"] = mbid,
+      };
+
+      return await GetTagsAsync(parameters, username, autocorrect, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsAsync(Dictionary<string, string> parameters, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      if (username != null)
+        parameters.Add("user", username);
+      parameters.Add("autocorrect", autoCorrect ? "1" : "0");
+
+      var result = await _invoker.SendAsync("artist.getTags", parameters, username == null, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var tagArray = result.Data.RootElement.GetProperty("tags").TryGetProperty("tag", out var ta) ? ta : default;
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tag info: " + ex.Message);
+      }
+    }
   }
 }

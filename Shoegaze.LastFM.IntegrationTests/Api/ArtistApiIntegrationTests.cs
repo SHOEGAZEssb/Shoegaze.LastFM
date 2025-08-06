@@ -251,5 +251,56 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetCorrectionAsync
+
+    #region GetTagsByNameAsync
+
+    [Test]
+    public async Task GetTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTagsByNameAsync("My Bloody Valentine", "coczero");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+    }
+
+    [Test]
+    public async Task GetTagsByNameAsync_Authenticated_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var response = await client.Artist.GetTagsByNameAsync("My Bloody Valentine");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+    }
+
+    [Test]
+    public async Task GetTagsByNameAsync_Authenticated_Empty_Without_Correction_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var response = await client.Artist.GetTagsByNameAsync("guns and roses", username: null, autocorrect: false);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Empty);
+    }
+
+    #endregion GetTagsByNameAsync
   }
 }

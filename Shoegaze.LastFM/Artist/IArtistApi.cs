@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shoegaze.LastFM.Tag;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,18 @@ namespace Shoegaze.LastFM.Artist
 
     Task<ApiResult<ArtistInfo>> GetCorrectionAsync(
       string artistName,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByNameAsync(
+      string artistName,
+      string? username = null,
+      bool autocorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByMbidAsync(
+      string mbid,
+      string? username = null,
+      bool autocorrect = true,
       CancellationToken ct = default);
   }
 }
