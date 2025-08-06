@@ -278,6 +278,9 @@ internal class UserApi : IUserApi
       var albumsArray = topAlbumsProperty.TryGetProperty("album", out var ta) ? ta : default;
       var albums = JsonHelper.MakeListFromJsonArray(albumsArray, AlbumInfo.FromJson);
 
+      foreach (var album in albums)
+        album.PlayCount = null; // same property name as UserPlayCount
+
       return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(topAlbumsProperty, albums));
     }
     catch (Exception ex)

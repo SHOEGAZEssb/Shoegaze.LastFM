@@ -302,5 +302,72 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTagsByNameAsync
+
+    #region GetTopAlbumsByNameAsync
+
+    [Test]
+    public async Task GetTopAlbumsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopAlbumsByNameAsync("My Bloody Valentine");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      Assert.That(pages.Items, Is.Not.Empty);
+      Assert.That(pages.Items.Any(static t => t.Name == "Loveless"), Is.True);
+      foreach (var album in pages.Items)
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(album.PlayCount, Is.GreaterThan(1));
+          Assert.That(album.UserPlayCount, Is.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task GetTopAlbumsByNameAsync_Without_Correction_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopAlbumsByNameAsync("guns and roses", autoCorrect: false);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      Assert.That(pages.Items, Is.Not.Empty);
+      foreach (var album in pages.Items)
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(album.PlayCount, Is.GreaterThan(1));
+          Assert.That(album.UserPlayCount, Is.Null);
+        }
+      }
+    }
+
+    #endregion GetTopAlbumsByNameAsync
   }
 }

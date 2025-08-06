@@ -199,5 +199,73 @@ namespace Shoegaze.LastFM.Tests.Api
     }
 
     #endregion GetTagsByMbidAsync
+
+    #region GetTopAlbumsByNameAsync
+
+    [Test]
+    public async Task GetTopAlbumsByNameAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("artist.getTopAlbums", json);
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopAlbumsByNameAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task GetTopAlbumsByNameAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("artist.getTopAlbums");
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopAlbumsByNameAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion GetTopAlbumsByNameAsync
+
+    #region GetTopAlbumsByMbidAsync
+
+    [Test]
+    public async Task GetTopAlbumsByMbidAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("artist.getTopAlbums", json);
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopAlbumsByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task GetTopAlbumsByMbidAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("artist.getTopAlbums");
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopAlbumsByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion GetTopAlbumsByMbidAsync
   }
 }

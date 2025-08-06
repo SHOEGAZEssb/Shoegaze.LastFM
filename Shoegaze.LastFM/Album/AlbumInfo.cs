@@ -41,6 +41,17 @@ namespace Shoegaze.LastFM.Album
     public string? Mbid { get; set; }
 
     /// <summary>
+    /// Total amount of plays this album has.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IArtistApi.GetTopAlbumsByNameAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// </remarks>
+    public int? PlayCount { get; set; }
+
+    /// <summary>
     /// Amount of plays of this album the user has for which the request has been made.
     /// </summary>
     /// <remarks>
@@ -76,10 +87,10 @@ namespace Shoegaze.LastFM.Album
         throw new Exception("Album json malformed - name could not be parsed");
 
       int? playCount = null;
-      if (album.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCountNum))
+      if (album.TryGetProperty("playcount", out var playCountProp) && JsonHelper.TryParseNumber<int>(playCountProp, out var playCountNum))
         playCount = playCountNum;
 
-      ArtistInfo? artist = album.TryGetProperty("artist", out var _) ? ArtistInfo.FromJson(root) : null;
+      ArtistInfo? artist = album.TryGetProperty("artist", out var artistProp) ? ArtistInfo.FromJson(artistProp) : null;
 
       return new AlbumInfo
       {
@@ -88,7 +99,8 @@ namespace Shoegaze.LastFM.Album
         Url = album.TryGetProperty("url", out var urlProperty) ? new Uri(urlProperty.GetString() ?? "") : (artist != null ? UriHelper.MakeAlbumUri(artist.Name, name) : null),
         Mbid = root.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null,
         Images = JsonHelper.ParseImageArray(root),
-        UserPlayCount = playCount // if rank is null, playCount is the global playCount
+        UserPlayCount = playCount,
+        PlayCount = playCount
       };
     }
   }

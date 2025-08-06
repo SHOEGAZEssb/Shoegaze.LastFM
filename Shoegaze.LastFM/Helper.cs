@@ -196,6 +196,11 @@ namespace Shoegaze.LastFM
 
       return dict;
     }
+
+    public static void AddAutoCorrectParameter(IDictionary<string, string> target, bool autoCorrect)
+    {
+      target.Add("autocorrect", autoCorrect ? "1" : "0");
+    }
   }
 
   internal static class TimePeriodExtensions
