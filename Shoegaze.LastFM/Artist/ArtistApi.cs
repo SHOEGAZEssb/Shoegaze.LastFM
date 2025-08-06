@@ -93,5 +93,27 @@ namespace Shoegaze.LastFM.Artist
         return ApiResult<IReadOnlyList<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse artist info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<ArtistInfo>> GetCorrectionAsync(string artistName, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["artist"] = artistName,
+      };
+
+      var result = await _invoker.SendAsync("artist.getCorrection", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<ArtistInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var artistInfo = ArtistInfo.FromJson(result.Data.RootElement.GetProperty("corrections").GetProperty("correction").GetProperty("artist"));
+        return ApiResult<ArtistInfo>.Success(artistInfo);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<ArtistInfo>.Failure(null, result.HttpStatus, "Failed to parse artist info: " + ex.Message);
+      }
+    }
   }
 }

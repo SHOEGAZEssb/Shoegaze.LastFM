@@ -31,5 +31,9 @@ namespace Shoegaze.LastFM.Artist
       bool autoCorrect = true,
       int? limit = null,
       CancellationToken ct = default);
+
+    Task<ApiResult<ArtistInfo>> GetCorrectionAsync(
+      string artistName,
+      CancellationToken ct = default);
   }
 }

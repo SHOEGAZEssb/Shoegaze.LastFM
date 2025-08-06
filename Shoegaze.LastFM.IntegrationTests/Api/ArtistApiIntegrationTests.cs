@@ -210,20 +210,43 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateClient();
 
       var response = await client.Artist.GetSimilarByMbidAsync("ac865b2e-bba8-4f5a-8756-dd40d5e39f46");
-      Assert.Multiple(() =>
+      using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
         Assert.That(response.Data, Is.Not.Null);
-      });
+      }
 
       Assert.That(response.Data, Has.Count.EqualTo(100));
       foreach (var artist in response.Data.Take(10))
       {
-        Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
-        Assert.That(artist.Images, Is.Not.Empty);
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(artist.Match, Is.Not.EqualTo(0.0d));
+          Assert.That(artist.Images, Is.Not.Empty);
+        }
       }
     }
 
     #endregion GetSimilarByNameAsync
+
+    #region GetCorrectionAsync
+
+    [Test]
+    public async Task GetCorrectionAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetCorrectionAsync("guns and roses");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var artist = response.Data;
+      Assert.That(artist.Name, Is.EqualTo("Guns N' Roses"));
+    }
+
+    #endregion GetCorrectionAsync
   }
 }
