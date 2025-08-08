@@ -1,10 +1,5 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Artist
 {
@@ -198,6 +193,47 @@ namespace Shoegaze.LastFM.Artist
       catch (Exception ex)
       {
         return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse albums: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByNameAsync(string artistName, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["artist"] = artistName
+      };
+
+      return await GetTopTags(parameters, autoCorrect, ct);
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(string mbid, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["mbid"] = mbid
+      };
+
+      return await GetTopTags(parameters, autoCorrect, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTags(Dictionary<string, string> parameters, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
+
+      var result = await _invoker.SendAsync("artist.getTopTags", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tag info: " + ex.Message);
       }
     }
   }

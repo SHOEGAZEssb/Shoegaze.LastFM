@@ -1,9 +1,4 @@
 ﻿using Shoegaze.LastFM.Artist;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
 {
@@ -369,5 +364,45 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopAlbumsByNameAsync
+
+    #region GetTopTagsByNameAsync
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopTagsByNameAsync("My Bloody Valentine");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+    }
+
+    #endregion GetTopTagsByNameAsync
+
+    #region GetTopTagsByMbidAsync
+
+    [Test]
+    public async Task GetTopTagsByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopTagsByMbidAsync("65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab"); // metallica mbid
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "metal"), Is.True);
+    }
+
+    #endregion GetTopTagsByMbidAsync
   }
 }

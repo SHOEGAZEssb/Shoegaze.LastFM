@@ -33,6 +33,17 @@ namespace Shoegaze.LastFM.Artist
 
     public bool? IsStreamable { get; set; }
 
+    /// <summary>
+    /// If this band is currently on tour.
+    /// Usually this means this band has events that
+    /// are available on last.fm.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IArtistApi.GetInfoByNameAsync(string, string?, bool, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetInfoByMbidAsync(string, string?, bool, CancellationToken)"/>
+    /// </remarks>
     public bool? OnTour { get; set; }
 
     public int? Listeners { get; set; }

@@ -1,12 +1,6 @@
 ﻿using Moq;
 using Shoegaze.LastFM.Artist;
-using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Tests.Api
 {
@@ -259,6 +253,40 @@ namespace Shoegaze.LastFM.Tests.Api
 
       var api = new ArtistApi(mock.Object);
       var response = await api.GetTopAlbumsByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion GetTopAlbumsByMbidAsync
+
+    #region GetTopAlbumsByMbidAsync
+
+    [Test]
+    public async Task GetTopTagsByMbidAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("artist.getTopTags", json);
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopTagsByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task GetTopTagsByMbidAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("artist.getTopTags");
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopTagsByMbidAsync("some artist");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);

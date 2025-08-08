@@ -1,10 +1,5 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Artist
 {
@@ -62,6 +57,16 @@ namespace Shoegaze.LastFM.Artist
       bool autoCorrect = true,
       int? limit = null,
       int? page = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByNameAsync(
+      string artistName,
+      bool autoCorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(
+      string mbid,
+      bool autoCorrect = true,
       CancellationToken ct = default);
   }
 }

@@ -1,5 +1,4 @@
 ﻿using Shoegaze.LastFM.Tag;
-using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
 {

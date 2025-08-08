@@ -1,5 +1,4 @@
 ﻿using Moq;
-using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using System.Text.Json;
 

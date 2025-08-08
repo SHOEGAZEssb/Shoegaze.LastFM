@@ -1,7 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Track;
-using System.Xml.Linq;
 
 namespace Shoegaze.LastFM.Tag
 {
