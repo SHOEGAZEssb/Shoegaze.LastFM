@@ -404,5 +404,79 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopTagsByMbidAsync
+
+    #region GetTopTracksByNameAsync
+
+    [Test]
+    public async Task GetTopTracksByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopTracksByNameAsync("My Bloody Valentine");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      foreach (var track in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(track.PlayCount, Is.GreaterThan(1));
+          Assert.That(track.ListenerCount, Is.GreaterThan(1));
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.UserPlayCount, Is.Null);
+          Assert.That(track.Artist, Is.Not.Null);
+        }
+      }
+    }
+
+    #endregion GetTopTracksByNameAsync
+
+    #region GetTopTracksByMbidAsync
+
+    [Test]
+    public async Task GetTopTracksByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.GetTopTracksByMbidAsync("65f4f0c5-ef9e-490c-aee3-909e7ae6b2ab"); // metallica mbid
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      foreach (var track in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(track.PlayCount, Is.GreaterThan(1));
+          Assert.That(track.ListenerCount, Is.GreaterThan(1));
+          Assert.That(track.IsStreamable, Is.Not.Null);
+          Assert.That(track.UserPlayCount, Is.Null);
+          Assert.That(track.Artist, Is.Not.Null);
+        }
+      }
+    }
+
+    #endregion GetTopTracksByNameAsync
   }
 }

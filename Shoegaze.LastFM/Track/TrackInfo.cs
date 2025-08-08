@@ -16,7 +16,7 @@ namespace Shoegaze.LastFM.Track
     /// Mbid of this track.
     /// </summary>
     /// <remarks>
-    /// May be absent.
+    /// May be null or empty.
     /// </remarks>
     public string? Mbid { get; set; }
 
@@ -42,6 +42,8 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? ListenerCount { get; set; }
 
@@ -50,6 +52,9 @@ namespace Shoegaze.LastFM.Track
     /// </summary>
     /// <remarks>
     /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? PlayCount { get; set; }
 
@@ -107,6 +112,8 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
     public ArtistInfo? Artist { get; set; }
 
@@ -178,6 +185,8 @@ namespace Shoegaze.LastFM.Track
     /// May be null.
     /// Guaranteed to be available when using:
     /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>.
+    /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
     public bool? IsStreamable { get; set; }
 

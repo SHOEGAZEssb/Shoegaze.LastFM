@@ -1,5 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 
 namespace Shoegaze.LastFM.Artist
 {
@@ -67,6 +68,20 @@ namespace Shoegaze.LastFM.Artist
     Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(
       string mbid,
       bool autoCorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksByNameAsync(
+      string artistName,
+      bool autoCorrect = true,
+      int? limit = null,
+      int? page = null,
+      CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksByMbidAsync(
+      string mbid,
+      bool autoCorrect = true,
+      int? limit = null,
+      int? page = null,
       CancellationToken ct = default);
   }
 }

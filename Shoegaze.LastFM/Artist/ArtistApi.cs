@@ -1,5 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 
 namespace Shoegaze.LastFM.Artist
 {
@@ -234,6 +235,47 @@ namespace Shoegaze.LastFM.Artist
       catch (Exception ex)
       {
         return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tag info: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksByNameAsync(string artistName, bool autoCorrect = true, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("artist", artistName);
+
+      return await GetTopTracksAsync(parameters, autoCorrect, ct);
+    }
+
+    public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksByMbidAsync(string mbid, bool autoCorrect = true, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("mbid", mbid);
+
+      return await GetTopTracksAsync(parameters, autoCorrect, ct);
+    }
+
+    private async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(Dictionary<string, string> parameters, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
+
+      var result = await _invoker.SendAsync("artist.getTopTracks", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var tracksProperty = result.Data.RootElement.GetProperty("toptracks");
+        var trackArray = tracksProperty.TryGetProperty("track", out var ta) ? ta : default;
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
+
+        foreach (var track in tracks)
+          track.UserPlayCount = null; // same property as playcount
+
+        return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(tracksProperty, tracks));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
   }

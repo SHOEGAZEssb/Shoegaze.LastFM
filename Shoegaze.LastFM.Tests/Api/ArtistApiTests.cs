@@ -262,7 +262,7 @@ namespace Shoegaze.LastFM.Tests.Api
 
     #endregion GetTopAlbumsByMbidAsync
 
-    #region GetTopAlbumsByMbidAsync
+    #region GetTopTagsByMbidAsync
 
     [Test]
     public async Task GetTopTagsByMbidAsync_ReturnsError_WhenMalformed()
@@ -294,6 +294,40 @@ namespace Shoegaze.LastFM.Tests.Api
       }
     }
 
-    #endregion GetTopAlbumsByMbidAsync
+    #endregion GetTopTagsByMbidAsync
+
+    #region GetTopTracksByMbidAsync
+
+    [Test]
+    public async Task GetTopTracksByMbidAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("artist.getTopTracks", json);
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopTracksByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task GetTopTracksByMbidAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("artist.getTopTracks");
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.GetTopTracksByMbidAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion GetTopTracksByMbidAsync
   }
 }
