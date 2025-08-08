@@ -33,7 +33,7 @@ namespace Shoegaze.LastFM.Artist
     {
       if (username != null)
         parameters["username"] = username;
-      parameters.Add("autocorrect", autoCorrect ? "1" : "0");
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       var result = await _invoker.SendAsync("artist.getInfo", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -71,7 +71,7 @@ namespace Shoegaze.LastFM.Artist
 
     private async Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarAsync(Dictionary<string, string> parameters, bool autoCorrect = true, CancellationToken ct = default)
     {
-      parameters.Add("autocorrect", autoCorrect ? "1" : "0");
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       var result = await _invoker.SendAsync("artist.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -136,7 +136,7 @@ namespace Shoegaze.LastFM.Artist
     {
       if (username != null)
         parameters.Add("user", username);
-      parameters.Add("autocorrect", autoCorrect ? "1" : "0");
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       var result = await _invoker.SendAsync("artist.getTags", parameters, username == null, ct);
       if (!result.IsSuccess || result.Data == null)
