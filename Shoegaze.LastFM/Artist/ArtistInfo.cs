@@ -134,7 +134,7 @@ namespace Shoegaze.LastFM.Artist
       if (statsProperty.TryGetProperty("playcount", out var p) && JsonHelper.TryParseNumber<int>(p, out var parsedPlays))
         plays = parsedPlays;
       if (statsProperty.TryGetProperty("userplaycount", out var up) && JsonHelper.TryParseNumber<int>(up, out var parsedUserPlays))
-        plays = parsedUserPlays;
+        userPlayCount = parsedUserPlays;
 
       double? match = null;
       if (artist.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
