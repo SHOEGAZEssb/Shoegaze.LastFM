@@ -83,5 +83,11 @@ namespace Shoegaze.LastFM.Artist
       int? limit = null,
       int? page = null,
       CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<ArtistInfo>>> SearchAsync(
+      string artistName,
+      int? limit = null,
+      int? page = null,
+      CancellationToken ct = default);
   }
 }

@@ -329,5 +329,39 @@ namespace Shoegaze.LastFM.Tests.Api
     }
 
     #endregion GetTopTracksByMbidAsync
+
+    #region SearchAsync
+
+    [Test]
+    public async Task SearchAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("artist.search", json);
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.SearchAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task SearchAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("artist.search");
+
+      var api = new ArtistApi(mock.Object);
+      var response = await api.SearchAsync("some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion SearchAsync
   }
 }

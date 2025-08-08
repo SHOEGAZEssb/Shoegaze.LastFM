@@ -278,5 +278,29 @@ namespace Shoegaze.LastFM.Artist
         return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<PagedResult<ArtistInfo>>> SearchAsync(string artistName, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("artist", artistName);
+
+      var result = await _invoker.SendAsync("artist.search", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var resultsProperty = result.Data.RootElement.GetProperty("results");
+        var trackMatchesProperty = resultsProperty.GetProperty("artistmatches");
+        var trackArray = trackMatchesProperty.TryGetProperty("artist", out var ta) ? ta : default;
+        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, ArtistInfo.FromJson);
+
+        return ApiResult<PagedResult<ArtistInfo>>.Success(PagedResult<ArtistInfo>.FromJson(resultsProperty, tracks));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse artists: " + ex.Message);
+      }
+    }
   }
 }

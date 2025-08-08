@@ -46,7 +46,7 @@ namespace Shoegaze.LastFM.Artist
     /// </remarks>
     public bool? OnTour { get; set; }
 
-    public int? Listeners { get; set; }
+    public int? ListenerCount { get; set; }
 
     public int? PlayCount { get; set; }
 
@@ -127,17 +127,14 @@ namespace Shoegaze.LastFM.Artist
       int? listeners = null;
       int? plays = null;
       int? userPlayCount = null;
-      if (artist.TryGetProperty("stats", out var stats))
-      {
-        if (stats.TryGetProperty("listeners", out var l) && int.TryParse(l.GetString(), out var parsedListeners))
-          listeners = parsedListeners;
-        if (stats.TryGetProperty("playcount", out var p) && int.TryParse(p.GetString(), out var parsedPlays))
-          plays = parsedPlays;
-        if (stats.TryGetProperty("userplaycount", out var up) && int.TryParse(up.GetString(), out var parsedUserPlays))
-          plays = parsedUserPlays;
-      }
-      else if (artist.TryGetProperty("playcount", out var playCountProp) && int.TryParse(playCountProp.GetString()!, out var playCount))
-        plays = playCount;
+
+      var statsProperty = artist.TryGetProperty("stats", out var stats) ? stats : artist; // stats may be nested inside a stats object
+      if (statsProperty.TryGetProperty("listeners", out var l) && JsonHelper.TryParseNumber<int>(l, out var parsedListeners))
+        listeners = parsedListeners;
+      if (statsProperty.TryGetProperty("playcount", out var p) && JsonHelper.TryParseNumber<int>(p, out var parsedPlays))
+        plays = parsedPlays;
+      if (statsProperty.TryGetProperty("userplaycount", out var up) && JsonHelper.TryParseNumber<int>(up, out var parsedUserPlays))
+        plays = parsedUserPlays;
 
       double? match = null;
       if (artist.TryGetProperty("match", out var matchProp) && JsonHelper.TryParseNumber<double>(matchProp, out var matchValue))
@@ -175,7 +172,7 @@ namespace Shoegaze.LastFM.Artist
         Images = images,
         IsStreamable = isStreamable,
         OnTour = onTour,
-        Listeners = listeners,
+        ListenerCount = listeners,
         PlayCount = plays,
         UserPlayCount = userPlayCount ?? plays,
         Match = match,

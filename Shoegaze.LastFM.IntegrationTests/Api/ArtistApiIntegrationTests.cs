@@ -14,7 +14,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(artist.Images, Has.Count.EqualTo(6));
         Assert.That(artist.IsStreamable, Is.Not.Null);
         Assert.That(artist.OnTour, Is.Not.Null);
-        Assert.That(artist.Listeners, Is.GreaterThan(1));
+        Assert.That(artist.ListenerCount, Is.GreaterThan(1));
         Assert.That(artist.PlayCount, Is.GreaterThan(1));
         if (withUserInfo)
           Assert.That(artist.UserPlayCount, Is.GreaterThan(1));
@@ -478,5 +478,101 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopTracksByNameAsync
+
+    #region SearchAsync
+
+    [Test]
+    public async Task SearchAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.SearchAsync("Korn");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var artist in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.IsStreamable, Is.Not.Null);
+          Assert.That(artist.ListenerCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(artist.PlayCount, Is.Null);
+          Assert.That(artist.UserPlayCount, Is.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_With_Limit_And_Page_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.SearchAsync("A", limit: 10, page: 3);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(3));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+        Assert.That(pages.PerPage, Is.EqualTo(10));
+      }
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var artist in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(artist.Mbid, Is.Not.Null);
+          Assert.That(artist.IsStreamable, Is.Not.Null);
+          Assert.That(artist.ListenerCount, Is.GreaterThanOrEqualTo(1));
+          Assert.That(artist.PlayCount, Is.Null);
+          Assert.That(artist.UserPlayCount, Is.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_Invalid_Track_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Artist.SearchAsync("SHOEGAZELASTFMINVALIDARTIST");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.Zero);
+        Assert.That(pages.TotalItems, Is.Zero);
+      }
+
+      Assert.That(pages.Items, Is.Empty);
+    }
+
+    #endregion SearchAsync
   }
 }
