@@ -7,14 +7,14 @@ namespace Shoegaze.LastFM.User;
 /// </summary>
 public class UserInfo : IJsonDeserializable<UserInfo>
 {
-  public string Username { get; set; } = default!;
-  public string? RealName { get; set; } = default!;
-  public Uri Url { get; set; } = default!;
-  public string? Country { get; set; } = default!;
-  public int? Age { get; set; }
-  public string? Gender { get; set; } = default!;
-  public bool? IsSubscriber { get; set; }
-  public int? Playcount { get; set; }
+  public string Username { get; private set; } = default!;
+  public string? RealName { get; private set; } = default!;
+  public Uri Url { get; private set; } = default!;
+  public string? Country { get; private set; } = default!;
+  public int? Age { get; private set; }
+  public string? Gender { get; private set; } = default!;
+  public bool? IsSubscriber { get; private set; }
+  public int? Playcount { get; private set; }
 
   /// <summary>
   /// Number of artists this user has listened to.
@@ -24,7 +24,7 @@ public class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? ArtistCount { get; set; }
+  public int? ArtistCount { get; private set; }
 
   /// <summary>
   /// Number of individual tracks this user has listened to.
@@ -34,7 +34,7 @@ public class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? TrackCount { get; set; }
+  public int? TrackCount { get; private set; }
 
   /// <summary>
   /// Number of albums this user has listened to.
@@ -44,10 +44,10 @@ public class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? AlbumCount { get; set; }
-  public int? Playlists { get; set; }
-  public DateTime? RegisteredDate { get; set; }
-  public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
+  public int? AlbumCount { get; private set; }
+  public int? Playlists { get; private set; }
+  public DateTime? RegisteredDate { get; private set; }
+  public IReadOnlyDictionary<ImageSize, Uri> Images { get; private set; } = new Dictionary<ImageSize, Uri>();
 
   public Uri? ImageUrl =>
       Images.TryGetValue(ImageSize.ExtraLarge, out var xl) ? xl :

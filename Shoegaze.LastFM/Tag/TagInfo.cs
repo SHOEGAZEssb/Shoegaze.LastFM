@@ -24,7 +24,7 @@ namespace Shoegaze.LastFM.Tag
     /// - <see cref="Track.ITrackApi.GetTopTagsByName(string, string, bool, CancellationToken)"/>
     /// - <see cref="Track.ITrackApi.GetTopTagsByMbid(string, bool, CancellationToken)"/>
     /// </remarks>
-    public int? CountOnTrack { get; set; }
+    public int? CountOnTrack { get; internal set; }
 
     /// <summary>
     /// Amount of users that have used this tag.
@@ -34,7 +34,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public int? Reach { get; set; }
+    public int? Reach { get; private set; }
 
     /// <summary>
     /// Total number of times this tag has been used.
@@ -44,7 +44,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public int? Taggings { get; set; }
+    public int? Taggings { get; private set; }
 
     /// <summary>
     /// Amount of times this tag has been used by the user.
@@ -54,7 +54,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be included when using:
     /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/> with included username.
     /// </remarks>
-    public int? UserUsedCount { get; set; }
+    public int? UserUsedCount { get; internal set; }
 
     /// <summary>
     /// The wiki of this tag.
@@ -64,7 +64,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public WikiInfo? Wiki { get; set; }
+    public WikiInfo? Wiki { get; private set; }
 
     internal static TagInfo FromJson(JsonElement root)
     {

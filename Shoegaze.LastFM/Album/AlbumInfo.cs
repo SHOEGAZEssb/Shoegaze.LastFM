@@ -14,7 +14,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public ArtistInfo? Artist { get; set; }
+    public ArtistInfo? Artist { get; private set; }
 
     /// <summary>
     /// Name of this artist.
@@ -30,7 +30,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public required Uri? Url { get; set; }
+    public Uri? Url { get; private set; }
 
     /// <summary>
     /// Mbid of this album.
@@ -38,7 +38,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// </remarks>
-    public string? Mbid { get; set; }
+    public string? Mbid { get; private set; }
 
     /// <summary>
     /// Total amount of plays this album has.
@@ -49,7 +49,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IArtistApi.GetTopAlbumsByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public int? PlayCount { get; set; }
+    public int? PlayCount { get; internal set; }
 
     /// <summary>
     /// Amount of plays of this album the user has for which the request has been made.
@@ -59,7 +59,7 @@ namespace Shoegaze.LastFM.Album
     /// Guaranteed to be available when using:
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)/>.
     /// </remarks>
-    public int? UserPlayCount { get; set; }
+    public int? UserPlayCount { get; internal set; }
 
     /// <summary>
     /// Images associated with this album.
@@ -67,7 +67,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public Dictionary<ImageSize, Uri> Images { get; set; } = [];
+    public Dictionary<ImageSize, Uri> Images { get; private set; } = [];
 
     internal static AlbumInfo FromJson(JsonElement root)
     {

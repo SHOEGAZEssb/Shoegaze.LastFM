@@ -4,9 +4,9 @@ namespace Shoegaze.LastFM
 {
   public sealed class WikiInfo
   {
-    public DateTime? Published { get; set; }
-    public string Summary { get; set; } = "";
-    public string Content { get; set; } = "";
+    public DateTime? Published { get; private set; }
+    public string Summary { get; private set; } = "";
+    public string Content { get; private set; } = "";
 
     internal static WikiInfo FromJson(JsonElement root)
     {

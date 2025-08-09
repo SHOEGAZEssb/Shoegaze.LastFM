@@ -27,7 +27,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("tag.getInfo", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -59,7 +59,7 @@ namespace Shoegaze.LastFM.Tests.Api
     [Test]
     public async Task GetInfoAsync_ReturnsError_WhenError()
     {
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("tag.getInfo", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Failure());
 
@@ -90,7 +90,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("tag.getInfo", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 

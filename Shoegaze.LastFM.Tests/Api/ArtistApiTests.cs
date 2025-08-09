@@ -14,7 +14,7 @@ namespace Shoegaze.LastFM.Tests.Api
       string json = "{}";
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getInfo", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -31,7 +31,7 @@ namespace Shoegaze.LastFM.Tests.Api
     [Test]
     public async Task GetInfoByNameAsync_ReturnsError_WhenError()
     {
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getInfo", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Failure());
 
@@ -54,7 +54,7 @@ namespace Shoegaze.LastFM.Tests.Api
       string json = "{}";
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getSimilar", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -71,7 +71,7 @@ namespace Shoegaze.LastFM.Tests.Api
     [Test]
     public async Task GetSimilarByNameAsync_ReturnsError_WhenError()
     {
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getSimilar", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Failure());
 
@@ -94,7 +94,7 @@ namespace Shoegaze.LastFM.Tests.Api
       string json = "{}";
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getCorrection", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -111,7 +111,7 @@ namespace Shoegaze.LastFM.Tests.Api
     [Test]
     public async Task GetCorrectionAsync_ReturnsError_WhenError()
     {
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("artist.getCorrection", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Failure());
 

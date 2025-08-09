@@ -51,11 +51,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     using var doc = JsonDocument.Parse(json);
 
     var session = doc.RootElement.GetProperty("session");
-    return new AuthSession
-    {
-      Username = session.GetProperty("name").GetString()!,
-      SessionKey = session.GetProperty("key").GetString()!
-    };
+    return new AuthSession(session.GetProperty("name").GetString()!, session.GetProperty("key").GetString()!);
   }
 
   internal static string GenerateApiSignature(IDictionary<string, string> parameters, string secret)

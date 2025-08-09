@@ -6,9 +6,9 @@ namespace Shoegaze.LastFM.Artist
 {
   public class ArtistApi : IArtistApi
   {
-    private readonly ILastfmRequestInvoker _invoker;
+    private readonly ILastfmApiInvoker _invoker;
 
-    internal ArtistApi(ILastfmRequestInvoker invoker) => _invoker = invoker;
+    internal ArtistApi(ILastfmApiInvoker invoker) => _invoker = invoker;
 
     public async Task<ApiResult<ArtistInfo>> GetInfoByNameAsync(string artistName, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
     {
@@ -193,7 +193,7 @@ namespace Shoegaze.LastFM.Artist
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse albums: " + ex.Message);
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(null, result.HttpStatus, "Failed to parse albums: " + ex.Message);
       }
     }
 
@@ -275,7 +275,7 @@ namespace Shoegaze.LastFM.Artist
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(null, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
 
@@ -299,7 +299,7 @@ namespace Shoegaze.LastFM.Artist
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse artists: " + ex.Message);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse artists: " + ex.Message);
       }
     }
   }

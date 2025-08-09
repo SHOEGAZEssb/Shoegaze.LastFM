@@ -5,7 +5,7 @@ namespace Shoegaze.LastFM;
 /// <summary>
 /// Internal interface for sending signed requests to the Last.fm API.
 /// </summary>
-internal interface ILastfmRequestInvoker
+internal interface ILastfmApiInvoker
 {
   /// <summary>
   /// Sends a request to the Last.fm API.

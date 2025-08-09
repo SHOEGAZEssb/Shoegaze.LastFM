@@ -16,7 +16,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be absent.
     /// </remarks>
-    public string? Mbid { get; set; }
+    public string? Mbid { get; private set; }
 
     /// <summary>
     /// Url of the last.fm page of this artist.
@@ -29,9 +29,9 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
+    public IReadOnlyDictionary<ImageSize, Uri> Images { get; private set; } = new Dictionary<ImageSize, Uri>();
 
-    public bool? IsStreamable { get; set; }
+    public bool? IsStreamable { get; private set; }
 
     /// <summary>
     /// If this band is currently on tour.
@@ -44,11 +44,11 @@ namespace Shoegaze.LastFM.Artist
     /// - <see cref="IArtistApi.GetInfoByNameAsync(string, string?, bool, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetInfoByMbidAsync(string, string?, bool, CancellationToken)"/>
     /// </remarks>
-    public bool? OnTour { get; set; }
+    public bool? OnTour { get; private set; }
 
-    public int? ListenerCount { get; set; }
+    public int? ListenerCount { get; private set; }
 
-    public int? PlayCount { get; set; }
+    public int? PlayCount { get; internal set; }
 
     /// <summary>
     /// Amount of plays of this artist the user has for which the request has been made.
@@ -58,7 +58,7 @@ namespace Shoegaze.LastFM.Artist
     /// Guaranteed to be available when using:
     /// - <see cref="User.IUserApi.GetTopArtistsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public int? UserPlayCount { get; set; }
+    public int? UserPlayCount { get; internal set; }
 
     /// <summary>
     /// Indicates the match score of an artist for which similar
@@ -70,7 +70,7 @@ namespace Shoegaze.LastFM.Artist
     /// - <see cref="IArtistApi.GetSimilarByNameAsync(string, bool, int?, CancellationToken)"/>.
     /// - <see cref="IArtistApi.GetSimilarByMbidAsync(string, bool, int?, CancellationToken)"/>.
     /// </remarks>
-    public double? Match { get; set; }
+    public double? Match { get; private set; }
 
     /// <summary>
     /// List of similar artists.
@@ -78,7 +78,7 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public IReadOnlyList<ArtistInfo> SimilarArtists { get; set; } = [];
+    public IReadOnlyList<ArtistInfo> SimilarArtists { get; private set; } = [];
 
     /// <summary>
     /// List of tags of this artist.
@@ -86,9 +86,9 @@ namespace Shoegaze.LastFM.Artist
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public IReadOnlyList<TagInfo> Tags { get; set; } = [];
+    public IReadOnlyList<TagInfo> Tags { get; private set; } = [];
 
-    public WikiInfo? Biography { get; set; }
+    public WikiInfo? Biography { get; private set; }
 
     internal static ArtistInfo FromJson(JsonElement root)
     {
@@ -181,6 +181,5 @@ namespace Shoegaze.LastFM.Artist
         Biography = bio
       };
     }
-
   }
 }

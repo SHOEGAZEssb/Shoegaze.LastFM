@@ -11,9 +11,9 @@ namespace Shoegaze.LastFM.User;
 /// </summary>
 internal class UserApi : IUserApi
 {
-  private readonly ILastfmRequestInvoker _invoker;
+  private readonly ILastfmApiInvoker _invoker;
 
-  internal UserApi(ILastfmRequestInvoker invoker)
+  internal UserApi(ILastfmApiInvoker invoker)
   {
     _invoker = invoker;
   }
@@ -37,7 +37,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<UserInfo>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse user info: " + ex.Message);
+      return ApiResult<UserInfo>.Failure(null, result.HttpStatus, "Failed to parse user info: " + ex.Message);
     }
   }
   public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? page = null, int? limit = null, CancellationToken ct = default)
@@ -71,7 +71,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<UserInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse friends list: " + ex.Message);
+      return ApiResult<PagedResult<UserInfo>>.Failure(null, result.HttpStatus, "Failed to parse friends list: " + ex.Message);
     }
   }
 
@@ -104,7 +104,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse loved tracks: {ex.Message}");
+      return ApiResult<PagedResult<TrackInfo>>.Failure(null, result.HttpStatus, $"Failed to parse loved tracks: {ex.Message}");
     }
   }
 
@@ -135,7 +135,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top tracks: " + ex.Message);
+      return ApiResult<PagedResult<TrackInfo>>.Failure(null, result.HttpStatus, "Failed to parse top tracks: " + ex.Message);
     }
   }
 
@@ -197,7 +197,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse top tags: " + ex.Message);
     }
   }
 
@@ -227,7 +227,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<T>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse personal tags: " + ex.Message);
+      return ApiResult<IReadOnlyList<T>>.Failure(null, result.HttpStatus, $"Failed to parse personal tags: " + ex.Message);
     }
   }
 
@@ -256,7 +256,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top artists: " + ex.Message);
+      return ApiResult<PagedResult<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse top artists: " + ex.Message);
     }
   }
 
@@ -285,7 +285,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse top albums: " + ex.Message);
+      return ApiResult<PagedResult<AlbumInfo>>.Failure(null, result.HttpStatus, "Failed to parse top albums: " + ex.Message);
     }
   }
 
@@ -309,7 +309,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
+      return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(null, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
     }
   }
 
@@ -344,7 +344,7 @@ internal class UserApi : IUserApi
     }
     catch (Exception ex)
     {
-      return ApiResult<IReadOnlyList<T>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, $"Failed to parse weekly {iChartablePropertyName} chart: " + ex.Message);
+      return ApiResult<IReadOnlyList<T>>.Failure(null, result.HttpStatus, $"Failed to parse weekly {iChartablePropertyName} chart: " + ex.Message);
     }
   }
 

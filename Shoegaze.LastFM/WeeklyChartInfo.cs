@@ -6,9 +6,9 @@ namespace Shoegaze.LastFM
   {
     #region Properties
 
-    public DateTime From { get; set; }
+    public DateTime From { get; private set; }
 
-    public DateTime To { get; set; }
+    public DateTime To { get; private set; }
 
     #endregion Propertis
 

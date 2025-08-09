@@ -92,7 +92,7 @@ public class TrackApiTests
     }
     """;
 
-    var mockInvoker = new Mock<ILastfmRequestInvoker>();
+    var mockInvoker = new Mock<ILastfmApiInvoker>();
     mockInvoker.Setup(i => i.SendAsync("track.getInfo", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
       .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
 
@@ -203,7 +203,7 @@ public class TrackApiTests
     }
   """;
 
-    var mockInvoker = new Mock<ILastfmRequestInvoker>();
+    var mockInvoker = new Mock<ILastfmApiInvoker>();
     mockInvoker.Setup(i =>
         i.SendAsync("track.getInfo", It.Is<IDictionary<string, string>>(d => d["mbid"] == "e60739a6-eea8-4ee8-acae-d34d5d6ad1d9"), false, It.IsAny<CancellationToken>())
       )

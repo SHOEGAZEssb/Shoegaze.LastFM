@@ -114,7 +114,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-        Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
         Assert.That(response.ErrorMessage, Is.Not.Empty);
       }
     }

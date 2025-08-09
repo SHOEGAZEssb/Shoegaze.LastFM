@@ -6,9 +6,9 @@ namespace Shoegaze.LastFM.Tag
 {
   public class TagApi : ITagApi
   {
-    private readonly ILastfmRequestInvoker _invoker;
+    private readonly ILastfmApiInvoker _invoker;
 
-    internal TagApi(ILastfmRequestInvoker invoker) => _invoker = invoker;
+    internal TagApi(ILastfmApiInvoker invoker) => _invoker = invoker;
 
     public async Task<ApiResult<TagInfo>> GetInfoAsync(string name, CancellationToken ct = default)
     {
@@ -52,7 +52,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse similar tag list: " + ex.Message);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse similar tag list: " + ex.Message);
       }
     }
 
@@ -76,7 +76,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<AlbumInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse albums: " + ex.Message);
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(null, result.HttpStatus, "Failed to parse albums: " + ex.Message);
       }
     }
 
@@ -99,7 +99,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse artists: " + ex.Message);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse artists: " + ex.Message);
       }
     }
 
@@ -139,7 +139,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<TagInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tags: " + ex.Message);
+        return ApiResult<PagedResult<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tags: " + ex.Message);
       }
     }
 
@@ -162,7 +162,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<PagedResult<TrackInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(null, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
 
@@ -186,7 +186,7 @@ namespace Shoegaze.LastFM.Tag
       }
       catch (Exception ex)
       {
-        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(LastFmStatusCode.UnknownError, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
+        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(null, result.HttpStatus, "Failed to parse weekly chart list: " + ex.Message);
       }
     }
   }

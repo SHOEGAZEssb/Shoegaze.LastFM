@@ -6,9 +6,9 @@ namespace Shoegaze.LastFM.Tests
 {
   internal static class TestHelper
   {
-    internal static Mock<ILastfmRequestInvoker> CreateMockInvoker(string apiCall, string? json = null)
+    internal static Mock<ILastfmApiInvoker> CreateMockInvoker(string apiCall, string? json = null)
     {
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
 
       if (json == null)
       {

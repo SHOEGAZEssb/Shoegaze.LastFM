@@ -4,11 +4,11 @@ namespace Shoegaze.LastFM
 {
   public class PagedResult<T>
   {
-    public IReadOnlyList<T> Items { get; set; } = [];
-    public int Page { get; set; }
-    public int TotalPages { get; set; }
-    public int TotalItems { get; set; }
-    public int PerPage { get; set; }
+    public IReadOnlyList<T> Items { get; private set; } = [];
+    public int Page { get; private set; }
+    public int TotalPages { get; private set; }
+    public int TotalItems { get; private set; }
+    public int PerPage { get; private set; }
 
     internal static PagedResult<T> FromJson(JsonElement element, IReadOnlyList<T> items)
     {

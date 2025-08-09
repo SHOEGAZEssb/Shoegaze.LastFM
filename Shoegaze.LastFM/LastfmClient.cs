@@ -6,7 +6,7 @@ using Shoegaze.LastFM.User;
 namespace Shoegaze.LastFM;
 
 /// <summary>
-/// Main implementation of <see cref="ILastfmClient"/>.
+/// Grants access to last.fms api.
 /// </summary>
 public class LastfmClient : ILastfmClient
 {

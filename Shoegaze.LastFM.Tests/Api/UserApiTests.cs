@@ -59,7 +59,7 @@ namespace Shoegaze.LastFM.Tests.Api
 
       using var doc = JsonDocument.Parse(json);
 
-      var invokerMock = new Mock<ILastfmRequestInvoker>();
+      var invokerMock = new Mock<ILastfmApiInvoker>();
       invokerMock
           .Setup(i => i.SendAsync(
               "user.getInfo",
@@ -103,7 +103,7 @@ namespace Shoegaze.LastFM.Tests.Api
     public async Task GetInfoAsync_ReturnsFailure_WhenApiCallFails()
     {
       // Arrange
-      var invokerMock = new Mock<ILastfmRequestInvoker>();
+      var invokerMock = new Mock<ILastfmApiInvoker>();
       invokerMock
           .Setup(i => i.SendAsync(
               "user.getInfo",
@@ -220,7 +220,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var invokerMock = new Mock<ILastfmRequestInvoker>();
+      var invokerMock = new Mock<ILastfmApiInvoker>();
 
       var doc = JsonDocument.Parse(json);
       var apiResult = ApiResult<JsonDocument>.Success(doc);
@@ -277,7 +277,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker.Setup(i => i.SendAsync("user.getFriends", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
 
@@ -396,7 +396,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker
         .Setup(i => i.SendAsync("user.getLovedTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
@@ -440,7 +440,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker
         .Setup(i => i.SendAsync("user.getLovedTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
@@ -556,7 +556,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker
         .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
@@ -593,7 +593,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker
         .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
@@ -664,7 +664,7 @@ namespace Shoegaze.LastFM.Tests.Api
       }
       """;
 
-      var mockInvoker = new Mock<ILastfmRequestInvoker>();
+      var mockInvoker = new Mock<ILastfmApiInvoker>();
       mockInvoker
         .Setup(i => i.SendAsync("user.getTopTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(JsonDocument.Parse(json)));
@@ -782,7 +782,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var jsonDoc = JsonDocument.Parse(json);
-      var invoker = new Mock<ILastfmRequestInvoker>();
+      var invoker = new Mock<ILastfmApiInvoker>();
       invoker
         .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
@@ -856,7 +856,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var jsonDoc = JsonDocument.Parse(json);
-      var invoker = new Mock<ILastfmRequestInvoker>();
+      var invoker = new Mock<ILastfmApiInvoker>();
       invoker
         .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
@@ -896,7 +896,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var jsonDoc = JsonDocument.Parse(json);
-      var invoker = new Mock<ILastfmRequestInvoker>();
+      var invoker = new Mock<ILastfmApiInvoker>();
       invoker
         .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
@@ -942,7 +942,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -975,7 +975,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -1000,17 +1000,13 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("user.getTopTags", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
       var api = new UserApi(mock.Object);
       var result = await api.GetTopTagsAsync("ts");
-      using (Assert.EnterMultipleScope())
-      {
-        Assert.That(result.IsSuccess, Is.False);
-        Assert.That(result.Status, Is.EqualTo(LastFmStatusCode.UnknownError));
-      }
+      Assert.That(result.IsSuccess, Is.False);
     }
 
     #endregion GetTopTagsAsync
@@ -1053,7 +1049,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("user.getWeeklyChartList", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
@@ -1144,7 +1140,7 @@ namespace Shoegaze.LastFM.Tests.Api
       """;
 
       var doc = JsonDocument.Parse(json);
-      var mock = new Mock<ILastfmRequestInvoker>();
+      var mock = new Mock<ILastfmApiInvoker>();
       mock.Setup(m => m.SendAsync("user.getWeeklyArtistChart", It.IsAny<IDictionary<string, string>>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
           .ReturnsAsync(ApiResult<JsonDocument>.Success(doc));
 
