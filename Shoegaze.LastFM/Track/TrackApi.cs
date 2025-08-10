@@ -12,40 +12,29 @@ namespace Shoegaze.LastFM.Track
     {
       var parameters = new Dictionary<string, string>
       {
-        ["track"] = track,
-        ["artist"] = artist,
-        ["autocorrect"] = autocorrect ? "1" : "0"
+        { "track", track },
+        { "artist", artist }
       };
 
-      if (!string.IsNullOrWhiteSpace(username))
-        parameters["username"] = username;
+      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
 
-      var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
-      if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
-
-      try
-      {
-        var trackInfo = TrackInfo.FromJson(result.Data.RootElement.GetProperty("track"));
-        if (username == null)
-          trackInfo.UserPlayCount = null; // manual fix for duplicate playcount property possibility (if username is null, userplaycount will not be available)
-        return ApiResult<TrackInfo>.Success(trackInfo);
-      }
-      catch (Exception ex)
-      {
-        return ApiResult<TrackInfo>.Failure(null, result.HttpStatus, "Failed to parse track info: " + ex.Message);
-      }
+      return await GetInfoAsync(parameters, username, ct);
     }
 
     public async Task<ApiResult<TrackInfo>> GetInfoByMbidAsync(string mbid, string? username = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
-        ["mbid"] = mbid
+        { "mbid", mbid }
       };
 
-      if (!string.IsNullOrWhiteSpace(username))
-        parameters["username"] = username;
+      return await GetInfoAsync(parameters, username, ct);
+    }
+
+    private async Task<ApiResult<TrackInfo>> GetInfoAsync(Dictionary<string, string> parameters, string? username, CancellationToken ct)
+    {
+      if (username != null)
+        parameters.Add("username", username);
 
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -68,8 +57,8 @@ namespace Shoegaze.LastFM.Track
     {
       var parameters = new Dictionary<string, string>
       {
-        ["track"] = track,
-        ["artist"] = artist
+        { "track", track },
+        { "artist", artist }
       };
 
       var result = await _invoker.SendAsync("track.getCorrection", parameters, false, ct);
@@ -89,43 +78,22 @@ namespace Shoegaze.LastFM.Track
 
     public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByNameAsync(string track, string artist, bool autocorrect = true, int? limit = null, CancellationToken ct = default)
     {
-      var parameters = new Dictionary<string, string>
-      {
-        ["track"] = track,
-        ["artist"] = artist,
-        ["autocorrect"] = autocorrect ? "1" : "0"
-      };
-
-      if (limit.HasValue)
-        parameters["limit"] = limit.Value.ToString();
-
-      var result = await _invoker.SendAsync("track.getSimilar", parameters, false, ct);
-      if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
-
-      try
-      {
-        var trackArray = result.Data.RootElement.GetProperty("similartracks").TryGetProperty("track", out var ta) ? ta : default;
-        var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
-
-        return ApiResult<IReadOnlyList<TrackInfo>>.Success(tracks);
-      }
-      catch (Exception ex)
-      {
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(null, result.HttpStatus, "Failed to parse similar track list: " + ex.Message);
-      }
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
+      parameters.Add("track", track);
+      parameters.Add("artist", artist);
+      return await GetSimilarAsync(parameters, autocorrect, ct);
     }
 
     public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByMbidAsync(string mbid, bool autocorrect = true, int? limit = null, CancellationToken ct = default)
     {
-      var parameters = new Dictionary<string, string>
-      {
-        ["mbid"] = mbid,
-        ["autocorrect"] = autocorrect ? "1" : "0"
-      };
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
+      parameters.Add("mbid", mbid);
+      return await GetSimilarAsync(parameters, autocorrect, ct);
+    }
 
-      if (limit.HasValue)
-        parameters["limit"] = limit.Value.ToString();
+    private async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarAsync(Dictionary<string, string> parameters, bool autocorrect, CancellationToken ct)
+    {
+      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
 
       var result = await _invoker.SendAsync("track.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
@@ -148,10 +116,11 @@ namespace Shoegaze.LastFM.Track
     {
       var parameters = new Dictionary<string, string>
       {
-        ["track"] = track,
-        ["artist"] = artist,
-        ["autocorrect"] = autocorrect ? "1" : "0"
+        { "track", track },
+        { "artist", artist }
       };
+
+      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
 
       return await GetUserTags(parameters, username, ct);
     }
@@ -160,9 +129,10 @@ namespace Shoegaze.LastFM.Track
     {
       var parameters = new Dictionary<string, string>
       {
-        ["mbid"] = mbid,
-        ["autocorrect"] = autocorrect ? "1" : "0"
+        { "mbid", mbid }
       };
+
+      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
 
       return await GetUserTags(parameters, username, ct);
     }
@@ -193,10 +163,11 @@ namespace Shoegaze.LastFM.Track
     {
       var parameters = new Dictionary<string, string>
       {
-        ["track"] = track,
-        ["artist"] = artist,
-        ["autocorrect"] = autocorrect ? "1" : "0"
+        { "track", track },
+        { "artist", artist }
       };
+
+      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
 
       return await GetTopTags(parameters, ct);
     }
@@ -229,7 +200,7 @@ namespace Shoegaze.LastFM.Track
       parameters.Add("track", track);
 
       if (artist != null)
-        parameters["artist"] = artist;
+        parameters.Add("artist", artist);
 
       var result = await _invoker.SendAsync("track.search", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
