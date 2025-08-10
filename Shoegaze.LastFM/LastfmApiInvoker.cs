@@ -19,8 +19,7 @@ namespace Shoegaze.LastFM
       parameters["api_key"] = ApiKey;
       parameters["format"] = "json";
 
-      if (!VerifyParameters(parameters, out string? errorMessage))
-        return ApiResult<JsonDocument>.Failure(status: null, httpStatus: null, error: errorMessage);
+      ThrowOnInvalidParameter(parameters);
 
       HttpResponseMessage? response = null;
       try
@@ -28,7 +27,7 @@ namespace Shoegaze.LastFM
         if (requireAuth)
         {
           if (string.IsNullOrWhiteSpace(SessionKey))
-            return ApiResult<JsonDocument>.Failure(null, null, "Session key is required.");
+            throw new Exception("Client is not authenticated. Authentication is required for this api call.");
 
           parameters["sk"] = SessionKey;
 
@@ -72,31 +71,19 @@ namespace Shoegaze.LastFM
     /// Check each parameter in the given <paramref name="parameters"/> for validity (not empty, not null).
     /// </summary>
     /// <param name="parameters">Parameters to check.</param>
-    /// <param name="errorMessage">Error message in case the given <paramref name="parameters"/> is not valid.</param>
-    /// <returns>True if <paramref name="parameters"/> is valid, false otherwise.</returns>
-    private static bool VerifyParameters(IDictionary<string, string> parameters, out string? errorMessage)
+    private static void ThrowOnInvalidParameter(IDictionary<string, string> parameters)
     {
-      errorMessage = null;
-
       int i = 0;
       foreach (var (key, value) in parameters)
       {
         if (string.IsNullOrEmpty(key))
-        {
-          errorMessage = $"Parameter key is null/empty at index {i}";
-          return false;
-        }
+          throw new ArgumentNullException(nameof(parameters), $"Parameter key is null/empty at index {i}");
         
         if (string.IsNullOrEmpty(value))
-        {
-          errorMessage = $"Parameter value is null/empty: {key}";
-          return false;
-        }
+          throw new ArgumentNullException(nameof(parameters), $"Parameter value is null/empty: {key}");
 
         i++;
       }
-
-      return true;
     }
 
     private static bool TryParseLastFmError(JsonElement root, out LastFmStatusCode statusCode, out string? errorMessage)

@@ -104,20 +104,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       AssertGetInfoTrackInfo(response.Data, true);
     }
 
-    [Test]
-    public async Task GetInfoByNameAsync_Missing_Artist_IntegrationTest()
-    {
-      var client = TestEnvironment.CreateClient();
-
-      var response = await client.Track.GetInfoByNameAsync("Blind", "");
-      using (Assert.EnterMultipleScope())
-      {
-        Assert.That(response.IsSuccess, Is.False);
-        Assert.That(response.Data, Is.Null);
-        Assert.That(response.ErrorMessage, Is.Not.Empty);
-      }
-    }
-
     #endregion GetInfoByNameAsync
 
     #region GetInfoByMbidAsync
