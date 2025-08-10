@@ -1,6 +1,7 @@
 ﻿using Shoegaze.LastFM.Authentication;
 using System.Net;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shoegaze.LastFM
 {
@@ -27,7 +28,7 @@ namespace Shoegaze.LastFM
         if (requireAuth)
         {
           if (string.IsNullOrWhiteSpace(SessionKey))
-            return ApiResult<JsonDocument>.Failure(LastFmStatusCode.AuthenticationFailed, HttpStatusCode.Unauthorized, "Session key is required.");
+            return ApiResult<JsonDocument>.Failure(null, null, "Session key is required.");
 
           parameters["sk"] = SessionKey;
 
@@ -46,15 +47,6 @@ namespace Shoegaze.LastFM
         }
 
         var json = await response.Content.ReadAsStringAsync(ct);
-
-        if (!response.IsSuccessStatusCode)
-        {
-          return ApiResult<JsonDocument>.Failure(
-              status: LastFmStatusCode.UnknownError,
-              httpStatus: response.StatusCode,
-              error: $"HTTP {response.StatusCode}: {json}"
-          );
-        }
 
         var jsonDoc = JsonDocument.Parse(json);
         if (TryParseLastFmError(jsonDoc.RootElement, out var lfmCode, out var msg))

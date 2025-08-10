@@ -302,5 +302,46 @@ namespace Shoegaze.LastFM.Artist
         return ApiResult<PagedResult<ArtistInfo>>.Failure(null, result.HttpStatus, "Failed to parse artists: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult> AddTagsAsync(string artistName, string tag, CancellationToken ct = default)
+    {
+      return await AddTagsAsync(artistName, [tag], ct);
+    }
+
+    public async Task<ApiResult> AddTagsAsync(string artistName, IEnumerable<string> tags, CancellationToken ct = default)
+    {
+      var tagCount = tags.Count();
+      if (tagCount > 10)
+        throw new ArgumentOutOfRangeException(nameof(tags), "Only maximum of 10 tags allowed");
+      if (tagCount == 0)
+        throw new ArgumentOutOfRangeException(nameof(tags), "No tags supplied");
+
+      var parameters = new Dictionary<string, string>
+      {
+        ["artist"] = artistName,
+        ["tags"] = string.Join(",", tags)
+      };
+
+      var result = await _invoker.SendAsync("artist.addTags", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      return result;
+    }
+
+    public async Task<ApiResult> RemoveTagAsync(string artistName, string tag, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["artist"] = artistName,
+        ["tags"] = tag
+      };
+
+      var result = await _invoker.SendAsync("artist.removeTag", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      return result;
+    }
   }
 }

@@ -574,5 +574,76 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion SearchAsync
+
+    #region AddTagsAsync
+
+    [Test]
+    public async Task AddTagsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      // check initial state
+      var userTags = await client.Artist.GetTagsByNameAsync("Korn");
+      Assume.That(userTags.Data, Is.Empty, "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Artist.AddTagsAsync("Korn", "Nu Metal");
+        Assert.That(response.IsSuccess, Is.True);
+
+        userTags = await client.Artist.GetTagsByNameAsync("Korn");
+        Assert.That(userTags.Data, Has.Count.EqualTo(1));
+        Assert.That(userTags.Data[0].Name, Is.EqualTo("Nu Metal"));
+      }
+      catch(Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+      finally
+      {
+        // cleanup
+        try
+        {
+          await client.Artist.RemoveTagAsync("Korn", "Nu Metal");
+        }
+        catch (Exception ex)
+        {
+          TestContext.Error.WriteLine($"Test cleanup failed: {ex.Message}");
+        }
+      }
+    }
+
+    #endregion AddTagsAsync
+
+    #region RemoveTagAsync
+
+    [Test]
+    public async Task RemoveTagAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      await client.Artist.AddTagsAsync("Korn", "Nu Metal");
+
+      // check initial state
+      var userTags = await client.Artist.GetTagsByNameAsync("Korn");
+      Assume.That(userTags.Data, Has.Count.EqualTo(1), "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Artist.RemoveTagAsync("Korn", "Nu Metal");
+        Assert.That(response.IsSuccess, Is.True);
+
+        userTags = await client.Artist.GetTagsByNameAsync("Korn");
+        Assert.That(userTags.Data, Is.Empty);
+      }
+      catch (Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+    }
+
+    #endregion RemoveTagAsync
   }
 }

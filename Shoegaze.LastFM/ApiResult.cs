@@ -38,43 +38,55 @@ public enum ImageSize
 }
 
 /// <summary>
-/// The result of an API call, including the data and request metadata.
+/// The result of an api call.
 /// </summary>
-public class ApiResult<T>
+public class ApiResult
 {
-  /// <summary>
-  /// The returned data from the api call.
-  /// </summary>
-  public T? Data { get; private set; }
-
   /// <summary>
   /// Http status code.
   /// May be null in case an error was encountered
   /// before any http request was sent.
   /// </summary>
-  public HttpStatusCode? HttpStatus { get; private set; }
+  public HttpStatusCode? HttpStatus { get; internal set; }
 
   /// <summary>
   /// Error message describing the cause of the error.
   /// May be null in case of an unknown error.
   /// </summary>
-  public string? ErrorMessage { get; private set; }
+  public string? ErrorMessage { get; internal set; }
 
   /// <summary>
   /// The last.fm api status code.
   /// May be null in case the error was not reported by
   /// the last.fm api.
   /// </summary>
-  public LastFmStatusCode? Status { get; private set; }
+  public LastFmStatusCode? Status { get; internal set; }
 
   /// <summary>
   /// If the api request returned successfully.
   /// </summary>
   public bool IsSuccess => Status == LastFmStatusCode.Success;
 
+  internal static ApiResult Success(HttpStatusCode httpStatus = HttpStatusCode.OK)
+          => new() { HttpStatus = httpStatus, Status = LastFmStatusCode.Success };
+
+  internal static ApiResult Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
+      => new() { Status = status, HttpStatus = httpStatus, ErrorMessage = error };
+}
+
+/// <summary>
+/// The result of an api call that returned data.
+/// </summary>
+public sealed class ApiResult<T> : ApiResult
+{
+  /// <summary>
+  /// The returned data from the api call.
+  /// </summary>
+  public T? Data { get; internal set; }
+
   internal static ApiResult<T> Success(T data, HttpStatusCode httpStatus = HttpStatusCode.OK)
           => new() { Data = data, HttpStatus = httpStatus, Status = LastFmStatusCode.Success };
 
-  internal static ApiResult<T> Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
+  internal new static ApiResult<T> Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
       => new() { Status = status, HttpStatus = httpStatus, ErrorMessage = error };
 }
