@@ -208,13 +208,13 @@ internal class UserApi : IUserApi
     parameters.Add("tag", tag);
     parameters.Add("taggingtype", GetTypeJsonPropertyName(typeof(T)).ToLower());
 
-    var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getPersonalTags", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<IReadOnlyList<T>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
     try
     {
+      var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
       var chartArray = result.Data.RootElement.GetProperty($"taggings").GetProperty($"{iTagablePropertyName.ToLower()}s").TryGetProperty(iTagablePropertyName.ToLower(), out var ta) ? ta : default;
       var charts = chartArray.ValueKind switch
       {

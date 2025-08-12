@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Artist;
+﻿using Shoegaze.LastFM.Album;
+using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
@@ -14,6 +15,7 @@ public class LastfmClient : ILastfmClient
   public ITrackApi Track { get; }
   public ITagApi Tag { get; }
   public IArtistApi Artist { get; }
+  public IAlbumApi Album { get; }
 
   private readonly LastfmApiInvoker _invoker;
 
@@ -25,6 +27,7 @@ public class LastfmClient : ILastfmClient
     Track = new TrackApi(_invoker);
     Tag = new TagApi(_invoker);
     Artist = new ArtistApi(_invoker);
+    Album = new AlbumApi(_invoker);
   }
 
   public void SetSessionKey(string sessionKey)

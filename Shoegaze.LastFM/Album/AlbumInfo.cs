@@ -1,21 +1,12 @@
 ﻿using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.Track;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Album
 {
   public class AlbumInfo : IChartable, ITagable, IJsonDeserializable<AlbumInfo>
   {
-    /// <summary>
-    /// Info about the artist of this album.
-    /// </summary>
-    /// <remarks>
-    /// May be null.
-    /// Guaranteed to be available when using:
-    /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
-    /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
-    /// </remarks>
-    public ArtistInfo? Artist { get; private set; }
-
     /// <summary>
     /// Name of this artist.
     /// </summary>
@@ -27,6 +18,8 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
@@ -41,11 +34,24 @@ namespace Shoegaze.LastFM.Album
     public string? Mbid { get; private set; }
 
     /// <summary>
+    /// Number of people who listened to this album.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
+    /// </remarks>
+    public int? Listeners { get; private set; }
+
+    /// <summary>
     /// Total amount of plays this album has.
     /// </summary>
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IArtistApi.GetTopAlbumsByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
     /// </remarks>
@@ -57,6 +63,8 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/> with provided username.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/> with provided username.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)/>.
     /// </remarks>
     public int? UserPlayCount { get; internal set; }
@@ -68,6 +76,52 @@ namespace Shoegaze.LastFM.Album
     /// May be empty.
     /// </remarks>
     public Dictionary<ImageSize, Uri> Images { get; private set; } = [];
+
+    /// <summary>
+    /// Info about the artist of this album.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
+    /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public ArtistInfo? Artist { get; private set; }
+
+    /// <summary>
+    /// The track list of this album.
+    /// </summary>
+    /// <remarks>
+    /// May be empty.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
+    /// </remarks>
+    public IReadOnlyList<TrackInfo> Tracks { get; private set; } = [];
+
+    /// <summary>
+    /// List of most used tags for this album.
+    /// </summary>
+    /// <remarks>
+    /// May be emptry.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
+    /// </remarks>
+    public IReadOnlyList<TagInfo> TopTags { get; private set; } = [];
+
+    /// <summary>
+    /// The wiki of this album
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
+    /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
+    /// </remarks>
+    public WikiInfo? Wiki { get; private set; }
 
     internal static AlbumInfo FromJson(JsonElement root)
     {
@@ -90,17 +144,41 @@ namespace Shoegaze.LastFM.Album
       if (album.TryGetProperty("playcount", out var playCountProp) && JsonHelper.TryParseNumber<int>(playCountProp, out var playCountNum))
         playCount = playCountNum;
 
+      int? userPlayCount = null;
+      if (album.TryGetProperty("userplaycount", out var userPlayCountProp) && JsonHelper.TryParseNumber<int>(userPlayCountProp, out var userPlayCountNum))
+        userPlayCount = userPlayCountNum;
+
+      int? listeners = null;
+      if (album.TryGetProperty("listeners", out var listenerProp) && JsonHelper.TryParseNumber<int>(listenerProp, out var listenersNum))
+        listeners = listenersNum;
+
       ArtistInfo? artist = album.TryGetProperty("artist", out var artistProp) ? ArtistInfo.FromJson(artistProp) : null;
+
+      IReadOnlyList<TrackInfo> tracks = [];
+      if (album.TryGetProperty("tracks", out var topTracksElement) && topTracksElement.TryGetProperty("track", out var trackArray))
+        tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
+
+      IReadOnlyList<TagInfo> tags = [];
+      if (album.TryGetProperty("tags", out var tagsProp) && tagsProp.TryGetProperty("tag", out var tagArray))
+        tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+      WikiInfo? wiki = null;
+      if (album.TryGetProperty("wiki", out var wikiProp))
+        wiki = WikiInfo.FromJson(wikiProp);
 
       return new AlbumInfo
       {
-        Artist = artist,
         Name = name,
         Url = album.TryGetProperty("url", out var urlProperty) ? new Uri(urlProperty.GetString() ?? "") : (artist != null ? UriHelper.MakeAlbumUri(artist.Name, name) : null),
         Mbid = root.TryGetProperty("mbid", out var mbidProp) ? mbidProp.GetString() : null,
         Images = JsonHelper.ParseImageArray(root),
-        UserPlayCount = playCount,
-        PlayCount = playCount
+        Listeners = listeners,
+        UserPlayCount = userPlayCount ?? playCount,
+        PlayCount = playCount,
+        Artist = artist,
+        Tracks = tracks,
+        TopTags = tags,
+        Wiki = wiki
       };
     }
   }

@@ -577,7 +577,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
     #region AddTagsAsync
 
-    [Test]
+    [Test, NonParallelizable]
     public async Task AddTagsAsync_IntegrationTest()
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
@@ -618,7 +618,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
     #region RemoveTagAsync
 
-    [Test]
+    [Test, NonParallelizable]
     public async Task RemoveTagAsync_IntegrationTest()
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
