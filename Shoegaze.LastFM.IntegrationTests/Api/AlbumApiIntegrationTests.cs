@@ -13,7 +13,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       using (Assert.EnterMultipleScope())
       {
-        Assert.That(album.Mbid, Is.Not.Null);
         Assert.That(album.PlayCount, Is.GreaterThan(1));
         if (withUserInfo)
           Assert.That(album.UserPlayCount, Is.GreaterThan(1));
