@@ -97,5 +97,47 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetInfoByMbidAsync
+
+    #region GetTagsByNameAsync
+
+    [Test]
+    public async Task GetTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.GetTagsByNameAsync("loveless", "My Bloody Valentine", "coczero");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+
+    }
+
+    #endregion GetTagsByNameAsync
+
+    #region GetTagsByNameAsync
+
+    [Test]
+    public async Task GetTagsByMbidAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.GetTagsByMbidAsync("09a09037-1ebd-3d38-a128-38ab11e6b0fe", "coczero"); // loveless mbv mbid
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+
+    }
+
+    #endregion GetTagsByNameAsync
   }
 }

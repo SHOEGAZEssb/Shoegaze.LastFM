@@ -169,7 +169,7 @@ namespace Shoegaze.LastFM.Tests.Api
       var mock = TestHelper.CreateMockInvoker("artist.getTags", json);
 
       var api = new ArtistApi(mock.Object);
-      var response = await api.GetTagsByNameAsync("some-mbid");
+      var response = await api.GetTagsByMbidAsync("some-mbid");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.False);
