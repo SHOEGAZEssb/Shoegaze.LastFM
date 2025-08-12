@@ -1,7 +1,8 @@
 ﻿using Shoegaze.LastFM.Authentication;
 using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shoegaze.LastFM
 {
@@ -34,20 +35,35 @@ namespace Shoegaze.LastFM
           var apiSig = LastfmAuthService.GenerateApiSignature(parameters, ApiSecret);
           parameters["api_sig"] = apiSig;
 
-          // send as post
+          // Send as POST with ResponseHeadersRead to avoid buffering full content
           using var content = new FormUrlEncodedContent(parameters);
-          response = await _http.PostAsync("https://ws.audioscrobbler.com/2.0/", content, ct);
+          using var request = new HttpRequestMessage(HttpMethod.Post, "https://ws.audioscrobbler.com/2.0/")
+          {
+            Content = content
+          };
+          response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
         }
         else
         {
-          // Send as GET
-          var query = string.Join("&", parameters.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}"));
-          response = await _http.GetAsync($"https://ws.audioscrobbler.com/2.0/?{query}", ct);
+          // Send as GET with ResponseHeadersRead to avoid buffering full content
+          var queryBuilder = new StringBuilder();
+          bool first = true;
+          foreach (var kv in parameters)
+          {
+            if (!first)
+              queryBuilder.Append('&');
+            first = false;
+            queryBuilder
+              .Append(Uri.EscapeDataString(kv.Key))
+              .Append('=')
+              .Append(Uri.EscapeDataString(kv.Value));
+          }
+          var url = $"https://ws.audioscrobbler.com/2.0/?{queryBuilder}";
+          response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
         }
 
-        var json = await response.Content.ReadAsStringAsync(ct);
-
-        var jsonDoc = JsonDocument.Parse(json);
+        await using var stream = await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false);
+        var jsonDoc = await JsonDocument.ParseAsync(stream, cancellationToken: ct).ConfigureAwait(false);
         if (TryParseLastFmError(jsonDoc.RootElement, out var lfmCode, out var msg))
           return ApiResult<JsonDocument>.Failure(lfmCode, response.StatusCode, msg);
         else

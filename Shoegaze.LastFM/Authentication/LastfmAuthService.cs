@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -44,11 +45,15 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     parameters["format"] = "json";
 
     using var content = new FormUrlEncodedContent(parameters);
-    using var response = await _http.PostAsync(SessionUrl, content);
+    using var request = new HttpRequestMessage(HttpMethod.Post, SessionUrl)
+    {
+      Content = content
+    };
+    using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
     response.EnsureSuccessStatusCode();
 
-    var json = await response.Content.ReadAsStringAsync();
-    using var doc = JsonDocument.Parse(json);
+    await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    using var doc = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
 
     var session = doc.RootElement.GetProperty("session");
     return new AuthSession(session.GetProperty("name").GetString()!, session.GetProperty("key").GetString()!);
