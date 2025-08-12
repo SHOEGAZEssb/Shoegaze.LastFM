@@ -119,7 +119,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
     #endregion GetTagsByNameAsync
 
-    #region GetTagsByNameAsync
+    #region GetTagsByMbidAsync
 
     [Test]
     public async Task GetTagsByMbidAsync_IntegrationTest()
@@ -138,6 +138,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
     }
 
-    #endregion GetTagsByNameAsync
+    #endregion GetTagsByMbidAsync
   }
 }
