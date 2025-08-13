@@ -70,6 +70,16 @@ namespace Shoegaze.LastFM.Album
     public int? UserPlayCount { get; internal set; }
 
     /// <summary>
+    /// If this album can be streamed (previewed or full) on last.fm.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="IAlbumApi.SearchAsync(string, int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public bool? IsStreamable { get; private set; }
+
+    /// <summary>
     /// Images associated with this album.
     /// </summary>
     /// <remarks>
@@ -152,6 +162,10 @@ namespace Shoegaze.LastFM.Album
       if (album.TryGetProperty("listeners", out var listenerProp) && JsonHelper.TryParseNumber<int>(listenerProp, out var listenersNum))
         listeners = listenersNum;
 
+      var isStreamable = album.TryGetProperty("streamable", out var streamableProp)
+              ? streamableProp.GetString() == "1"
+              : (bool?)null;
+
       ArtistInfo? artist = album.TryGetProperty("artist", out var artistProp) ? ArtistInfo.FromJson(artistProp) : null;
 
       IReadOnlyList<TrackInfo> tracks = [];
@@ -175,6 +189,7 @@ namespace Shoegaze.LastFM.Album
         Listeners = listeners,
         UserPlayCount = userPlayCount ?? playCount,
         PlayCount = playCount,
+        IsStreamable = isStreamable,
         Artist = artist,
         Tracks = tracks,
         TopTags = tags,

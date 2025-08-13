@@ -185,5 +185,101 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion GetTopTagsByNameAsync
+
+    #region SearchAsync
+
+    [Test]
+    public async Task SearchAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.SearchAsync("Loveless");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+      }
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var album in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(album.Mbid, Is.Not.Null);
+          Assert.That(album.IsStreamable, Is.Not.Null);
+          Assert.That(album.PlayCount, Is.Null);
+          Assert.That(album.UserPlayCount, Is.Null);
+          Assert.That(album.Artist, Is.Not.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_With_Limit_And_Page_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.SearchAsync("A", limit: 10, page: 3);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(3));
+        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
+        Assert.That(pages.TotalItems, Is.GreaterThan(1));
+        Assert.That(pages.PerPage, Is.EqualTo(10));
+      }
+
+      Assert.That(pages.Items, Has.Count.GreaterThan(1));
+      foreach (var album in pages.Items.Take(10))
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(album.Mbid, Is.Not.Null);
+          Assert.That(album.IsStreamable, Is.Not.Null);
+          Assert.That(album.PlayCount, Is.Null);
+          Assert.That(album.UserPlayCount, Is.Null);
+          Assert.That(album.Artist, Is.Not.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task SearchAsync_Invalid_Track_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.SearchAsync("SHOEGAZELASTFMINVALIDARTIST");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var pages = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(pages.Page, Is.EqualTo(1));
+        Assert.That(pages.TotalPages, Is.Zero);
+        Assert.That(pages.TotalItems, Is.Zero);
+      }
+
+      Assert.That(pages.Items, Is.Empty);
+    }
+
+    #endregion SearchAsync
   }
 }

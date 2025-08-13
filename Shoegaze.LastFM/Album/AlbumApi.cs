@@ -154,5 +154,29 @@ namespace Shoegaze.LastFM.Album
         return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tag info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<PagedResult<AlbumInfo>>> SearchAsync(string albumName, int? limit = null, int? page = null, CancellationToken ct = default)
+    {
+      var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+      parameters.Add("album", albumName);
+
+      var result = await _invoker.SendAsync("album.search", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var resultsProperty = result.Data.RootElement.GetProperty("results");
+        var albumMatchesProperty = resultsProperty.GetProperty("albummatches");
+        var albumArray = albumMatchesProperty.TryGetProperty("album", out var ta) ? ta : default;
+        var albums = JsonHelper.MakeListFromJsonArray(albumArray, AlbumInfo.FromJson);
+
+        return ApiResult<PagedResult<AlbumInfo>>.Success(PagedResult<AlbumInfo>.FromJson(resultsProperty, albums));
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(null, result.HttpStatus, "Failed to parse albums: " + ex.Message);
+      }
+    }
   }
 }

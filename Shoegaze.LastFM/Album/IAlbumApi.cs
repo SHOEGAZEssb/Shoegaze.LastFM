@@ -1,4 +1,5 @@
-﻿using Shoegaze.LastFM.Tag;
+﻿using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Tag;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,12 @@ namespace Shoegaze.LastFM.Album
     Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(
       string mbid,
       bool autoCorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<PagedResult<AlbumInfo>>> SearchAsync(
+      string albumName,
+      int? limit = null,
+      int? page = null,
       CancellationToken ct = default);
   }
 }

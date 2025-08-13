@@ -144,5 +144,39 @@ namespace Shoegaze.LastFM.Tests.Api
     }
 
     #endregion GetTopTagsByNameAsync
+
+    #region SearchAsync
+
+    [Test]
+    public async Task SearchAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("album.search", json);
+
+      var api = new AlbumApi(mock.Object);
+      var response = await api.SearchAsync("some album");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+
+    [Test]
+    public async Task SearchAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("album.search");
+
+      var api = new AlbumApi(mock.Object);
+      var response = await api.SearchAsync("some album");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion SearchAsync
   }
 }
