@@ -1,10 +1,4 @@
-﻿using Shoegaze.LastFM.Artist;
-using Shoegaze.LastFM.Tag;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shoegaze.LastFM.Tag;
 
 namespace Shoegaze.LastFM.Album
 {
@@ -177,6 +171,57 @@ namespace Shoegaze.LastFM.Album
       {
         return ApiResult<PagedResult<AlbumInfo>>.Failure(null, result.HttpStatus, "Failed to parse albums: " + ex.Message);
       }
+    }
+
+    public async Task<ApiResult> AddTagsAsync(string albumName, string artistName, string tag, CancellationToken ct = default)
+    {
+      return await AddTagsAsync(albumName, artistName, [tag], ct);
+    }
+
+    public async Task<ApiResult> AddTagsAsync(string albumName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
+    {
+      var tagCount = tags.Count();
+      if (tagCount > 10)
+        throw new ArgumentOutOfRangeException(nameof(tags), "Only maximum of 10 tags allowed");
+      if (tagCount == 0)
+        throw new ArgumentOutOfRangeException(nameof(tags), "No tags supplied");
+
+      var parameters = new Dictionary<string, string>
+      {
+        ["album"] = albumName,
+        ["artist"] = artistName,
+        ["tags"] = string.Join(",", tags)
+      };
+
+      var result = await _invoker.SendAsync("album.addTags", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      return ApiResult.Success();
+    }
+
+    public async Task<ApiResult> RemoveTagsAsync(string albumName, string artistName, string tag, CancellationToken ct = default)
+    {
+      return await RemoveTagsAsync(albumName, artistName, [tag], ct);
+    }
+
+    public async Task<ApiResult> RemoveTagsAsync(string albumName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
+    {
+      foreach (var tag in tags)
+      {
+        var parameters = new Dictionary<string, string>
+        {
+          ["album"] = albumName,
+          ["artist"] = artistName,
+          ["tags"] = tag
+        };
+
+        var result = await _invoker.SendAsync("album.removeTag", parameters, true, ct);
+        if (!result.IsSuccess || result.Data == null)
+          return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+      }
+
+      return ApiResult.Success();
     }
   }
 }

@@ -281,5 +281,80 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion SearchAsync
+
+    #region AddTagsAsync
+
+    [Test, NonParallelizable]
+    public async Task AddTagsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      // check initial state
+      var userTags = await client.Album.GetTagsByNameAsync("Korn", "Korn");
+      Assume.That(userTags.Data, Is.Empty, "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Album.AddTagsAsync("Korn", "Korn", ["Nu Metal", "Metal"]);
+        Assert.That(response.IsSuccess, Is.True);
+
+        userTags = await client.Album.GetTagsByNameAsync("Korn", "Korn");
+        Assert.That(userTags.Data, Has.Count.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(userTags.Data.Any(t => t.Name.Equals("nu metal", StringComparison.CurrentCultureIgnoreCase)), Is.True);
+          Assert.That(userTags.Data.Any(t => t.Name.Equals("metal", StringComparison.CurrentCultureIgnoreCase)), Is.True);
+        }
+      }
+      catch (Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+      finally
+      {
+        // cleanup
+        try
+        {
+          await client.Album.RemoveTagsAsync("Korn", "Korn", ["Nu Metal", "Metal"]);
+        }
+        catch (Exception ex)
+        {
+          TestContext.Error.WriteLine($"Test cleanup failed: {ex.Message}");
+        }
+      }
+    }
+
+    #endregion AddTagsAsync
+
+    #region RemoveTagsAsync
+
+    [Test, NonParallelizable]
+    public async Task RemoveTagsAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      await client.Album.AddTagsAsync("Korn", "Korn", ["Nu Metal", "Metal"]);
+
+      // check initial state
+      var userTags = await client.Album.GetTagsByNameAsync("Korn", "Korn");
+      Assume.That(userTags.Data, Has.Count.EqualTo(2), "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Album.RemoveTagsAsync("Korn", "Korn", ["Nu Metal", "Metal"]);
+        Assert.That(response.IsSuccess, Is.True);
+
+        userTags = await client.Album.GetTagsByNameAsync("Korn", "Korn");
+        Assert.That(userTags.Data, Is.Empty);
+      }
+      catch (Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+    }
+
+    #endregion RemoveTagsAsync
   }
 }

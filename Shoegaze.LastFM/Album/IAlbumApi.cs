@@ -54,5 +54,29 @@ namespace Shoegaze.LastFM.Album
       int? limit = null,
       int? page = null,
       CancellationToken ct = default);
+
+    Task<ApiResult> AddTagsAsync(
+      string albumName,
+      string artistName,
+      string tag,
+      CancellationToken ct = default);
+
+    Task<ApiResult> AddTagsAsync(
+      string albumName,
+      string artistName,
+      IEnumerable<string> tags,
+      CancellationToken ct = default);
+
+    Task<ApiResult> RemoveTagsAsync(
+      string albumName,
+      string artistName,
+      string tag,
+      CancellationToken ct = default);
+
+    Task<ApiResult> RemoveTagsAsync(
+      string albumName,
+      string artistName,
+      IEnumerable<string> tags,
+      CancellationToken ct = default);
   }
 }
