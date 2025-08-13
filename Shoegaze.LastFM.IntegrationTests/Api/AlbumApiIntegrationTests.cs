@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -135,9 +136,54 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
       Assert.That(response.Data, Is.Not.Empty);
       Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
-
     }
 
     #endregion GetTagsByMbidAsync
+
+    #region GetTopTagsByNameAsync
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.GetTopTagsByNameAsync("loveless", "My Bloody Valentine");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      Assert.That(response.Data, Is.Not.Empty);
+      Assert.That(response.Data.Any(static t => t.Name == "shoegaze"), Is.True);
+      foreach (var tag in response.Data)
+      {
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(tag.WeightOnAlbum, Is.GreaterThanOrEqualTo(1));
+          Assert.That(tag.CountOnTrack, Is.Null);
+          Assert.That(tag.Taggings, Is.Null);
+          Assert.That(tag.Reach, Is.Null);
+          Assert.That(tag.UserUsedCount, Is.Null);
+        }
+      }
+    }
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_Invalid_Album_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateClient();
+
+      var response = await client.Album.GetTopTagsByNameAsync("SHOEGAZELASTFMINVALIDALBUM", "SHOEGAZELASTFMINVALIDARTIST");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+        Assert.That(response.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
+      }
+    }
+
+    #endregion GetTopTagsByNameAsync
   }
 }

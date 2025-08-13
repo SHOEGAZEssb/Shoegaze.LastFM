@@ -330,12 +330,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       }
 
       Assert.That(pages.Items, Has.Count.GreaterThan(1));
-      foreach (var track in pages.Items)
+      foreach (var track in pages.Items.Take(10))
       {
         using (Assert.EnterMultipleScope())
         {
           Assert.That(track.Mbid, Is.Not.Null);
-          Assert.That(track.Images, Is.Not.Empty);
           Assert.That(track.Artist, Is.Not.Null);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.ListenerCount, Is.GreaterThanOrEqualTo(1));

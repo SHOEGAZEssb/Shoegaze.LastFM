@@ -69,7 +69,7 @@ namespace Shoegaze.LastFM.Album
         ["artist"] = artistName
       };
 
-      return await GetTags(parameters, username, autoCorrect, ct);
+      return await GetTagsAsync(parameters, username, autoCorrect, ct);
     }
 
     public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByMbidAsync(string mbid, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
@@ -79,10 +79,10 @@ namespace Shoegaze.LastFM.Album
         ["mbid"] = mbid
       };
 
-      return await GetTags(parameters, username, autoCorrect, ct);
+      return await GetTagsAsync(parameters, username, autoCorrect, ct);
     }
 
-    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTags(Dictionary<string, string> parameters, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsAsync(Dictionary<string, string> parameters, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
     {
       if (username != null)
         parameters.Add("username", username);
@@ -96,6 +96,56 @@ namespace Shoegaze.LastFM.Album
       {
         var tagArray = result.Data.RootElement.GetProperty("tags").TryGetProperty("tag", out var ta) ? ta : default;
         var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(null, result.HttpStatus, "Failed to parse tag info: " + ex.Message);
+      }
+    }
+
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByNameAsync(string albumName, string artistName, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["album"] = albumName,
+        ["artist"] = artistName
+      };
+
+      return await GetTopTagsAsync(parameters, autoCorrect, ct);
+    }
+
+    // currently broken?
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(string mbid, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["mbid"] = mbid
+      };
+
+      return await GetTopTagsAsync(parameters, autoCorrect, ct);
+    }
+
+    private async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(Dictionary<string, string> parameters, bool autoCorrect = true, CancellationToken ct = default)
+    {
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
+
+      var result = await _invoker.SendAsync("album.getTopTags", parameters, false, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var tagArray = result.Data.RootElement.GetProperty("toptags").TryGetProperty("tag", out var ta) ? ta : default;
+        var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
+
+        foreach (var tag in tags)
+        {
+          tag.UserUsedCount = null;
+          tag.CountOnTrack = null;
+          tag.Taggings = null;
+        }
 
         return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }

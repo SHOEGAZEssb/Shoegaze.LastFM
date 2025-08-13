@@ -184,7 +184,10 @@ namespace Shoegaze.LastFM.Track
         var tags = JsonHelper.MakeListFromJsonArray(tagArray, TagInfo.FromJson);
 
         foreach (var tag in tags)
+        {
           tag.UserUsedCount = null; // not used in this function, but json property has same name as count
+          tag.WeightOnAlbum = null;
+        }
 
         return ApiResult<IReadOnlyList<TagInfo>>.Success(tags);
       }

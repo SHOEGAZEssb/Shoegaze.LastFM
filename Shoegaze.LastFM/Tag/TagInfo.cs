@@ -27,6 +27,18 @@ namespace Shoegaze.LastFM.Tag
     public int? CountOnTrack { get; internal set; }
 
     /// <summary>
+    /// A weighted count of how often the tag was applied
+    /// to the album this request has been sent for, with a maximum of 100.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="Album.IAlbumApi.GetTopTagsByNameAsync(string, string, bool, CancellationToken)"/>.
+    /// - <see cref="Album.IAlbumApi.GetTopTagsByMbidAsync(string, bool, CancellationToken)"/>.
+    /// </remarks>
+    public int? WeightOnAlbum { get; internal set; }
+
+    /// <summary>
     /// Amount of users that have used this tag.
     /// </summary>
     /// <remarks>
@@ -44,7 +56,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public int? Taggings { get; private set; }
+    public int? Taggings { get; internal set; }
 
     /// <summary>
     /// Amount of times this tag has been used by the user.
@@ -91,6 +103,7 @@ namespace Shoegaze.LastFM.Tag
         Name = name,
         Url = root.TryGetProperty("url", out var urlProp) ? new Uri(urlProp.GetString()!) : UriHelper.MakeTagUri(name),
         CountOnTrack = count,
+        WeightOnAlbum = count,
         UserUsedCount = count,
         Reach = reach,
         Taggings = total ?? count,

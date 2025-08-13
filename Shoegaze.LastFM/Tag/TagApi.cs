@@ -133,6 +133,7 @@ namespace Shoegaze.LastFM.Tag
           // same name as count property...
           tag.UserUsedCount = null;
           tag.CountOnTrack = null;
+          tag.WeightOnAlbum = null;
         }
 
         return ApiResult<PagedResult<TagInfo>>.Success(PagedResult<TagInfo>.FromJson(topTagProperty, tags));

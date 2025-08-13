@@ -36,5 +36,16 @@ namespace Shoegaze.LastFM.Album
       string? username = null,
       bool autoCorrect = true,
       CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByNameAsync(
+      string albumName,
+      string artistName,
+      bool autoCorrect = true,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(
+      string mbid,
+      bool autoCorrect = true,
+      CancellationToken ct = default);
   }
 }

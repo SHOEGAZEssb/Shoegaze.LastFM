@@ -111,5 +111,38 @@ namespace Shoegaze.LastFM.Tests.Api
     }
 
     #endregion GetTagsByMbidAsync
+
+    #region GetTopTagsByNameAsync
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_ReturnsError_WhenMalformed()
+    {
+      string json = "{}";
+      var mock = TestHelper.CreateMockInvoker("album.getTopTags", json);
+
+      var api = new AlbumApi(mock.Object);
+      var response = await api.GetTopTagsByNameAsync("some album", "some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    [Test]
+    public async Task GetTopTagsByNameAsync_ReturnsError_WhenError()
+    {
+      var mock = TestHelper.CreateMockInvoker("album.getTopTags");
+
+      var api = new AlbumApi(mock.Object);
+      var response = await api.GetTopTagsByNameAsync("some album", "some artist");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.False);
+        Assert.That(response.Data, Is.Null);
+      }
+    }
+
+    #endregion GetTopTagsByNameAsync
   }
 }
