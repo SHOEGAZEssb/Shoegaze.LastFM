@@ -83,5 +83,11 @@ namespace Shoegaze.LastFM.Track
       string artistName,
       IEnumerable<string> tags,
       CancellationToken ct = default);
+
+    Task<ApiResult> SetLoveState(
+      string trackName,
+      string artistName,
+      bool loveState,
+      CancellationToken ct = default);
   }
 }

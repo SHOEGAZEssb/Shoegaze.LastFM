@@ -479,5 +479,63 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion RemoveTagsAsync
+
+    #region SetLoveStateAsync
+
+    [Test, NonParallelizable]
+    public async Task SetLoveStateAsync_Love_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
+      Assume.That(trackResponse.Data, Is.Not.Null, "Initial state could not be checked.");
+      Assume.That(trackResponse.Data.UserLoved, Is.False, "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Track.SetLoveState("Blind", "Korn", loveState: true);
+        Assert.That(response.IsSuccess, Is.True);
+        trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
+        Assert.That(trackResponse.Data, Is.Not.Null);
+        Assert.That(trackResponse.Data.UserLoved, Is.True);
+      }
+      catch (Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+      finally
+      {
+        await client.Track.SetLoveState("Blind", "Korn", loveState: false);
+      }
+    }
+
+    [Test, NonParallelizable]
+    public async Task SetLoveStateAsync_Unlove_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var loveTrackResponse = await client.Track.SetLoveState("Blind", "Korn", loveState: true);
+      Assume.That(loveTrackResponse.IsSuccess, Is.True, "Initial state could not be prepared.");
+      var trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
+      Assume.That(trackResponse.Data, Is.Not.Null, "Initial state could not be checked.");
+      Assume.That(trackResponse.Data.UserLoved, Is.True, "Initial state is not correct.");
+
+      try
+      {
+        var response = await client.Track.SetLoveState("Blind", "Korn", loveState: false);
+        Assert.That(response.IsSuccess, Is.True);
+        trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
+        Assert.That(trackResponse.Data, Is.Not.Null);
+        Assert.That(trackResponse.Data.UserLoved, Is.False);
+      }
+      catch (Exception ex)
+      {
+        TestContext.Error.WriteLine(ex.Message);
+        Assert.Fail();
+      }
+    }
+
+    #endregion SetLoveStateAsync
   }
 }

@@ -274,5 +274,20 @@ namespace Shoegaze.LastFM.Track
 
       return ApiResult.Success();
     }
+
+    public async Task<ApiResult> SetLoveState(string trackName, string artistName, bool loveState, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = trackName,
+        ["artist"] = artistName
+      };
+
+      var result = await _invoker.SendAsync(loveState ? "track.love" : "track.unlove", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      return ApiResult.Success();
+    }
   }
 }
