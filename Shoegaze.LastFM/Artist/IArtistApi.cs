@@ -19,7 +19,7 @@ namespace Shoegaze.LastFM.Artist
       CancellationToken ct = default);
 
     Task<ApiResult<IReadOnlyList<ArtistInfo>>> GetSimilarByNameAsync(
-      string artist,
+      string artistName,
       bool autoCorrect = true,
       int? limit = null,
       CancellationToken ct = default);

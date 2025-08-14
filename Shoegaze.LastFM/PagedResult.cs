@@ -18,7 +18,7 @@ namespace Shoegaze.LastFM
       {
         totalItems = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:totalResults"));
         perPage = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:itemsPerPage"));
-        totalPages = totalItems / perPage;
+        totalPages = (int)Math.Ceiling((double)totalItems / perPage);
         parsedPage = JsonHelper.ParseNumber<int>(element.GetProperty("opensearch:Query").GetProperty("startPage"));
       }
       else
@@ -31,7 +31,7 @@ namespace Shoegaze.LastFM
           parsedPage = JsonHelper.ParseNumber<int>(offsetProp) / perPage;
           if (parsedPage == 0)
             parsedPage = 1;
-          totalPages = totalItems / perPage;
+          totalPages = (int)Math.Ceiling((double)totalItems / perPage);
         }
         else // assume default page format
         {

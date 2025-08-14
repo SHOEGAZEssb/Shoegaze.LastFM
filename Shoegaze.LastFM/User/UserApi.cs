@@ -149,9 +149,9 @@ internal class UserApi : IUserApi
     if (extended != null)
       parameters["extended"] = extended.Value ? "1" : "0";
     if (from != null)
-      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
     if (to != null)
-      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     var result = await _invoker.SendAsync("user.getRecentTracks", parameters, requireAuth, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -182,7 +182,7 @@ internal class UserApi : IUserApi
     if (!requireAuth)
       parameters["user"] = username!;
     if (limit.HasValue)
-      parameters["limit"] = limit.Value.ToString();
+      parameters["limit"] = limit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     var result = await _invoker.SendAsync("user.getTopTags", parameters, requireAuth, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -206,7 +206,7 @@ internal class UserApi : IUserApi
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
     parameters.Add("user", username);
     parameters.Add("tag", tag);
-    parameters.Add("taggingtype", GetTypeJsonPropertyName(typeof(T)).ToLower());
+    parameters.Add("taggingtype", GetTypeJsonPropertyName(typeof(T)).ToLower(System.Globalization.CultureInfo.CurrentCulture));
 
     var result = await _invoker.SendAsync($"user.getPersonalTags", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -215,7 +215,7 @@ internal class UserApi : IUserApi
     try
     {
       var iTagablePropertyName = GetTypeJsonPropertyName(typeof(T));
-      var chartArray = result.Data.RootElement.GetProperty($"taggings").GetProperty($"{iTagablePropertyName.ToLower()}s").TryGetProperty(iTagablePropertyName.ToLower(), out var ta) ? ta : default;
+      var chartArray = result.Data.RootElement.GetProperty($"taggings").GetProperty($"{iTagablePropertyName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}s").TryGetProperty(iTagablePropertyName.ToLower(System.Globalization.CultureInfo.CurrentCulture), out var ta) ? ta : default;
       var charts = chartArray.ValueKind switch
       {
         JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(ITagableFromJson<T>)],
@@ -321,9 +321,9 @@ internal class UserApi : IUserApi
     };
 
     if (from != null)
-      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+      parameters["from"] = new DateTimeOffset(from.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
     if (to != null)
-      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString();
+      parameters["to"] = new DateTimeOffset(to.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     var iChartablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getWeekly{iChartablePropertyName}Chart", parameters, false, ct);
@@ -332,7 +332,8 @@ internal class UserApi : IUserApi
 
     try
     {
-      var chartArray = result.Data.RootElement.GetProperty($"weekly{iChartablePropertyName.ToLower()}chart").TryGetProperty(iChartablePropertyName.ToLower(), out var ta) ? ta : default;
+      var chartArray = result.Data.RootElement.GetProperty($"weekly{iChartablePropertyName.ToLower(System.Globalization.CultureInfo.CurrentCulture)}chart")
+                                              .TryGetProperty(iChartablePropertyName.ToLower(System.Globalization.CultureInfo.CurrentCulture), out var ta) ? ta : default;
       var charts = chartArray.ValueKind switch
       {
         JsonValueKind.Array => [.. chartArray.EnumerateArray().Select(IChartableFromJson<T>)],

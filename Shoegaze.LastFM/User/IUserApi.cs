@@ -54,7 +54,7 @@ public interface IUserApi
     int? page = null,
     CancellationToken ct = default);
 
-  Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, int? limit = null, int? page = null, CancellationToken ct = default);
+  Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? fromDate = null, DateTime? toDate = null, int? limit = null, int? page = null, CancellationToken ct = default);
 
   Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsAsync(
     string? username = null,
@@ -68,5 +68,5 @@ public interface IUserApi
   Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
 
   Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(string username, CancellationToken ct = default);
-  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTime? from = null, DateTime? to = null, CancellationToken ct = default) where T : IChartable;
+  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default) where T : IChartable;
 }

@@ -16,8 +16,8 @@ namespace Shoegaze.LastFM
     {
       return new WeeklyChartInfo
       {
-        From = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("from").GetString()!)).DateTime,
-        To = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("to").GetString()!)).DateTime,
+        From = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("from").GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime,
+        To = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("to").GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime,
       };
     }
   }

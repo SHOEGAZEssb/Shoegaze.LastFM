@@ -74,13 +74,13 @@ public class UserInfo : IJsonDeserializable<UserInfo>
       Age = root.TryGetProperty("age", out var ageProp) && int.TryParse(ageProp.GetString(), out var age) ? age : null,
       Gender = root.TryGetProperty("gender", out var genderProp) ? genderProp.GetString() : null,
       IsSubscriber = root.GetProperty("subscriber").GetString() == "1",
-      Playcount = int.Parse(root.GetProperty("playcount").GetString()!),
-      ArtistCount = root.TryGetProperty("artist_count", out var artistCountProp) ? int.Parse(artistCountProp.GetString()!) : null,
-      TrackCount = root.TryGetProperty("track_count", out var trackCountProp) ? int.Parse(trackCountProp.GetString()!) : null,
-      AlbumCount = root.TryGetProperty("album_count", out var albumCountProp) ? int.Parse(albumCountProp.GetString()!) : null,
-      Playlists = int.Parse(root.GetProperty("playlists").GetString()!),
+      Playcount = int.Parse(root.GetProperty("playcount").GetString()!, System.Globalization.CultureInfo.InvariantCulture),
+      ArtistCount = root.TryGetProperty("artist_count", out var artistCountProp) ? int.Parse(artistCountProp.GetString()!, System.Globalization.CultureInfo.InvariantCulture) : null,
+      TrackCount = root.TryGetProperty("track_count", out var trackCountProp) ? int.Parse(trackCountProp.GetString()!, System.Globalization.CultureInfo.InvariantCulture) : null,
+      AlbumCount = root.TryGetProperty("album_count", out var albumCountProp) ? int.Parse(albumCountProp.GetString()!, System.Globalization.CultureInfo.InvariantCulture) : null,
+      Playlists = int.Parse(root.GetProperty("playlists").GetString()!, System.Globalization.CultureInfo.InvariantCulture),
       RegisteredDate = DateTimeOffset
-        .FromUnixTimeSeconds(long.Parse(root.GetProperty("registered").GetProperty("unixtime").GetString()!))
+        .FromUnixTimeSeconds(long.Parse(root.GetProperty("registered").GetProperty("unixtime").GetString()!, System.Globalization.CultureInfo.InvariantCulture))
         .DateTime,
       Images = images
     };

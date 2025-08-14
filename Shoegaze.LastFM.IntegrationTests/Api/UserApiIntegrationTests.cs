@@ -411,7 +411,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateClient();
 
-      var response = await client.User.GetRecentTracksAsync("coczero", extended: false, from: new DateTime(2000, 1, 1), to: DateTime.Now);
+      var response = await client.User.GetRecentTracksAsync("coczero", extended: false, fromDate: new DateTime(2000, 1, 1), toDate: DateTime.Now);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);

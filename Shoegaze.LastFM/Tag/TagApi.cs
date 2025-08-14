@@ -10,11 +10,11 @@ namespace Shoegaze.LastFM.Tag
 
     internal TagApi(ILastfmApiInvoker invoker) => _invoker = invoker;
 
-    public async Task<ApiResult<TagInfo>> GetInfoAsync(string name, CancellationToken ct = default)
+    public async Task<ApiResult<TagInfo>> GetInfoAsync(string tagName, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
-        ["tag"] = name
+        ["tag"] = tagName
       };
 
       var result = await _invoker.SendAsync("tag.getInfo", parameters, false, ct);
@@ -32,11 +32,11 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
-    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetSimilarAsync(string name, CancellationToken ct = default)
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetSimilarAsync(string tagName, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
-        ["tag"] = name
+        ["tag"] = tagName
       };
 
       var result = await _invoker.SendAsync("tag.getSimilar", parameters, false, ct);
@@ -113,10 +113,10 @@ namespace Shoegaze.LastFM.Tag
     public async Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>();
-      if (page.HasValue)
-        parameters["offset"] = (page.Value * (limit ?? 50)).ToString(); // 50 is default if num_res (limit) is not set
-      if (limit.HasValue)
-        parameters["num_res"] = limit.Value.ToString();
+        if (page.HasValue)
+          parameters["offset"] = (page.Value * (limit ?? 50)).ToString(System.Globalization.CultureInfo.InvariantCulture); // 50 is default if num_res (limit) is not set
+        if (limit.HasValue)
+          parameters["num_res"] = limit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
       var result = await _invoker.SendAsync("tag.getTopTags", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)

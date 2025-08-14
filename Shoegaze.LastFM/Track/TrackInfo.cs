@@ -236,7 +236,7 @@ namespace Shoegaze.LastFM.Track
       if (track.TryGetProperty("date", out var dateProp))
       {
         if (dateProp.TryGetProperty("uts", out var dateText))
-          date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!)).DateTime;
+        date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime;
       }
 
       bool? nowPlaying = null;

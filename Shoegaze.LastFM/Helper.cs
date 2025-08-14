@@ -1,5 +1,6 @@
 ﻿using Shoegaze.LastFM.User;
 using System.Text.Json;
+using System.Globalization;
 
 namespace Shoegaze.LastFM
 {
@@ -65,17 +66,17 @@ namespace Shoegaze.LastFM
       if (element.ValueKind == JsonValueKind.String)
       {
         var str = element.GetString();
-        if (typeof(T) == typeof(int) && int.TryParse(str, out var i))
+        if (typeof(T) == typeof(int) && int.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i))
         {
           value = (T)(object)i;
           return true;
         }
-        else if (typeof(T) == typeof(long) && long.TryParse(str, out var l))
+        else if (typeof(T) == typeof(long) && long.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l))
         {
           value = (T)(object)l;
           return true;
         }
-        else if (typeof(T) == typeof(double) && double.TryParse(str, out var d))
+        else if (typeof(T) == typeof(double) && double.TryParse(str, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out var d))
         {
           value = (T)(object)d;
           return true;
@@ -110,11 +111,11 @@ namespace Shoegaze.LastFM
       {
         var str = element.GetString();
         if (typeof(T) == typeof(int))
-          return (T)(object)int.Parse(str!);
+          return (T)(object)int.Parse(str!, NumberStyles.Integer, CultureInfo.InvariantCulture);
         if (typeof(T) == typeof(long))
-          return (T)(object)long.Parse(str!);
+          return (T)(object)long.Parse(str!, NumberStyles.Integer, CultureInfo.InvariantCulture);
         if (typeof(T) == typeof(double))
-          return (T)(object)double.Parse(str!);
+          return (T)(object)double.Parse(str!, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture);
       }
       else if (element.ValueKind == JsonValueKind.Number)
       {
@@ -185,13 +186,13 @@ namespace Shoegaze.LastFM
       {
         if (limit <= 0)
           throw new ArgumentOutOfRangeException(nameof(limit), "limit must be > 0");
-        dict.Add("limit", limit.Value.ToString());
+        dict.Add("limit", limit.Value.ToString(CultureInfo.InvariantCulture));
       }
       if (page.HasValue)
       {
         if (page <= 0)
           throw new ArgumentOutOfRangeException(nameof(page), "page must be > 0");
-        dict.Add("page", page.Value.ToString());
+        dict.Add("page", page.Value.ToString(CultureInfo.InvariantCulture));
       }
 
       return dict;

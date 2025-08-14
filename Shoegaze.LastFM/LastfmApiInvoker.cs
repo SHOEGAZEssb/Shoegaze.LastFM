@@ -28,7 +28,7 @@ namespace Shoegaze.LastFM
         if (requireAuth)
         {
           if (string.IsNullOrWhiteSpace(SessionKey))
-            throw new Exception("Client is not authenticated. Authentication is required for this api call.");
+            throw new NotSupportedException("Client is not authenticated. Authentication is required for this api call.");
 
           parameters["sk"] = SessionKey;
 

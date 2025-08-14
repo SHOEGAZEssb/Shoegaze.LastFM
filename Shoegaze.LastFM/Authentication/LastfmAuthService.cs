@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shoegaze.LastFM.Authentication;
 
@@ -25,7 +26,8 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
   /// <inheritdoc />
   public Task<Uri> GetAuthorizationUrlAsync()
   {
-    var authUrl = string.Format(RequestTokenUrl, _apiKey, HttpUtility.UrlEncode(_callbackUrl));
+    var encodedCallback = HttpUtility.UrlEncode(_callbackUrl);
+    var authUrl = $"https://www.last.fm/api/auth/?api_key={_apiKey}&cb={encodedCallback}";
     return Task.FromResult(new Uri(authUrl));
   }
 
@@ -73,6 +75,9 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     return CalculateMd5(builder.ToString());
   }
 
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+  [SuppressMessage("Security", "CA5351:Do Not Use Broken Cryptographic Algorithms", Justification = "Last.fm API requires MD5 for API signature generation.")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
   private static string CalculateMd5(string input)
   {
     var inputBytes = Encoding.UTF8.GetBytes(input);
