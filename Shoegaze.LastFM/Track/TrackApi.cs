@@ -223,5 +223,56 @@ namespace Shoegaze.LastFM.Track
         return ApiResult<PagedResult<TrackInfo>>.Failure(null, result.HttpStatus, "Failed to parse tracks: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult> AddTagsAsync(string trackName, string artistName, string tag, CancellationToken ct = default)
+    {
+      return await AddTagsAsync(trackName, artistName, [tag], ct);
+    }
+
+    public async Task<ApiResult> AddTagsAsync(string trackName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
+    {
+      var tagCount = tags.Count();
+      if (tagCount > 10)
+        throw new ArgumentOutOfRangeException(nameof(tags), "Only maximum of 10 tags allowed");
+      if (tagCount == 0)
+        throw new ArgumentOutOfRangeException(nameof(tags), "No tags supplied");
+
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = trackName,
+        ["artist"] = artistName,
+        ["tags"] = string.Join(",", tags)
+      };
+
+      var result = await _invoker.SendAsync("track.addTags", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      return ApiResult.Success();
+    }
+
+    public async Task<ApiResult> RemoveTagsAsync(string trackName, string artistName, string tag, CancellationToken ct = default)
+    {
+      return await RemoveTagsAsync(trackName, artistName, [tag], ct);
+    }
+
+    public async Task<ApiResult> RemoveTagsAsync(string trackName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
+    {
+      foreach (var tag in tags)
+      {
+        var parameters = new Dictionary<string, string>
+        {
+          ["track"] = trackName,
+          ["artist"] = artistName,
+          ["tags"] = tag
+        };
+
+        var result = await _invoker.SendAsync("track.removeTag", parameters, true, ct);
+        if (!result.IsSuccess || result.Data == null)
+          return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+      }
+
+      return ApiResult.Success();
+    }
   }
 }
