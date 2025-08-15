@@ -5,6 +5,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
   [TestFixture]
   internal class ArtistApiIntegrationTests
   {
+    /// <summary>
+    /// Safety buffer for write operations.
+    /// </summary>
+    private static readonly TimeSpan SAFETYBUFFER = TimeSpan.FromSeconds(3);
+
     private static void AssertGetInfoArtist(ArtistInfo artist, bool withUserInfo)
     {
       using (Assert.EnterMultipleScope())
@@ -591,6 +596,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         var response = await client.Artist.AddTagsAsync("Korn", "Nu Metal");
         Assert.That(response.IsSuccess, Is.True);
 
+        await Task.Delay(SAFETYBUFFER);
+
         userTags = await client.Artist.GetTagsByNameAsync("Korn");
         Assert.That(userTags.Data, Has.Count.EqualTo(1));
         Assert.That(userTags.Data[0].Name, Is.EqualTo("Nu Metal"));
@@ -633,6 +640,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         var response = await client.Artist.RemoveTagAsync("Korn", "Nu Metal");
         Assert.That(response.IsSuccess, Is.True);
+
+        await Task.Delay(SAFETYBUFFER);
 
         userTags = await client.Artist.GetTagsByNameAsync("Korn");
         Assert.That(userTags.Data, Is.Empty);

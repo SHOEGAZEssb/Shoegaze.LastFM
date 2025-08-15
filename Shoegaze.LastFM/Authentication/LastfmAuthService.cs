@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace Shoegaze.LastFM.Authentication;
 
@@ -15,8 +16,8 @@ namespace Shoegaze.LastFM.Authentication;
 /// </summary>
 public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiSecret, string callbackUrl) : IAuthService
 {
-  private const string RequestTokenUrl = "https://www.last.fm/api/auth/?api_key={0}&cb={1}";
   private const string SessionUrl = "https://ws.audioscrobbler.com/2.0/";
+  private static readonly CompositeFormat UnformatedAuthUrl = CompositeFormat.Parse("https://www.last.fm/api/auth/?api_key={0}&cb={1}");
 
   private readonly string _apiKey = apiKey;
   private readonly string _apiSecret = apiSecret;
@@ -27,7 +28,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
   public Task<Uri> GetAuthorizationUrlAsync()
   {
     var encodedCallback = HttpUtility.UrlEncode(_callbackUrl);
-    var authUrl = $"https://www.last.fm/api/auth/?api_key={_apiKey}&cb={encodedCallback}";
+    var authUrl = string.Format(CultureInfo.InvariantCulture, UnformatedAuthUrl, _apiKey, encodedCallback);
     return Task.FromResult(new Uri(authUrl));
   }
 
@@ -95,7 +96,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     listener.Prefixes.Add(callbackUri.ToString());
     listener.Start();
 
-    var authUrl = new Uri($"https://www.last.fm/api/auth/?api_key={_apiKey}&cb={Uri.EscapeDataString(callbackUri.ToString())}");
+    var authUrl = new Uri(string.Format(CultureInfo.InvariantCulture, UnformatedAuthUrl, _apiKey, Uri.EscapeDataString(callbackUri.ToString())));
 
     try
     {

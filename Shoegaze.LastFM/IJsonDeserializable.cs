@@ -2,7 +2,7 @@
 
 namespace Shoegaze.LastFM
 {
-  internal interface IJsonDeserializable<T>
+  internal interface IJsonDeserializable<out T>
   {
     internal static T FromJson(JsonElement root) => throw new NotImplementedException();
   }

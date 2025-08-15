@@ -1,10 +1,16 @@
 ﻿using Shoegaze.LastFM.Track;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
 {
   [TestFixture]
   internal class TrackApiIntegrationTests
   {
+    /// <summary>
+    /// Safety buffer for write operations.
+    /// </summary>
+    private static readonly TimeSpan SAFETYBUFFER = TimeSpan.FromSeconds(3);
+
     #region GetInfoByNameAsync
 
     private static void AssertGetInfoTrackInfo(TrackInfo track, bool usernameIncluded)
@@ -421,6 +427,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         var response = await client.Track.AddTagsAsync("Blind", "Korn", ["Nu Metal", "Metal"]);
         Assert.That(response.IsSuccess, Is.True);
 
+        await Task.Delay(SAFETYBUFFER);
+
         userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
         Assert.That(userTags.Data, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
@@ -459,6 +467,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
       await client.Track.AddTagsAsync("Blind", "Korn", ["Nu Metal", "Metal"]);
 
+      await Task.Delay(SAFETYBUFFER);
+
       // check initial state
       var userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
       Assume.That(userTags.Data, Has.Count.EqualTo(2), "Initial state is not correct.");
@@ -467,6 +477,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         var response = await client.Track.RemoveTagsAsync("Blind", "Korn", ["Nu Metal", "Metal"]);
         Assert.That(response.IsSuccess, Is.True);
+
+        await Task.Delay(SAFETYBUFFER);
 
         userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
         Assert.That(userTags.Data, Is.Empty);
@@ -485,7 +497,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     [Test, NonParallelizable, Order(997)]
     public async Task SetLoveStateAsync_IntegrationTest()
     {
-      await Task.Delay(TimeSpan.FromSeconds(5));
+      await Task.Delay(SAFETYBUFFER);
 
       var client = TestEnvironment.CreateAuthenticatedClient();
 
@@ -499,7 +511,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(response.IsSuccess, Is.True);
 
         // safety buffer
-        await Task.Delay(TimeSpan.FromSeconds(3));
+        await Task.Delay(SAFETYBUFFER);
 
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
@@ -509,7 +521,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(response.IsSuccess, Is.True);
 
         // safety buffer
-        await Task.Delay(TimeSpan.FromSeconds(3));
+        await Task.Delay(SAFETYBUFFER);
 
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
@@ -531,32 +543,23 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     [Test, NonParallelizable]
     public async Task UpdateNowPlayingAsync_IntegrationTest()
     {
-      var timestampFile = "last_now_playing_test_time.txt";
-      if (File.Exists(timestampFile))
-      {
-        var lastRun = DateTime.Parse(File.ReadAllText(timestampFile), null, System.Globalization.DateTimeStyles.RoundtripKind);
-        if (DateTime.UtcNow - lastRun < TimeSpan.FromMinutes(5))
-          Assert.Ignore($"Test skipped — last run was {DateTime.UtcNow - lastRun:g} ago (must be at least 5 minutes).");
-      }
-
-      // store the current run time
-      File.WriteAllText(timestampFile, DateTime.UtcNow.ToString("o"));
-
       var client = TestEnvironment.CreateAuthenticatedClient();
 
       var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync(limit: 1);
       Assume.That(initialCurrentTracksResponse.IsSuccess, Is.True, "Initial state could not be checked.");
       Assume.That(initialCurrentTracksResponse.Data, Is.Not.Null, "Initial state could not be checked.");
+      if (initialCurrentTracksResponse.Data.Items[0].IsNowPlaying)
+        Assert.Ignore("NowPlaying Test skipped - a track is currently playing");
       Assume.That(initialCurrentTracksResponse.Data.Items[0].IsNowPlaying, Is.Null.Or.False, "Initial state is not correct.");
 
       var response = await client.Track.UpdateNowPlayingAsync("Blind", "Korn", "Korn", "Korn");
       Assert.That(response.IsSuccess, Is.True);
 
       // safety buffer
-      await Task.Delay(TimeSpan.FromSeconds(1));
+      await Task.Delay(SAFETYBUFFER);
 
       // do now playing check immediately after
-      var currentTracksResponse = await client.User.GetRecentTracksAsync(limit: 1);
+      var currentTracksResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: false, limit: 1);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(currentTracksResponse.IsSuccess, Is.True);
@@ -575,7 +578,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateAuthenticatedClient();
 
       var date = DateTime.UtcNow;
-      var scrobble = new ScrobbleData("Korn", "Blind", date);
+      var scrobble = new ScrobbleData("SHOEGAZELASTFM", "TestSimple", date);
 
       var response = await client.Track.ScrobbleAsync(scrobble);
       using (Assert.EnterMultipleScope())
@@ -587,16 +590,16 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var info = response.Data;
       using (Assert.EnterMultipleScope())
       {
-        Assert.That(info.ArtistName, Is.EqualTo("Korn"));
+        Assert.That(info.ArtistName, Is.EqualTo("SHOEGAZELASTFM"));
         Assert.That(info.IsArtistNameCorrected, Is.False);
-        Assert.That(info.TrackName, Is.EqualTo("Blind"));
+        Assert.That(info.TrackName, Is.EqualTo("TestSimple"));
         Assert.That(info.IsTrackNameCorrected, Is.False);
         Assert.That(info.Timestamp, Is.EqualTo(date).Within(TimeSpan.FromSeconds(10)));
         Assert.That(info.IsIgnored, Is.False);
       }
 
       // safety buffer
-      await Task.Delay(TimeSpan.FromSeconds(3));
+      await Task.Delay(SAFETYBUFFER);
 
       var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 1);
       using (Assert.EnterMultipleScope())
@@ -639,6 +642,52 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       }
     }
 
+    [Test, NonParallelizable]
+    public async Task ScrobbleAsync_Single_Too_New_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var scrobble = new ScrobbleData("SHOEGAZELASTFM", "TestNew", DateTime.UtcNow.AddYears(1));
+      var response = await client.Track.ScrobbleAsync(scrobble);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var info = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(info.ArtistName, Is.EqualTo("SHOEGAZELASTFM"));
+        Assert.That(info.IsArtistNameCorrected, Is.False);
+        Assert.That(info.TrackName, Is.EqualTo("TestNew"));
+        Assert.That(info.IsTrackNameCorrected, Is.False);
+        Assert.That(info.IsIgnored, Is.True);
+      }
+    }
+
+    [Test]
+    public void ScrobbleAsync_Too_Many_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var date = DateTime.UtcNow;
+      var scrobbles = new ScrobbleData[55];
+      for (int i = 0; i < scrobbles.Length; i++)
+      {
+        scrobbles[i] = new ScrobbleData("SHOEGAZELASTFM", $"Test{i}", date.AddSeconds(i));
+      }
+
+      Assert.That(async () => await client.Track.ScrobbleAsync(scrobbles), Throws.InstanceOf<ArgumentOutOfRangeException>());
+    }
+
+    [Test]
+    public void ScrobbleAsync_Empty_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+      Assert.That(async () => await client.Track.ScrobbleAsync([]), Throws.InstanceOf<ArgumentOutOfRangeException>());
+    }
+
     [Test, NonParallelizable, Order(999)]
     public async Task ScrobbleAsync_Multiple_IntegrationTest()
     {
@@ -676,7 +725,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       }
 
       // safety buffer
-      await Task.Delay(TimeSpan.FromSeconds(5));
+      await Task.Delay(SAFETYBUFFER);
 
       var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 5);
       using (Assert.EnterMultipleScope())

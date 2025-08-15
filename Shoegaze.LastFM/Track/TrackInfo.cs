@@ -234,11 +234,8 @@ namespace Shoegaze.LastFM.Track
         isLoved = lovedProp.GetString() == "1";
 
       DateTime? date = null;
-      if (track.TryGetProperty("date", out var dateProp))
-      {
-        if (dateProp.TryGetProperty("uts", out var dateText))
+      if (track.TryGetProperty("date", out var dateProp) && dateProp.TryGetProperty("uts", out var dateText))
           date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!, System.Globalization.CultureInfo.InvariantCulture)).UtcDateTime;
-      }
 
       bool? nowPlaying = null;
       if (track.TryGetProperty("@attr", out var attrProp))

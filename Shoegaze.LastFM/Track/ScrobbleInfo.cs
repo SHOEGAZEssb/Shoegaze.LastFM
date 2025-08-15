@@ -117,21 +117,20 @@ namespace Shoegaze.LastFM.Track
       }
 
       IgnoredCode code = IgnoredCode.None;
-      if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("code", out var codeProp))
+      if (el.ValueKind == JsonValueKind.Object &&
+          el.TryGetProperty("code", out var codeProp) &&
+          int.TryParse(codeProp.GetString(), out var n))
       {
-        if (int.TryParse(codeProp.GetString(), out var n))
+        code = n switch
         {
-          code = n switch
-          {
-            0 => IgnoredCode.None,
-            1 => IgnoredCode.ArtistIgnored,
-            2 => IgnoredCode.TrackIgnored,
-            3 => IgnoredCode.TimestampTooOld,
-            4 => IgnoredCode.TimestampTooNew,
-            5 => IgnoredCode.ScrobbleLimitExceeded,
-            _ => IgnoredCode.None
-          };
-        }
+          0 => IgnoredCode.None,
+          1 => IgnoredCode.ArtistIgnored,
+          2 => IgnoredCode.TrackIgnored,
+          3 => IgnoredCode.TimestampTooOld,
+          4 => IgnoredCode.TimestampTooNew,
+          5 => IgnoredCode.ScrobbleLimitExceeded,
+          _ => IgnoredCode.None
+        };
       }
 
       return (code, msg);

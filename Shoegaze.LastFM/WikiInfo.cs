@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 
 namespace Shoegaze.LastFM
 {
@@ -14,7 +15,7 @@ namespace Shoegaze.LastFM
       if (root.TryGetProperty("published", out var pubProp))
       {
         var raw = pubProp.GetString();
-        if (DateTime.TryParse(raw, out var parsed))
+        if (DateTime.TryParse(raw, CultureInfo.InvariantCulture, out var parsed))
           published = parsed;
       }
 
