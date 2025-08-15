@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
 {
-  public enum IgnoredCode
+  internal enum IgnoredCode
   {
     None = 0,
     ArtistIgnored,
@@ -35,11 +35,19 @@ namespace Shoegaze.LastFM.Track
 
     public bool? IsAlbumArtistNameCorrected { get; private set; }
 
-    public IgnoredCode IgnoredStatusCode { get; private set; }
+    /// <summary>
+    /// Indicates if the scrobble was ignored by last.fm.
+    /// Main reason for this is usually that the timestamp
+    /// of the scrobble is too old (can't be older than 2 weeks),
+    /// or too new.
+    /// </summary>
+    public bool IsIgnored => _ignoredStatusCode != IgnoredCode.None;
 
-    public string? IgnoredMessage { get; private set; }
-
-    public bool IsIgnored => IgnoredStatusCode != IgnoredCode.None;
+    /// <summary>
+    /// Ignored code as reported by the api.
+    /// Seems to be always return 1 if ignored.
+    /// </summary>
+    private IgnoredCode _ignoredStatusCode = IgnoredCode.None;
 
     #endregion Properties
 
@@ -51,7 +59,7 @@ namespace Shoegaze.LastFM.Track
       var albumName = NullIfEmpty(ReadText(root, "album"));
       var albumArtistName = NullIfEmpty(ReadText(root, "albumArtist"));
 
-      var (ignoredCode, ignoredMsg) = ReadIgnored(root);
+      var (ignoredCode, _) = ReadIgnored(root);
 
       var timestamp = NullIfEmpty(ReadText(root, "timestamp"));
 
@@ -65,8 +73,7 @@ namespace Shoegaze.LastFM.Track
         IsAlbumNameCorrected = albumName is null ? null : ReadCorrected(root, "album"),
         AlbumArtistName = albumArtistName,
         IsAlbumArtistNameCorrected = albumArtistName is null ? null : ReadCorrected(root, "albumArtist"),
-        IgnoredStatusCode = ignoredCode,
-        IgnoredMessage = NullIfEmpty(ignoredMsg),
+        _ignoredStatusCode = ignoredCode,
         Timestamp = timestamp is null ? null : DateTimeOffset.FromUnixTimeSeconds(long.Parse(timestamp, NumberStyles.Integer, CultureInfo.InvariantCulture)).UtcDateTime
       };
     }

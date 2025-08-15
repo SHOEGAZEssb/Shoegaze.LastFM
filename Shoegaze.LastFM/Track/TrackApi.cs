@@ -290,7 +290,7 @@ namespace Shoegaze.LastFM.Track
       return ApiResult.Success();
     }
 
-    public async Task<ApiResult<ScrobbleInfo>> UpdateNowPlayingAsync(string trackName, string artistName, string? albumName = null, string? albumArtistName = null, CancellationToken ct = default)
+    public async Task<ApiResult> UpdateNowPlayingAsync(string trackName, string artistName, string? albumName = null, string? albumArtistName = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -307,16 +307,7 @@ namespace Shoegaze.LastFM.Track
       if (!result.IsSuccess || result.Data == null)
         return ApiResult<ScrobbleInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
 
-      try
-      {
-        var resultsProperty = result.Data.RootElement.GetProperty("nowplaying");
-        var scrobbleInfo = ScrobbleInfo.FromJson(resultsProperty);
-        return ApiResult<ScrobbleInfo>.Success(scrobbleInfo);
-      }
-      catch (Exception ex)
-      {
-        return ApiResult<ScrobbleInfo>.Failure(null, result.HttpStatus, "Failed to parse scrobble info: " + ex.Message);
-      }
+      return ApiResult.Success();
     }
 
     public async Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(ScrobbleData scrobble, CancellationToken ct = default)
