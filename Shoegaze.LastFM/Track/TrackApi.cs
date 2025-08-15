@@ -318,5 +318,65 @@ namespace Shoegaze.LastFM.Track
         return ApiResult<ScrobbleInfo>.Failure(null, result.HttpStatus, "Failed to parse scrobble info: " + ex.Message);
       }
     }
+
+    public async Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(ScrobbleData scrobble, CancellationToken ct = default)
+    {
+      var response = await ScrobbleAsync([scrobble], ct);
+      return new ApiResult<ScrobbleInfo>() { Data = response.Data?[0], Status = response.Status, HttpStatus = response.HttpStatus, ErrorMessage = response.ErrorMessage };
+    }
+
+    public async Task<ApiResult<IReadOnlyList<ScrobbleInfo>>> ScrobbleAsync(IEnumerable<ScrobbleData> scrobbles, CancellationToken ct = default)
+    {
+      ArgumentNullException.ThrowIfNull(scrobbles);
+      var scrobbleArray = scrobbles.ToArray();
+      if (scrobbleArray.Length == 0)
+        throw new ArgumentOutOfRangeException(nameof(scrobbles), "No scrobbles provided");
+      if (scrobbleArray.Length > 50)
+        throw new ArgumentOutOfRangeException(nameof(scrobbles), "Maximum of 50 scrobbles allowed");
+
+      var parameters = new Dictionary<string, string>();
+      for (int i = 0; i < scrobbleArray.Length; i++)
+      {
+        if (scrobbleArray[i] == null)
+          throw new ArgumentNullException(nameof(scrobbles), $"Scrobble at index {i} is null");
+
+        // mandatory params
+        parameters.Add($"artist{i}", scrobbleArray[i].ArtistName);
+        parameters.Add($"track{i}", scrobbleArray[i].TrackName);
+        parameters.Add($"timestamp{i}", scrobbleArray[i].Timestamp.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        // optional params
+        if (scrobbleArray[i].AlbumName != null)
+          parameters.Add($"album{i}", scrobbleArray[i].AlbumName!);
+        if (scrobbleArray[i].AlbumArtistName != null)
+          parameters.Add($"albumArtist{i}", scrobbleArray[i].AlbumArtistName!);
+        if (scrobbleArray[i].Duration != null)
+          parameters.Add($"duration{i}", scrobbleArray[i].Duration!.Value.Seconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (scrobbleArray[i].TrackNumber != null)
+          parameters.Add($"trackNumber{i}", scrobbleArray[i].TrackNumber!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (scrobbleArray[i].Mbid != null)
+          parameters.Add($"mbid{i}", scrobbleArray[i].Mbid!);
+        if (scrobbleArray[i].ChosenByUser != null)
+          parameters.Add($"chosenByUser{i}", scrobbleArray[i].ChosenByUser!.Value ? "1" : "0");
+        if (scrobbleArray[i].Context != null)
+          parameters.Add($"context{i}", scrobbleArray[i].Context!);
+      }
+
+      var result = await _invoker.SendAsync("track.scrobble", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<IReadOnlyList<ScrobbleInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var scrobbleArrayProperty = result.Data.RootElement.GetProperty("scrobbles").TryGetProperty("scrobble", out var ta) ? ta : default;
+        var scrobblesInfo = JsonHelper.MakeListFromJsonArray(scrobbleArrayProperty, ScrobbleInfo.FromJson);
+
+        return ApiResult<IReadOnlyList<ScrobbleInfo>>.Success(scrobblesInfo);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<IReadOnlyList<ScrobbleInfo>>.Failure(null, result.HttpStatus, "Failed to parse scrobble info list: " + ex.Message);
+      }
+    }
   }
 }

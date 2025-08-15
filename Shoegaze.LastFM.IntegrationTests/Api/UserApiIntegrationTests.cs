@@ -207,7 +207,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
           Assert.That(track.Album, Is.Null);
           Assert.That(track.PlayCount, Is.Null);
-          Assert.That(track.PlayedAt, Is.Null);
+          Assert.That(track.PlayedAtUtc, Is.Null);
           Assert.That(track.IsNowPlaying, Is.False);
         }
 
@@ -259,7 +259,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
           Assert.That(track.Album, Is.Null);
           Assert.That(track.PlayCount, Is.Null);
-          Assert.That(track.PlayedAt, Is.Null);
+          Assert.That(track.PlayedAtUtc, Is.Null);
           Assert.That(track.IsNowPlaying, Is.False);
         }
 
@@ -332,9 +332,9 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           if (track.IsNowPlaying)
-            Assert.That(track.PlayedAt, Is.Null);
+            Assert.That(track.PlayedAtUtc, Is.Null);
           else
-            Assert.That(track.PlayedAt, Is.Not.Null);
+            Assert.That(track.PlayedAtUtc, Is.Not.Null);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.UserLoved, Is.Null);
           Assert.That(track.UserLovedDate, Is.Null);
@@ -392,9 +392,9 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           if (track.IsNowPlaying)
-            Assert.That(track.PlayedAt, Is.Null);
+            Assert.That(track.PlayedAtUtc, Is.Null);
           else
-            Assert.That(track.PlayedAt, Is.Not.Null);
+            Assert.That(track.PlayedAtUtc, Is.Not.Null);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.UserLoved, Is.Not.Null);
           Assert.That(track.UserLovedDate, Is.Null);
@@ -447,9 +447,9 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
           if (track.IsNowPlaying)
-            Assert.That(track.PlayedAt, Is.Null);
+            Assert.That(track.PlayedAtUtc, Is.Null);
           else
-            Assert.That(track.PlayedAt, Is.Not.Null);
+            Assert.That(track.PlayedAtUtc, Is.Not.Null);
           Assert.That(track.IsStreamable, Is.Not.Null);
           Assert.That(track.UserLoved, Is.Null);
           Assert.That(track.UserLovedDate, Is.Null);

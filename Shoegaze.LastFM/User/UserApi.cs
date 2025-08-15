@@ -139,7 +139,7 @@ internal class UserApi : IUserApi
     }
   }
 
-  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string? username = null, bool? extended = null, DateTime? from = null, DateTime? to = null, bool ignoreNowPlaying = false, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
@@ -162,6 +162,9 @@ internal class UserApi : IUserApi
       var recentTracksElement = result.Data.RootElement.GetProperty("recenttracks");
       var trackArray = recentTracksElement.TryGetProperty("track", out var te) ? te : default;
       var tracks = JsonHelper.MakeListFromJsonArray(trackArray, TrackInfo.FromJson);
+
+      if (ignoreNowPlaying)
+        tracks = [.. tracks.Where(t => !t.IsNowPlaying)];
 
       return ApiResult<PagedResult<TrackInfo>>.Success(PagedResult<TrackInfo>.FromJson(recentTracksElement, tracks));
     }

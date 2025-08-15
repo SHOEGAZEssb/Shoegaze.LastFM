@@ -108,7 +108,7 @@ namespace Shoegaze.LastFM.Artist
       // name might either be in the name, artist or #text property
       var name = artist.TryGetProperty("name", out var nameProp)
         ? nameProp.GetString() ?? ""
-        : (artist.GetProperty("#text").GetString()!);
+        : artist.GetProperty("#text").GetString()!;
 
       var url = artist.TryGetProperty("url", out var urlProp) ? new Uri(urlProp.GetString()!) : UriHelper.MakeArtistUri(name);
 

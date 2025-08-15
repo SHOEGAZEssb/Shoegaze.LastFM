@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
 {
@@ -23,6 +24,8 @@ namespace Shoegaze.LastFM.Track
     public required string ArtistName { get; set; }
 
     public bool IsArtistNameCorrected { get; private set; }
+
+    public DateTime? Timestamp { get; private set; }
 
     public string? AlbumName { get; private set; }
 
@@ -50,6 +53,8 @@ namespace Shoegaze.LastFM.Track
 
       var (ignoredCode, ignoredMsg) = ReadIgnored(root);
 
+      var timestamp = NullIfEmpty(ReadText(root, "timestamp"));
+
       return new ScrobbleInfo
       {
         TrackName = trackName,
@@ -61,7 +66,8 @@ namespace Shoegaze.LastFM.Track
         AlbumArtistName = albumArtistName,
         IsAlbumArtistNameCorrected = albumArtistName is null ? null : ReadCorrected(root, "albumArtist"),
         IgnoredStatusCode = ignoredCode,
-        IgnoredMessage = NullIfEmpty(ignoredMsg)
+        IgnoredMessage = NullIfEmpty(ignoredMsg),
+        Timestamp = timestamp is null ? null : DateTimeOffset.FromUnixTimeSeconds(long.Parse(timestamp, NumberStyles.Integer, CultureInfo.InvariantCulture)).UtcDateTime
       };
     }
 
@@ -73,7 +79,7 @@ namespace Shoegaze.LastFM.Track
       {
         if (el.TryGetProperty("#text", out var t))
           return t.GetString();
-        return el.GetString();
+        return null;
       }
 
       return el.GetString();

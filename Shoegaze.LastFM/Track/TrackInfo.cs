@@ -160,13 +160,14 @@ namespace Shoegaze.LastFM.Track
 
     /// <summary>
     /// The time the user for which the request has been made has played this track.
+    /// In UTC timezone.
     /// </summary>
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
     /// </remarks>
-    public DateTime? PlayedAt { get; private set; }
+    public DateTime? PlayedAtUtc { get; private set; }
 
     /// <summary>
     /// If the user for which the request has been made is currently listening to this track.
@@ -236,7 +237,7 @@ namespace Shoegaze.LastFM.Track
       if (track.TryGetProperty("date", out var dateProp))
       {
         if (dateProp.TryGetProperty("uts", out var dateText))
-        date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime;
+          date = DateTimeOffset.FromUnixTimeSeconds(long.Parse(dateText.GetString()!, System.Globalization.CultureInfo.InvariantCulture)).UtcDateTime;
       }
 
       bool? nowPlaying = null;
@@ -288,7 +289,7 @@ namespace Shoegaze.LastFM.Track
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
         IsNowPlaying = nowPlaying ?? false,
-        PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available (only when not IsNowPlaying)
+        PlayedAtUtc = date, // playedat is only available in user.getRecentTracks, in which case album must be available (only when not IsNowPlaying)
         UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
         PlayCount = playcount, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount
         Match = match,

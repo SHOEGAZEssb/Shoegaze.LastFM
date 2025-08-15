@@ -96,5 +96,13 @@ namespace Shoegaze.LastFM.Track
       string? albumName = null,
       string? albumArtistName = null,
       CancellationToken ct = default);
+
+    Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(
+      ScrobbleData scrobble,
+      CancellationToken ct = default);
+
+    Task<ApiResult<IReadOnlyList<ScrobbleInfo>>> ScrobbleAsync(
+      IEnumerable<ScrobbleData> scrobbles,
+      CancellationToken ct = default);
   }
 }

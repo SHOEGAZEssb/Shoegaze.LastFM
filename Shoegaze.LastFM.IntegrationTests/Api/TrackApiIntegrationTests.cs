@@ -29,7 +29,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.UserLoved, Is.Null);
           Assert.That(track.UserPlayCount, Is.Null);
         }
-        Assert.That(track.PlayedAt, Is.Null);
+        Assert.That(track.PlayedAtUtc, Is.Null);
         Assert.That(track.Images, Is.Empty);
       }
 
@@ -495,12 +495,20 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         var response = await client.Track.SetLoveState("Blind", "Korn", loveState: true);
         Assert.That(response.IsSuccess, Is.True);
+
+        // safety buffer
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
         Assert.That(trackResponse.Data.UserLoved, Is.True);
 
         response = await client.Track.SetLoveState("Blind", "Korn", loveState: false);
         Assert.That(response.IsSuccess, Is.True);
+
+        // safety buffer
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
         Assert.That(trackResponse.Data.UserLoved, Is.False);
@@ -508,12 +516,9 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       catch (Exception ex)
       {
         TestContext.Error.WriteLine(ex.Message);
-        Assert.Fail();
-      }
-      finally
-      {
-        // best effor clean up
+        // best effort clean up
         await client.Track.SetLoveState("Blind", "Korn", loveState: false);
+        Assert.Fail();
       }
     }
 
@@ -537,7 +542,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
       var client = TestEnvironment.CreateAuthenticatedClient();
 
-      var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync(null, null, null, null, limit: 1);
+      var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync(limit: 1);
       Assume.That(initialCurrentTracksResponse.IsSuccess, Is.True, "Initial state could not be checked.");
       Assume.That(initialCurrentTracksResponse.Data, Is.Not.Null, "Initial state could not be checked.");
       Assume.That(initialCurrentTracksResponse.Data.Items[0].IsNowPlaying, Is.Null.Or.False, "Initial state is not correct.");
@@ -549,8 +554,11 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(response.Data, Is.Not.Null);
       }
 
+      // safety buffer
+      await Task.Delay(TimeSpan.FromSeconds(1));
+
       // do now playing check immediately after
-      var currentTracksResponse = await client.User.GetRecentTracksAsync(null, null, null, null, limit: 1);
+      var currentTracksResponse = await client.User.GetRecentTracksAsync(limit: 1);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(currentTracksResponse.IsSuccess, Is.True);
@@ -577,5 +585,126 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     #endregion UpdateNowPlayingAsync
+
+    #region ScrobbleAsync
+
+    [Test, NonParallelizable]
+    public async Task ScrobbleAsync_Single_Simple_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var date = DateTime.UtcNow;
+      var scrobble = new ScrobbleData("Korn", "Blind", date);
+
+      var response = await client.Track.ScrobbleAsync(scrobble);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      var info = response.Data;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(info.ArtistName, Is.EqualTo("Korn"));
+        Assert.That(info.IsArtistNameCorrected, Is.False);
+        Assert.That(info.TrackName, Is.EqualTo("Blind"));
+        Assert.That(info.IsTrackNameCorrected, Is.False);
+        Assert.That(info.Timestamp, Is.EqualTo(date).Within(TimeSpan.FromSeconds(10)));
+        Assert.That(info.IsIgnored, Is.False);
+        Assert.That(info.IgnoredStatusCode, Is.EqualTo(IgnoredCode.None));
+        Assert.That(info.IgnoredMessage, Is.Null);
+      }
+
+      // safety buffer
+      await Task.Delay(TimeSpan.FromSeconds(3));
+
+      var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 1);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(userResponse.IsSuccess, Is.True);
+        Assert.That(userResponse.Data, Is.Not.Null);
+      }
+      Assert.That(userResponse.Data.Items, Is.Not.Null);
+      Assert.That(userResponse.Data.Items, Has.Count.EqualTo(1));
+
+      var rt = userResponse.Data.Items[0];
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(rt.Name, Is.EqualTo("Blind"));
+        Assert.That(rt.PlayedAtUtc, Is.EqualTo(date).Within(TimeSpan.FromSeconds(10)));
+      }
+    }
+
+    [Test, NonParallelizable]
+    public async Task ScrobbleAsync_Multiple_IntegrationTest()
+    {
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var date = DateTime.UtcNow;
+      var scrobbles = new ScrobbleData[5];
+      for(int i = 0; i < scrobbles.Length; i++)
+      {
+        scrobbles[i] = new ScrobbleData("SHOEGAZELASTFM", $"Test{i}", date.AddSeconds(i), "TestAlbum");
+      }
+
+      var response = await client.Track.ScrobbleAsync(scrobbles);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      for (int i = 0; i < response.Data.Count; i++)
+      {
+        var info = response.Data[i];
+        Assert.That(info, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(info.ArtistName, Is.EqualTo("SHOEGAZELASTFM"));
+          Assert.That(info.IsArtistNameCorrected, Is.False);
+          Assert.That(info.TrackName, Is.EqualTo($"Test{i}"));
+          Assert.That(info.IsTrackNameCorrected, Is.False);
+          Assert.That(info.AlbumName, Is.EqualTo("TestAlbum"));
+          Assert.That(info.IsAlbumNameCorrected, Is.False);
+          Assert.That(info.Timestamp, Is.EqualTo(date.AddSeconds(i)).Within(TimeSpan.FromSeconds(1)));
+          Assert.That(info.IsIgnored, Is.False);
+          Assert.That(info.IgnoredStatusCode, Is.EqualTo(IgnoredCode.None));
+          Assert.That(info.IgnoredMessage, Is.Null);
+        }
+      }
+
+      // safety buffer
+      await Task.Delay(TimeSpan.FromSeconds(5));
+
+      var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 5);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(userResponse.IsSuccess, Is.True);
+        Assert.That(userResponse.Data, Is.Not.Null);
+      }
+      Assert.That(userResponse.Data.Items, Is.Not.Null);
+      Assert.That(userResponse.Data.Items, Has.Count.EqualTo(5));
+
+      for(int i = 0; i < userResponse.Data.Items.Count; i++)
+      {
+        var track = userResponse.Data.Items[i];
+
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(track.Name, Is.EqualTo($"Test{4 - i}")); // name index is reversed because we scrobbled them with an earlier timestamp
+          Assert.That(track.PlayedAtUtc, Is.EqualTo(date.AddSeconds(i)).Within(TimeSpan.FromSeconds(10)));
+          Assert.That(track.Artist, Is.Not.Null);
+          Assert.That(track.Album, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+          Assert.That(track.Album.Name, Is.EqualTo("TestAlbum"));
+          Assert.That(track.Artist.Name, Is.EqualTo("SHOEGAZELASTFM"));
+        }
+      }
+    }
+
+    #endregion ScrobbleAsync
   }
 }
