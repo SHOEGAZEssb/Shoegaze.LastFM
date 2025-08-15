@@ -89,5 +89,12 @@ namespace Shoegaze.LastFM.Track
       string artistName,
       bool loveState,
       CancellationToken ct = default);
+
+    Task<ApiResult<ScrobbleInfo>> UpdateNowPlayingAsync(
+      string trackName,
+      string artistName,
+      string? albumName = null,
+      string? albumArtistName = null,
+      CancellationToken ct = default);
   }
 }

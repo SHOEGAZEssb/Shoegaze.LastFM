@@ -174,9 +174,9 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, int?, int?, CancellationToken)"/>.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public bool? IsNowPlaying { get; private set; }
+    public bool IsNowPlaying { get; private set; }
 
     /// <summary>
     /// If the track can be streamed / previewed on the last.fm website.
@@ -256,7 +256,11 @@ namespace Shoegaze.LastFM.Track
       AlbumInfo? album = null;
       if (track.TryGetProperty("album", out var albumProp))
       {
-        album = AlbumInfo.FromJson(albumProp);
+        // check for empty album property
+        if (albumProp.TryGetProperty("#text", out var albumTextProperty) && string.IsNullOrEmpty(albumTextProperty.GetString()))
+          album = null;
+        else
+          album = AlbumInfo.FromJson(albumProp);
       }
 
       var tags = new List<TagInfo>();
@@ -283,7 +287,7 @@ namespace Shoegaze.LastFM.Track
         ListenerCount = listeners,
         UserPlayCount = userPlaycount,
         UserLoved = isLoved,
-        IsNowPlaying = nowPlaying,
+        IsNowPlaying = nowPlaying ?? false,
         PlayedAt = album == null ? null : date, // playedat is only available in user.getRecentTracks, in which case album must be available (only when not IsNowPlaying)
         UserLovedDate = album == null ? date : null, // userloveddate is only available in user.getLovedTracks, in which case album is null
         PlayCount = playcount, // user playcount may also be called "playcount" when using user.GetTopTtracks, so if rank is available the "playcount" is actually the userplaycount

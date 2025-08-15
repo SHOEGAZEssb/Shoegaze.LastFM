@@ -289,5 +289,34 @@ namespace Shoegaze.LastFM.Track
 
       return ApiResult.Success();
     }
+
+    public async Task<ApiResult<ScrobbleInfo>> UpdateNowPlayingAsync(string trackName, string artistName, string? albumName = null, string? albumArtistName = null, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        ["track"] = trackName,
+        ["artist"] = artistName
+      };
+
+      if (albumName != null)
+        parameters.Add("album", albumName);
+      if (albumArtistName != null)
+        parameters.Add("albumArtist", albumArtistName);
+
+      var result = await _invoker.SendAsync("track.updateNowPlaying", parameters, true, ct);
+      if (!result.IsSuccess || result.Data == null)
+        return ApiResult<ScrobbleInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+
+      try
+      {
+        var resultsProperty = result.Data.RootElement.GetProperty("nowplaying");
+        var scrobbleInfo = ScrobbleInfo.FromJson(resultsProperty);
+        return ApiResult<ScrobbleInfo>.Success(scrobbleInfo);
+      }
+      catch (Exception ex)
+      {
+        return ApiResult<ScrobbleInfo>.Failure(null, result.HttpStatus, "Failed to parse scrobble info: " + ex.Message);
+      }
+    }
   }
 }

@@ -483,7 +483,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     #region SetLoveStateAsync
 
     [Test, NonParallelizable]
-    public async Task SetLoveStateAsync_Love_IntegrationTest()
+    public async Task SetLoveStateAsync_IntegrationTest()
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
 
@@ -498,32 +498,8 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
         Assert.That(trackResponse.Data.UserLoved, Is.True);
-      }
-      catch (Exception ex)
-      {
-        TestContext.Error.WriteLine(ex.Message);
-        Assert.Fail();
-      }
-      finally
-      {
-        await client.Track.SetLoveState("Blind", "Korn", loveState: false);
-      }
-    }
 
-    [Test, NonParallelizable]
-    public async Task SetLoveStateAsync_Unlove_IntegrationTest()
-    {
-      var client = TestEnvironment.CreateAuthenticatedClient();
-
-      var loveTrackResponse = await client.Track.SetLoveState("Blind", "Korn", loveState: true);
-      Assume.That(loveTrackResponse.IsSuccess, Is.True, "Initial state could not be prepared.");
-      var trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
-      Assume.That(trackResponse.Data, Is.Not.Null, "Initial state could not be checked.");
-      Assume.That(trackResponse.Data.UserLoved, Is.True, "Initial state is not correct.");
-
-      try
-      {
-        var response = await client.Track.SetLoveState("Blind", "Korn", loveState: false);
+        response = await client.Track.SetLoveState("Blind", "Korn", loveState: false);
         Assert.That(response.IsSuccess, Is.True);
         trackResponse = await client.Track.GetInfoByNameAsync("Blind", "Korn", "coctest");
         Assert.That(trackResponse.Data, Is.Not.Null);
@@ -534,8 +510,72 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         TestContext.Error.WriteLine(ex.Message);
         Assert.Fail();
       }
+      finally
+      {
+        // best effor clean up
+        await client.Track.SetLoveState("Blind", "Korn", loveState: false);
+      }
     }
 
     #endregion SetLoveStateAsync
+
+    #region UpdateNowPlayingAsync
+
+    [Test, NonParallelizable]
+    public async Task UpdateNowPlayingAsync_IntegrationTest()
+    {
+      var timestampFile = "last_now_playing_test_time.txt";
+      if (File.Exists(timestampFile))
+      {
+        var lastRun = DateTime.Parse(File.ReadAllText(timestampFile), null, System.Globalization.DateTimeStyles.RoundtripKind);
+        if (DateTime.UtcNow - lastRun < TimeSpan.FromMinutes(5))
+          Assert.Ignore($"Test skipped — last run was {DateTime.UtcNow - lastRun:g} ago (must be at least 5 minutes).");
+      }
+
+      // store the current run time
+      File.WriteAllText(timestampFile, DateTime.UtcNow.ToString("o"));
+
+      var client = TestEnvironment.CreateAuthenticatedClient();
+
+      var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync(null, null, null, null, limit: 1);
+      Assume.That(initialCurrentTracksResponse.IsSuccess, Is.True, "Initial state could not be checked.");
+      Assume.That(initialCurrentTracksResponse.Data, Is.Not.Null, "Initial state could not be checked.");
+      Assume.That(initialCurrentTracksResponse.Data.Items[0].IsNowPlaying, Is.Null.Or.False, "Initial state is not correct.");
+
+      var response = await client.Track.UpdateNowPlayingAsync("Blind", "Korn", "Korn", "Korn");
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(response.IsSuccess, Is.True);
+        Assert.That(response.Data, Is.Not.Null);
+      }
+
+      // do now playing check immediately after
+      var currentTracksResponse = await client.User.GetRecentTracksAsync(null, null, null, null, limit: 1);
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(currentTracksResponse.IsSuccess, Is.True);
+        Assert.That(currentTracksResponse.Data, Is.Not.Null);
+      }
+      Assert.That(currentTracksResponse.Data.Items[0].IsNowPlaying, Is.True);
+
+      // then check info
+      var info = response.Data!;
+      using (Assert.EnterMultipleScope())
+      {
+        Assert.That(info.TrackName, Is.EqualTo("Blind"));
+        Assert.That(info.IsTrackNameCorrected, Is.False);
+        Assert.That(info.ArtistName, Is.EqualTo("Korn"));
+        Assert.That(info.IsArtistNameCorrected, Is.False);
+        Assert.That(info.AlbumName, Is.EqualTo("Korn"));
+        Assert.That(info.IsAlbumNameCorrected, Is.False);
+        Assert.That(info.AlbumArtistName, Is.EqualTo("Korn"));
+        Assert.That(info.IsAlbumArtistNameCorrected, Is.False);
+        Assert.That(info.IsIgnored, Is.False);
+        Assert.That(info.IgnoredStatusCode, Is.EqualTo(IgnoredCode.None));
+        Assert.That(info.IgnoredMessage, Is.Null);
+      }
+    }
+
+    #endregion UpdateNowPlayingAsync
   }
 }

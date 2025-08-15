@@ -208,7 +208,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Album, Is.Null);
           Assert.That(track.PlayCount, Is.Null);
           Assert.That(track.PlayedAt, Is.Null);
-          Assert.That(track.IsNowPlaying, Is.Null);
+          Assert.That(track.IsNowPlaying, Is.False);
         }
 
         var artist = track.Artist;
@@ -260,7 +260,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(track.Album, Is.Null);
           Assert.That(track.PlayCount, Is.Null);
           Assert.That(track.PlayedAt, Is.Null);
-          Assert.That(track.IsNowPlaying, Is.Null);
+          Assert.That(track.IsNowPlaying, Is.False);
         }
 
         var artist = track.Artist;
@@ -331,7 +331,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(album.Url, Is.Null);
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
-          if (track.IsNowPlaying ?? false)
+          if (track.IsNowPlaying)
             Assert.That(track.PlayedAt, Is.Null);
           else
             Assert.That(track.PlayedAt, Is.Not.Null);
@@ -391,7 +391,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
-          if (track.IsNowPlaying ?? false)
+          if (track.IsNowPlaying)
             Assert.That(track.PlayedAt, Is.Null);
           else
             Assert.That(track.PlayedAt, Is.Not.Null);
@@ -446,7 +446,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
           Assert.That(album.Url, Is.Null);
           Assert.That(track.Name, Is.Not.Empty);
           Assert.That(track.Url.ToString(), Is.Not.Empty);
-          if (track.IsNowPlaying ?? false)
+          if (track.IsNowPlaying)
             Assert.That(track.PlayedAt, Is.Null);
           else
             Assert.That(track.PlayedAt, Is.Not.Null);
