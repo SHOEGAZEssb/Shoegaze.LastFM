@@ -613,7 +613,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var rt = userResponse.Data.Items[0];
       using (Assert.EnterMultipleScope())
       {
-        Assert.That(rt.Name, Is.EqualTo("Blind"));
+        Assert.That(rt.Name, Is.EqualTo("TestSimple"));
         Assert.That(rt.PlayedAtUtc, Is.EqualTo(date).Within(TimeSpan.FromSeconds(10)));
       }
     }
