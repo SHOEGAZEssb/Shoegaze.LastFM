@@ -46,9 +46,25 @@ namespace Shoegaze.LastFM.Artist
     /// </remarks>
     public bool? OnTour { get; private set; }
 
+    /// <summary>
+    /// Total amount of listeners this track has.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="Chart.IChartApi.GetTopArtistsAsync(int?, int?, CancellationToken)"/>.
+    /// </remarks>
     public int? ListenerCount { get; private set; }
 
-    public int? PlayCount { get; internal set; }
+    /// <summary>
+    /// Total amount of plays this track has.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="Chart.IChartApi.GetTopArtistsAsync(int?, int?, CancellationToken)"/>.
+    /// </remarks>
+    public long? PlayCount { get; internal set; }
 
     /// <summary>
     /// Amount of plays of this artist the user has for which the request has been made.
@@ -125,13 +141,13 @@ namespace Shoegaze.LastFM.Artist
         : (bool?)null;
 
       int? listeners = null;
-      int? plays = null;
+      long? plays = null;
       int? userPlayCount = null;
 
       var statsProperty = artist.TryGetProperty("stats", out var stats) ? stats : artist; // stats may be nested inside a stats object
       if (statsProperty.TryGetProperty("listeners", out var l) && JsonHelper.TryParseNumber<int>(l, out var parsedListeners))
         listeners = parsedListeners;
-      if (statsProperty.TryGetProperty("playcount", out var p) && JsonHelper.TryParseNumber<int>(p, out var parsedPlays))
+      if (statsProperty.TryGetProperty("playcount", out var p) && JsonHelper.TryParseNumber<long>(p, out var parsedPlays))
         plays = parsedPlays;
       if (statsProperty.TryGetProperty("userplaycount", out var up) && JsonHelper.TryParseNumber<int>(up, out var parsedUserPlays))
         userPlayCount = parsedUserPlays;
@@ -174,7 +190,7 @@ namespace Shoegaze.LastFM.Artist
         OnTour = onTour,
         ListenerCount = listeners,
         PlayCount = plays,
-        UserPlayCount = userPlayCount ?? plays,
+        UserPlayCount = userPlayCount ?? (int?)plays,
         Match = match,
         SimilarArtists = similar,
         Tags = tags,

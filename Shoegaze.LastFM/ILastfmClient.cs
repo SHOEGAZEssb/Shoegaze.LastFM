@@ -1,5 +1,6 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
+using Shoegaze.LastFM.Chart;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
@@ -35,6 +36,11 @@ public interface ILastfmClient
   /// Access to album-related API endpoints.
   /// </summary>
   IAlbumApi Album { get; }
+
+  /// <summary>
+  /// Access to chart-related API endpoints.
+  /// </summary>
+  IChartApi Chart { get; }
 
   /// <summary>
   /// Sets or updates the session key for authenticated requests.

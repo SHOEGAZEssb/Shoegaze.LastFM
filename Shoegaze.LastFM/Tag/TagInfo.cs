@@ -15,7 +15,7 @@ namespace Shoegaze.LastFM.Tag
     public required Uri Url { get; set; }
 
     /// <summary>
-    /// Amount of times the track this request has been sent for
+    /// Amount of times the track this request was sent for
     /// has been tagged with this tag.
     /// </summary>
     /// <remarks>
@@ -44,7 +44,8 @@ namespace Shoegaze.LastFM.Tag
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
-    /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
+    /// - <see cref="Chart.IChartApi.GetTopTagsAsync(int?, int?, CancellationToken)"/>.
     /// </remarks>
     public int? Reach { get; private set; }
 
@@ -54,7 +55,8 @@ namespace Shoegaze.LastFM.Tag
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
-    /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
+    /// - <see cref="Chart.IChartApi.GetTopTagsAsync(int?, int?, CancellationToken)"/>.
     /// </remarks>
     public int? Taggings { get; internal set; }
 
@@ -94,8 +96,12 @@ namespace Shoegaze.LastFM.Tag
       if (root.TryGetProperty("total", out var totalElement) && JsonHelper.TryParseNumber<int>(totalElement, out var totalValue))
         total = totalValue;
 
+      int? taggings = null;
+      if (root.TryGetProperty("taggings", out var taggingsProp) && JsonHelper.TryParseNumber<int>(taggingsProp, out var taggingsValue))
+        taggings = taggingsValue;
+
       WikiInfo? wiki = null;
-      if (root.TryGetProperty("wiki", out var wikiProp))
+      if (root.TryGetProperty("wiki", out var wikiProp) && wikiProp.EnumerateObject().Any())
         wiki = WikiInfo.FromJson(wikiProp);
 
       return new TagInfo
@@ -106,7 +112,7 @@ namespace Shoegaze.LastFM.Tag
         WeightOnAlbum = count,
         UserUsedCount = count,
         Reach = reach,
-        Taggings = total ?? count,
+        Taggings = taggings ?? total ?? count,
         Wiki = wiki
       };
     }
