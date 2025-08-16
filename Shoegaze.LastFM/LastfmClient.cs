@@ -1,6 +1,7 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Chart;
+using Shoegaze.LastFM.Geo;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
@@ -18,6 +19,7 @@ public class LastfmClient : ILastfmClient
   public IArtistApi Artist { get; }
   public IAlbumApi Album { get; }
   public IChartApi Chart { get; }
+  public IGeoApi Geo { get; }
 
   private readonly LastfmApiInvoker _invoker;
 
@@ -31,6 +33,7 @@ public class LastfmClient : ILastfmClient
     Artist = new ArtistApi(_invoker);
     Album = new AlbumApi(_invoker);
     Chart = new ChartApi(_invoker);
+    Geo = new GeoApi(_invoker);
   }
 
   public void SetSessionKey(string sessionKey)
