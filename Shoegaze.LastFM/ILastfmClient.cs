@@ -2,6 +2,7 @@
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Chart;
 using Shoegaze.LastFM.Geo;
+using Shoegaze.LastFM.Library;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
 using Shoegaze.LastFM.User;
@@ -47,6 +48,8 @@ public interface ILastfmClient
   /// Access to geo-related API endpoints.
   /// </summary>
   IGeoApi Geo { get; }
+
+  ILibraryApi Library { get; }
 
   /// <summary>
   /// Sets or updates the session key for authenticated requests.
