@@ -29,7 +29,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         Assert.That(user.ArtistCount, Is.GreaterThan(1));
         Assert.That(user.AlbumCount, Is.GreaterThan(1));
         Assert.That(user.Country, Is.EqualTo("Germany"));
-        Assert.That(user.Playcount, Is.GreaterThan(1));
+        Assert.That(user.PlayCount, Is.GreaterThan(1));
         Assert.That(user.RealName, Is.EqualTo("Tim Stadler"));
         Assert.That(user.Images, Contains.Key(ImageSize.Small));
         Assert.That(user.Images, Contains.Key(ImageSize.Medium));

@@ -2,13 +2,27 @@
 
 namespace Shoegaze.LastFM.Track
 {
+  /// <summary>
+  /// Access to track-related api endpoints.
+  /// </summary>
   public class TrackApi : ITrackApi
   {
     private readonly ILastfmApiInvoker _invoker;
 
     internal TrackApi(ILastfmApiInvoker invoker) => _invoker = invoker;
 
-    public async Task<ApiResult<TrackInfo>> GetInfoByNameAsync(string track, string artist, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    /// <summary>
+    /// Get the metadata for a track.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist.</param>
+    /// <param name="username">The username for the context of the request.
+    /// If supplied, the user's playcount for this track and whether they have loved the track is included in the response.</param>
+    /// <param name="autoCorrect">Transform misspelled artist and track names into correct artist and track names, returning the correct version instead.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains the track metadata, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getInfo"/>.
+    public async Task<ApiResult<TrackInfo>> GetInfoByNameAsync(string track, string artist, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -16,11 +30,20 @@ namespace Shoegaze.LastFM.Track
         { "artist", artist }
       };
 
-      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       return await GetInfoAsync(parameters, username, ct);
     }
 
+    /// <summary>
+    /// Get the metadata for a track.
+    /// </summary>
+    /// <param name="mbid">Musicbrainz ID of the track.</param>
+    /// <param name="username">The username for the context of the request.
+    /// If supplied, the user's playcount for this track and whether they have loved the track is included in the response.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains the track metadata, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getInfo"/>.
     public async Task<ApiResult<TrackInfo>> GetInfoByMbidAsync(string mbid, string? username = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -38,7 +61,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getInfo", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<TrackInfo>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -53,6 +76,14 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
+    /// <summary>
+    /// Get the corrected name for a track.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains the corrected track, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getCorrection"/>.
     public async Task<ApiResult<TrackInfo>> GetCorrectionAsync(string track, string artist, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -63,7 +94,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getCorrection", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TrackInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<TrackInfo>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -76,28 +107,46 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
-    public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByNameAsync(string track, string artist, bool autocorrect = true, int? limit = null, CancellationToken ct = default)
+    /// <summary>
+    /// Get similar tracks to the given track.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist.</param>
+    /// <param name="autoCorrect">Transform misspelled artist and track names into correct artist and track names, returning the correct version instead.</param>
+    /// <param name="limit">Maximum number of similar tracks to return.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of similar tracks, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getSimilar"/>.
+    public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByNameAsync(string track, string artist, bool autoCorrect = true, int? limit = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
       parameters.Add("track", track);
       parameters.Add("artist", artist);
-      return await GetSimilarAsync(parameters, autocorrect, ct);
+      return await GetSimilarAsync(parameters, autoCorrect, ct);
     }
 
-    public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByMbidAsync(string mbid, bool autocorrect = true, int? limit = null, CancellationToken ct = default)
+    /// <summary>
+    /// Get similar tracks to the given track.
+    /// </summary>
+    /// <param name="mbid">Musicbrainz ID of the track.</param>
+    /// <param name="limit">Maximum number of similar tracks to return.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of similar tracks, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getSimilar"/>.
+    public async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarByMbidAsync(string mbid, int? limit = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, null);
       parameters.Add("mbid", mbid);
-      return await GetSimilarAsync(parameters, autocorrect, ct);
+      return await GetSimilarAsync(parameters, true, ct);
     }
 
-    private async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarAsync(Dictionary<string, string> parameters, bool autocorrect, CancellationToken ct)
+    private async Task<ApiResult<IReadOnlyList<TrackInfo>>> GetSimilarAsync(Dictionary<string, string> parameters, bool autoCorrect, CancellationToken ct)
     {
-      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       var result = await _invoker.SendAsync("track.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -112,7 +161,17 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
-    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByName(string track, string artist, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    /// <summary>
+    /// Get the tags applied by an individual user to a track.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist.</param>
+    /// <param name="username">Username to look up. If null, uses the authenticated session.</param>
+    /// <param name="autoCorrect">Transform misspelled artist and track names into correct artist and track names, returning the correct version instead.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getTags"/>.
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByNameAsync(string track, string artist, string? username = null, bool autoCorrect = true, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -120,19 +179,27 @@ namespace Shoegaze.LastFM.Track
         { "artist", artist }
       };
 
-      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
 
       return await GetUserTags(parameters, username, ct);
     }
 
-    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetUserTagsByMbid(string mbid, string? username = null, bool autocorrect = true, CancellationToken ct = default)
+    /// <summary>
+    /// Get the tags applied by an individual user to a track.
+    /// </summary>
+    /// <param name="mbid">Musicbrainz ID of the track.</param>
+    /// <param name="username">Username to look up. If null, uses the authenticated session.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getTags"/>.
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTagsByMbidAsync(string mbid, string? username = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
         { "mbid", mbid }
       };
 
-      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
+      ParameterHelper.AddAutoCorrectParameter(parameters, true);
 
       return await GetUserTags(parameters, username, ct);
     }
@@ -144,7 +211,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.getTags", parameters, username == null, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -159,7 +226,16 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
-    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByName(string track, string artist, bool autocorrect = true, CancellationToken ct = default)
+    /// <summary>
+    /// Get the top tags for a track.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist.</param>
+    /// <param name="autoCorrect">Transform misspelled artist and track names into correct artist and track names, returning the correct version instead.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of top tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getTopTags"/>.
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByNameAsync(string track, string artist, bool autoCorrect = true, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
       {
@@ -167,7 +243,24 @@ namespace Shoegaze.LastFM.Track
         { "artist", artist }
       };
 
-      ParameterHelper.AddAutoCorrectParameter(parameters, autocorrect);
+      ParameterHelper.AddAutoCorrectParameter(parameters, autoCorrect);
+      return await GetTopTags(parameters, ct);
+    }
+
+    /// <summary>
+    /// Get the top tags for a track.
+    /// </summary>
+    /// <param name="mbid">MusicBrainz ID of the track.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of top tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.getTopTags"/>.
+    [Obsolete("Currently broken on last.fms side, only returns an empty list.")]
+    public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetTopTagsByMbidAsync(string mbid, CancellationToken ct = default)
+    {
+      var parameters = new Dictionary<string, string>
+      {
+        { "mbid", mbid }
+      };
 
       return await GetTopTags(parameters, ct);
     }
@@ -176,7 +269,7 @@ namespace Shoegaze.LastFM.Track
     {
       var result = await _invoker.SendAsync("track.getTopTags", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -197,6 +290,16 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
+    /// <summary>
+    /// Search for a track by name.
+    /// </summary>
+    /// <param name="track">Name of the track.</param>
+    /// <param name="artist">Name of the artist to narrow your search.</param>
+    /// <param name="limit">Number of results per page (defaults to 30).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of found track sorted by relevance, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.search"/>.
     public async Task<ApiResult<PagedResult<TrackInfo>>> SearchAsync(string track, string? artist = null, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -207,7 +310,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.search", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -224,11 +327,32 @@ namespace Shoegaze.LastFM.Track
       }
     }
 
+    /// <summary>
+    /// Tag an album using a user supplied tag.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="tag">Tag to add.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.addTags"/>.
     public async Task<ApiResult> AddTagsAsync(string trackName, string artistName, string tag, CancellationToken ct = default)
     {
       return await AddTagsAsync(trackName, artistName, [tag], ct);
     }
 
+    /// <summary>
+    /// Tag an album using a list of user supplied tag.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="tags">Tags to add.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.addTags"/>.
+    /// <exception cref="ArgumentOutOfRangeException">If <paramref name="tags"/> has more than 10 or less than 1 tag.</exception>
     public async Task<ApiResult> AddTagsAsync(string trackName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
     {
       var tagCount = tags.Count();
@@ -246,18 +370,42 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.addTags", parameters, true, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       return ApiResult.Success();
     }
 
+    /// <summary>
+    /// Remove a users tag from an artist.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="tag">Tag to remove.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.removeTag"/>.
     public async Task<ApiResult> RemoveTagsAsync(string trackName, string artistName, string tag, CancellationToken ct = default)
     {
       return await RemoveTagsAsync(trackName, artistName, [tag], ct);
     }
 
+    /// <summary>
+    /// Remove a list of users tag from an artist.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="tags">Tags to remove.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.removeTag"/>.
+    /// <exception cref="ArgumentOutOfRangeException">When <paramref name="tags"/> is empty.</exception>
     public async Task<ApiResult> RemoveTagsAsync(string trackName, string artistName, IEnumerable<string> tags, CancellationToken ct = default)
     {
+      if (!tags.Any())
+        throw new ArgumentOutOfRangeException(nameof(tags), "No tags to remove supplied");
+
       foreach (var tag in tags)
       {
         var parameters = new Dictionary<string, string>
@@ -269,12 +417,23 @@ namespace Shoegaze.LastFM.Track
 
         var result = await _invoker.SendAsync("track.removeTag", parameters, true, ct);
         if (!result.IsSuccess || result.Data == null)
-          return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+          return ApiResult.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
       }
 
       return ApiResult.Success();
     }
 
+    /// <summary>
+    /// Loves or unloves a track.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="loveState">The love state to set.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.love"/>.
+    /// <seealso href="https://www.last.fm/api/show/track.unlove"/>.
     public async Task<ApiResult> SetLoveState(string trackName, string artistName, bool loveState, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -285,11 +444,22 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync(loveState ? "track.love" : "track.unlove", parameters, true, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       return ApiResult.Success();
     }
 
+    /// <summary>
+    /// Notify last.fm that a user has started listening to a track.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="trackName">Name of the track.</param>
+    /// <param name="artistName">Name of the artist.</param>
+    /// <param name="albumName">Name of the album.</param>
+    /// <param name="albumArtistName">Name of the album artist.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result containing error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.updateNowPlaying"/>.
     public async Task<ApiResult> UpdateNowPlayingAsync(string trackName, string artistName, string? albumName = null, string? albumArtistName = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -305,17 +475,35 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.updateNowPlaying", parameters, true, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<ScrobbleInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<ScrobbleInfo>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       return ApiResult.Success();
     }
 
+    /// <summary>
+    /// Add a single track-play to a users profile.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="scrobble">The scrobble data to scrobble.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a scrobble response, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.scrobble"/>.
     public async Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(ScrobbleData scrobble, CancellationToken ct = default)
     {
       var response = await ScrobbleAsync([scrobble], ct);
-      return new ApiResult<ScrobbleInfo>() { Data = response.Data?[0], Status = response.Status, HttpStatus = response.HttpStatus, ErrorMessage = response.ErrorMessage };
+      return new ApiResult<ScrobbleInfo> { Data = response.Data?[0], LastFmStatus = response.LastFmStatus, HttpStatus = response.HttpStatus, ErrorMessage = response.ErrorMessage };
     }
 
+    /// <summary>
+    /// Add a batch of track-play to a users profile.
+    /// This method requires authentication.
+    /// </summary>
+    /// <param name="scrobbles">The scrobble data to scrobble (maximum of 50).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a scrobble response, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/track.scrobble"/>.
+    /// <exception cref="ArgumentNullException">When <paramref name="scrobbles"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">When <paramref name="scrobbles"/> has more than 50 or less than 1 scrobble.</exception>
     public async Task<ApiResult<IReadOnlyList<ScrobbleInfo>>> ScrobbleAsync(IEnumerable<ScrobbleData> scrobbles, CancellationToken ct = default)
     {
       ArgumentNullException.ThrowIfNull(scrobbles);
@@ -334,7 +522,7 @@ namespace Shoegaze.LastFM.Track
         // mandatory params
         parameters.Add($"artist{i}", scrobbleArray[i].ArtistName);
         parameters.Add($"track{i}", scrobbleArray[i].TrackName);
-        parameters.Add($"timestamp{i}", scrobbleArray[i].Timestamp.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
+        parameters.Add($"timestamp{i}", new DateTimeOffset(scrobbleArray[i].Timestamp.UtcDateTime).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         // optional params
         if (scrobbleArray[i].AlbumName != null)
@@ -355,7 +543,7 @@ namespace Shoegaze.LastFM.Track
 
       var result = await _invoker.SendAsync("track.scrobble", parameters, true, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<ScrobbleInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<ScrobbleInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {

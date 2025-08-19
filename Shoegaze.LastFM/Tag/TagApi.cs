@@ -4,12 +4,22 @@ using Shoegaze.LastFM.Track;
 
 namespace Shoegaze.LastFM.Tag
 {
+  /// <summary>
+  /// Access to tag-related api endpoints.
+  /// </summary>
   public class TagApi : ITagApi
   {
     private readonly ILastfmApiInvoker _invoker;
 
     internal TagApi(ILastfmApiInvoker invoker) => _invoker = invoker;
 
+    /// <summary>
+    /// Get the metadata for a tag.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains the tag metadata, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getInfo"/>.
     public async Task<ApiResult<TagInfo>> GetInfoAsync(string tagName, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -19,7 +29,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getInfo", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<TagInfo>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<TagInfo>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -32,6 +42,15 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
+    /// <summary>
+    /// Search for similar tags.
+    /// Returns tags ranked by similarity, based on listening data.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of similar tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getSimilar"/>.
+    [Obsolete("Currently broken on last.fms side, only returns an empty list.")]
     public async Task<ApiResult<IReadOnlyList<TagInfo>>> GetSimilarAsync(string tagName, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -41,7 +60,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getSimilar", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<TagInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -56,6 +75,15 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
+    /// <summary>
+    /// Get the top albums tagged by the given tag, ordered by tag count.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of albums, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getTopAlbums"/>.
     public async Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -63,7 +91,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getTopAlbums", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<AlbumInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<AlbumInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -80,6 +108,15 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
+    /// <summary>
+    /// Get the top artists tagged by the given tag, ordered by tag count.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of artists, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getTopArtists"/>.
     public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -87,7 +124,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getTopArtists", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -104,12 +141,13 @@ namespace Shoegaze.LastFM.Tag
     }
 
     /// <summary>
-    /// Fetches the global top tags on Last.fm, sorted by number of times used.
+    /// Get the top global tags, sorted by popularity (number of times used).
     /// </summary>
-    /// <param name="limit">Maximum items per page (maximum is 1000).</param>
-    /// <param name="page">The page to get.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Task.</returns>
+    /// <returns>Result that contains a list of tags, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getTopTags"/>.
     public async Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>();
@@ -120,7 +158,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getTopTags", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TagInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -144,6 +182,15 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
+    /// <summary>
+    /// Get the top tracks tagged by the given tag, ordered by tag count.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of tracks, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getTopTracks"/>.
     public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string tagName, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -151,7 +198,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getTopTracks", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -167,6 +214,13 @@ namespace Shoegaze.LastFM.Tag
       }
     }
 
+    /// <summary>
+    /// Get a list of available charts for a tag.
+    /// </summary>
+    /// <param name="tagName">Name of the tag.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains the list of charts, or error information.</returns>
+    /// <seealso href="https://www.last.fm/api/show/tag.getWeeklyChartList"/>.
     public async Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(string tagName, CancellationToken ct = default)
     {
       var parameters = new Dictionary<string, string>
@@ -176,7 +230,7 @@ namespace Shoegaze.LastFM.Tag
 
       var result = await _invoker.SendAsync("tag.getWeeklyChartList", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<IReadOnlyList<WeeklyChartInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {

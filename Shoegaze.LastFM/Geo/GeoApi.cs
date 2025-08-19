@@ -1,13 +1,11 @@
 ﻿using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Track;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Geo
 {
+  /// <summary>
+  /// Access to geo-related api endpoints.
+  /// </summary>
   public class GeoApi : IGeoApi
   {
     private readonly ILastfmApiInvoker _invoker;
@@ -17,6 +15,14 @@ namespace Shoegaze.LastFM.Geo
       _invoker = invoker;
     }
 
+    /// <summary>
+    /// Get the global top artists by country.
+    /// </summary>
+    /// <param name="country">A country name, as defined by the ISO 3166-1 country names standard.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of top artists, or error information.</returns>
     public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string country, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -24,7 +30,7 @@ namespace Shoegaze.LastFM.Geo
 
       var result = await _invoker.SendAsync("geo.getTopArtists", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -43,6 +49,14 @@ namespace Shoegaze.LastFM.Geo
       }
     }
 
+    /// <summary>
+    /// Get the global top tracks by country.
+    /// </summary>
+    /// <param name="country">A country name, as defined by the ISO 3166-1 country names standard.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of top tracks, or error information.</returns>
     public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string country, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -50,7 +64,7 @@ namespace Shoegaze.LastFM.Geo
 
       var result = await _invoker.SendAsync("geo.getTopTracks", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {

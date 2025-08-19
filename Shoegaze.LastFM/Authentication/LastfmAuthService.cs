@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -24,7 +23,13 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
   private readonly string _callbackUrl = callbackUrl;
   private readonly HttpClient _http = httpClient;
 
-  /// <inheritdoc />
+  /// <summary>
+  /// Generates the authorization URL that the user must visit to grant access.
+  /// </summary>
+  /// <returns>
+  /// A <see cref="Uri"/> pointing to the Last.fm authentication page with the
+  /// configured API key and callback URL.
+  /// </returns>
   public Task<Uri> GetAuthorizationUrlAsync()
   {
     var encodedCallback = HttpUtility.UrlEncode(_callbackUrl);
@@ -32,7 +37,17 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     return Task.FromResult(new Uri(authUrl));
   }
 
-  /// <inheritdoc />
+  /// <summary>
+  /// Exchanges a temporary token for a permanent Last.fm session.
+  /// </summary>
+  /// <param name="token">The request token received from Last.fm after user authorization.</param>
+  /// <param name="tokenSecret">Unused in Last.fm’s implementation of OAuth 1.0a, can be passed as an empty string.</param>
+  /// <param name="verifier">Unused in Last.fm’s implementation of OAuth 1.0a, can be passed as an empty string.</param>
+  /// <returns>
+  /// An <see cref="AuthSession"/> containing the authorized user’s name and session key.
+  /// </returns>
+  /// <exception cref="HttpRequestException">Thrown if the HTTP request fails or Last.fm returns a non-success status code.</exception>
+  /// <exception cref="JsonException">Thrown if the response cannot be parsed as valid JSON.</exception>
   public async Task<AuthSession> GetSessionAsync(string token, string tokenSecret, string verifier)
   {
     var parameters = new Dictionary<string, string>
@@ -86,7 +101,24 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     return Convert.ToHexStringLower(hashBytes);
   }
 
-
+  /// <summary>
+  /// Starts the full authentication process, including opening the system browser,
+  /// listening for the Last.fm callback, and exchanging the temporary token for a session key.
+  /// </summary>
+  /// <param name="cancellationToken">A token that can be used to cancel the operation.</param>
+  /// <returns>
+  /// An <see cref="AuthSession"/> containing the authorized user’s name and session key.
+  /// </returns>
+  /// <exception cref="InvalidOperationException">
+  /// Thrown if the system browser cannot be opened or if Last.fm returns no token.
+  /// </exception>
+  /// <exception cref="TimeoutException">
+  /// Thrown if the user does not complete authentication within 5 minutes.
+  /// </exception>
+  /// <remarks>
+  /// This method launches the user’s default browser and starts a temporary HTTP listener
+  /// on <c>http://localhost:{port}/</c> to capture the Last.fm callback.
+  /// </remarks>
   public async Task<AuthSession> AuthenticateAsync(CancellationToken cancellationToken = default)
   {
     var port = GetFreePort();

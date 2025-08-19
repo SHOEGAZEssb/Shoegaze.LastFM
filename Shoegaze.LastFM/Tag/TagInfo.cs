@@ -2,6 +2,9 @@
 
 namespace Shoegaze.LastFM.Tag
 {
+  /// <summary>
+  /// A last.fm tag.
+  /// </summary>
   public class TagInfo : IJsonDeserializable<TagInfo>
   {
     /// <summary>
@@ -21,8 +24,7 @@ namespace Shoegaze.LastFM.Tag
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
-    /// - <see cref="Track.ITrackApi.GetTopTagsByName(string, string, bool, CancellationToken)"/>
-    /// - <see cref="Track.ITrackApi.GetTopTagsByMbid(string, bool, CancellationToken)"/>
+    /// - <see cref="Track.ITrackApi.GetTopTagsByNameAsync(string, string, bool, CancellationToken)"/>.
     /// </remarks>
     public int? CountOnTrack { get; internal set; }
 
@@ -34,7 +36,6 @@ namespace Shoegaze.LastFM.Tag
     /// May be null.
     /// Guaranteed to be available when using:
     /// - <see cref="Album.IAlbumApi.GetTopTagsByNameAsync(string, string, bool, CancellationToken)"/>.
-    /// - <see cref="Album.IAlbumApi.GetTopTagsByMbidAsync(string, bool, CancellationToken)"/>.
     /// </remarks>
     public int? WeightOnAlbum { get; internal set; }
 
@@ -76,7 +77,7 @@ namespace Shoegaze.LastFM.Tag
     /// <remarks>
     /// May be null.
     /// Guaranteed to be available when using:
-    /// - <see cref="ITagApi.GetInfoAsync(string, string?, CancellationToken)"/>.
+    /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
     /// </remarks>
     public WikiInfo? Wiki { get; private set; }
 

@@ -82,7 +82,9 @@
     {
       var client = TestEnvironment.CreateClient();
 
+#pragma warning disable CS0618 // Type or member is obsolete
       var response = await client.Tag.GetSimilarAsync("shoegaze");
+#pragma warning restore CS0618 // Type or member is obsolete
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);

@@ -1,18 +1,16 @@
 ﻿using Shoegaze.LastFM.Authentication;
-using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM
 {
-  internal class LastfmApiInvoker(string apiKey, string apiSecret, HttpClient httpClient) : ILastfmApiInvoker
+  internal class LastfmApiInvoker(string apiKey, string apiSecret, HttpClient? httpClient = null) : ILastfmApiInvoker
   {
     public string ApiKey { get; } = apiKey;
     public string ApiSecret { get; } = apiSecret;
     public string? SessionKey { get; set; }
 
-    private readonly HttpClient _http = httpClient;
+    private readonly HttpClient _http = httpClient ?? new HttpClient();
 
     public async Task<ApiResult<JsonDocument>> SendAsync(string method, IDictionary<string, string> parameters, bool requireAuth = false, CancellationToken ct = default)
     {

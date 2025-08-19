@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Shoegaze.LastFM.IntegrationTests.Api
+﻿namespace Shoegaze.LastFM.IntegrationTests.Api
 {
   [TestFixture]
   public class GeoApiIntegrationTests
@@ -45,7 +39,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-        Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
+        Assert.That(response.LastFmStatus, Is.EqualTo(LastFmStatusCode.InvalidParameters));
       }
     }
 
@@ -90,7 +84,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-        Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
+        Assert.That(response.LastFmStatus, Is.EqualTo(LastFmStatusCode.InvalidParameters));
       }
     }
 

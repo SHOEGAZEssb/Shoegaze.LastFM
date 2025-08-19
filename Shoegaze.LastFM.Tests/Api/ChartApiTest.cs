@@ -1,10 +1,4 @@
-﻿using Shoegaze.LastFM.Album;
-using Shoegaze.LastFM.Chart;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shoegaze.LastFM.Chart;
 
 namespace Shoegaze.LastFM.Tests.Api
 {

@@ -1,10 +1,4 @@
-﻿using Shoegaze.LastFM.Geo;
-using Shoegaze.LastFM.Library;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Shoegaze.LastFM.Library;
 
 namespace Shoegaze.LastFM.Tests.Api
 {

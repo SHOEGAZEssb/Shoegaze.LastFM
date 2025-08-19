@@ -1,11 +1,15 @@
 ﻿using Shoegaze.LastFM.Album;
 using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.User;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Track
 {
-  public sealed class TrackInfo : IChartable, ITagable, IJsonDeserializable<TrackInfo>
+  /// <summary>
+  /// A last.fm track.
+  /// </summary>
+  public sealed class TrackInfo : IUserChartable, IUserTagable, IJsonDeserializable<TrackInfo>
   {
     /// <summary>
     /// Name of this track.
@@ -43,7 +47,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
-    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? ListenerCount { get; private set; }
 
@@ -54,7 +58,7 @@ namespace Shoegaze.LastFM.Track
     /// May be null.
     /// Guaranteed to be available when using:
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
-    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? PlayCount { get; internal set; }
 
@@ -79,7 +83,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/> with included username.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/> with included username.
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/> with extended = true.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/> with extended = true.
     /// </remarks>
     public bool? UserLoved { get; internal set; }
 
@@ -113,7 +117,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
-    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
     public ArtistInfo? Artist { get; private set; }
 
@@ -165,7 +169,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
+    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
     /// </remarks>
     public DateTime? PlayedAtUtc { get; private set; }
 
@@ -175,7 +179,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, int?, int?, CancellationToken)"/>.
+    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public bool IsNowPlaying { get; private set; }
 
@@ -187,7 +191,7 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="ITrackApi.SearchAsync(string, string?, int?, int?, CancellationToken)"/>.
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
-    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
     public bool? IsStreamable { get; private set; }
 

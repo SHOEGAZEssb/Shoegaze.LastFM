@@ -7,20 +7,84 @@ namespace Shoegaze.LastFM;
 /// </summary>
 public enum LastFmStatusCode
 {
+  /// <summary>
+  /// An unknown error occured.
+  /// </summary>
   UnknownError = -1,
+
+  /// <summary>
+  /// The request was successful.
+  /// </summary>
   Success = 0,
+
+  /// <summary>
+  /// This service does not exist.
+  /// </summary>
   InvalidService = 2,
+
+  /// <summary>
+  /// No method with that name in this package.
+  /// </summary>
+  InvalidMethod = 3,
+
+  /// <summary>
+  /// You do not have permissions to access the service.
+  /// </summary>
   AuthenticationFailed = 4,
+
+  /// <summary>
+  /// This service doesn't exist in that format.
+  /// </summary>
   InvalidFormat = 5,
+
+  /// <summary>
+  /// Your request is missing a required parameter.
+  /// </summary>
   InvalidParameters = 6,
+
+  /// <summary>
+  /// Invalid resource specified.
+  /// </summary>
   InvalidResource = 7,
+
+  /// <summary>
+  /// Something else went wrong.
+  /// </summary>
   OperationFailed = 8,
+
+  /// <summary>
+  /// Invalid session key - Please re-authenticate.
+  /// </summary>
   InvalidSessionKey = 9,
+
+  /// <summary>
+  /// You must be granted a valid key by last.fm.
+  /// </summary>
   InvalidApiKey = 10,
+
+  /// <summary>
+  /// This service is temporarily offline. Try again later.
+  /// </summary>
   ServiceOffline = 11,
+
+  /// <summary>
+  /// Invalid method signature supplied.
+  /// </summary>
   InvalidMethodSignature = 13,
+
+  /// <summary>
+  /// There was a temporary error processing your request. Please try again.
+  /// </summary>
   TemporaryError = 16,
+
+  /// <summary>
+  /// Access for your api account has been suspended, please contact Last.fm
+  /// </summary>
   SuspendedApiKey = 26,
+
+  /// <summary>
+  /// Your IP has made too many requests in a short period.
+  /// </summary>
   RateLimitExceeded = 29
 }
 
@@ -29,11 +93,34 @@ public enum LastFmStatusCode
 /// </summary>
 public enum ImageSize
 {
+  /// <summary>
+  /// Small image size.
+  /// </summary>
   Small,
+
+  /// <summary>
+  /// Medium image size.
+  /// </summary>
   Medium,
+
+  /// <summary>
+  /// Large image size.
+  /// </summary>
   Large,
+
+  /// <summary>
+  /// Extra large image size.
+  /// </summary>
   ExtraLarge,
+
+  /// <summary>
+  /// Mega image size.
+  /// </summary>
   Mega,
+
+  /// <summary>
+  /// Image size is unknown.
+  /// </summary>
   Unknown
 }
 
@@ -60,18 +147,18 @@ public class ApiResult
   /// May be null in case the error was not reported by
   /// the last.fm api.
   /// </summary>
-  public LastFmStatusCode? Status { get; internal set; }
+  public LastFmStatusCode? LastFmStatus { get; internal set; }
 
   /// <summary>
   /// If the api request returned successfully.
   /// </summary>
-  public bool IsSuccess => Status == LastFmStatusCode.Success;
+  public bool IsSuccess => LastFmStatus == LastFmStatusCode.Success;
 
   internal static ApiResult Success(HttpStatusCode httpStatus = HttpStatusCode.OK)
-          => new() { HttpStatus = httpStatus, Status = LastFmStatusCode.Success };
+          => new() { HttpStatus = httpStatus, LastFmStatus = LastFmStatusCode.Success };
 
   internal static ApiResult Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
-      => new() { Status = status, HttpStatus = httpStatus, ErrorMessage = error };
+      => new() { LastFmStatus = status, HttpStatus = httpStatus, ErrorMessage = error };
 }
 
 /// <summary>
@@ -85,8 +172,8 @@ public sealed class ApiResult<T> : ApiResult
   public T? Data { get; internal set; }
 
   internal static ApiResult<T> Success(T data, HttpStatusCode httpStatus = HttpStatusCode.OK)
-          => new() { Data = data, HttpStatus = httpStatus, Status = LastFmStatusCode.Success };
+          => new() { Data = data, HttpStatus = httpStatus, LastFmStatus = LastFmStatusCode.Success };
 
   internal new static ApiResult<T> Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
-      => new() { Status = status, HttpStatus = httpStatus, ErrorMessage = error };
+      => new() { LastFmStatus = status, HttpStatus = httpStatus, ErrorMessage = error };
 }

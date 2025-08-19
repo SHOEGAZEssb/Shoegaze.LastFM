@@ -1,11 +1,15 @@
 ﻿using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
+using Shoegaze.LastFM.User;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Album
 {
-  public class AlbumInfo : IChartable, ITagable, IJsonDeserializable<AlbumInfo>
+  /// <summary>
+  /// Object with info about an album, fetched from last.fm
+  /// </summary>
+  public class AlbumInfo : IUserChartable, IUserTagable, IJsonDeserializable<AlbumInfo>
   {
     /// <summary>
     /// Name of this artist.
@@ -53,7 +57,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IArtistApi.GetTopAlbumsByNameAsync(string, bool, int?, int?, CancellationToken)"/>
-    /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, bool, int?, int?, CancellationToken)"/>
+    /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
     public int? PlayCount { get; internal set; }
 
@@ -65,7 +69,7 @@ namespace Shoegaze.LastFM.Album
     /// Guaranteed to be available when using:
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/> with provided username.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/> with provided username.
-    /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)/>.
+    /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public int? UserPlayCount { get; internal set; }
 
@@ -148,7 +152,7 @@ namespace Shoegaze.LastFM.Album
 
       // throw if name is empty
       if (string.IsNullOrEmpty(name))
-        throw new InvalidDataException("Album json malformed - name could not be parsed");
+        throw new JsonException("Album json malformed - name could not be parsed");
 
       int? playCount = null;
       if (album.TryGetProperty("playcount", out var playCountProp) && JsonHelper.TryParseNumber<int>(playCountProp, out var playCountNum))

@@ -138,7 +138,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       {
         Assert.That(response.IsSuccess, Is.False);
         Assert.That(response.Data, Is.Null);
-        Assert.That(response.Status, Is.EqualTo(LastFmStatusCode.InvalidParameters));
+        Assert.That(response.LastFmStatus, Is.EqualTo(LastFmStatusCode.InvalidParameters));
       }
     }
 
@@ -291,7 +291,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
 
-      var response = await client.Artist.GetTagsByNameAsync("guns and roses", username: null, autocorrect: false);
+      var response = await client.Artist.GetTagsByNameAsync("guns and roses", username: null, autoCorrect: false);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
@@ -612,7 +612,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
         // cleanup
         try
         {
-          await client.Artist.RemoveTagAsync("Korn", "Nu Metal");
+          await client.Artist.RemoveTagsAsync("Korn", "Nu Metal");
         }
         catch (Exception ex)
         {
@@ -638,7 +638,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
       try
       {
-        var response = await client.Artist.RemoveTagAsync("Korn", "Nu Metal");
+        var response = await client.Artist.RemoveTagsAsync("Korn", "Nu Metal");
         Assert.That(response.IsSuccess, Is.True);
 
         await Task.Delay(SAFETYBUFFER);

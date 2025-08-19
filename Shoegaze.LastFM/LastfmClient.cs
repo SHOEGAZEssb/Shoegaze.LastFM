@@ -14,18 +14,59 @@ namespace Shoegaze.LastFM;
 /// </summary>
 public class LastfmClient : ILastfmClient
 {
+  #region Properties
+
+  /// <summary>
+  /// Access to user-related api endpoints.
+  /// </summary>
   public IUserApi User { get; }
+
+  /// <summary>
+  /// Access to track-related api endpoints.
+  /// </summary>
   public ITrackApi Track { get; }
+
+  /// <summary>
+  /// Access to tag-related api endpoints.
+  /// </summary>
   public ITagApi Tag { get; }
+
+  /// <summary>
+  /// Access to artist-related api endpoints.
+  /// </summary>
   public IArtistApi Artist { get; }
+
+  /// <summary>
+  /// Access to album-related api endpoints.
+  /// </summary>
   public IAlbumApi Album { get; }
+
+  /// <summary>
+  /// Access to chart-related api endpoints.
+  /// </summary>
   public IChartApi Chart { get; }
+
+  /// <summary>
+  /// Access to geo-related api endpoints.
+  /// </summary>
   public IGeoApi Geo { get; }
+
+  /// <summary>
+  /// Access to library-related api endpoints.
+  /// </summary>
   public ILibraryApi Library { get; }
 
   private readonly LastfmApiInvoker _invoker;
 
-  public LastfmClient(string apiKey, string apiSecret, HttpClient httpClient)
+  #endregion Properties
+
+  /// <summary>
+  /// Contructor.
+  /// </summary>
+  /// <param name="apiKey">Api key.</param>
+  /// <param name="apiSecret">Api secret.</param>
+  /// <param name="httpClient">Http client to use.</param>
+  public LastfmClient(string apiKey, string apiSecret, HttpClient? httpClient = null)
   {
     _invoker = new LastfmApiInvoker(apiKey, apiSecret, httpClient);
 
@@ -39,6 +80,11 @@ public class LastfmClient : ILastfmClient
     Library = new LibraryApi(_invoker);
   }
 
+  /// <summary>
+  /// Sets the sessions key for making authenticated requests.
+  /// </summary>
+  /// <param name="sessionKey">The session key.</param>
+  /// <exception cref="ArgumentNullException">If <paramref name="sessionKey"/> is null or empty.</exception>
   public void SetSessionKey(string sessionKey)
   {
     ArgumentException.ThrowIfNullOrEmpty(sessionKey);

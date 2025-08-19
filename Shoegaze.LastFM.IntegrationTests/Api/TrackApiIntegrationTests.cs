@@ -1,5 +1,4 @@
 ﻿using Shoegaze.LastFM.Track;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shoegaze.LastFM.IntegrationTests.Api
 {
@@ -237,7 +236,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateClient();
 
-      var response = await client.Track.GetUserTagsByName("soon", "my bloody valentine", "coczero");
+      var response = await client.Track.GetTagsByNameAsync("soon", "my bloody valentine", "coczero");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
@@ -264,7 +263,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateClient();
 
-      var response = await client.Track.GetUserTagsByMbid("55f39cd9-9326-3ca0-bd7c-ed21f61b30b5", "coczero");
+      var response = await client.Track.GetTagsByMbidAsync("55f39cd9-9326-3ca0-bd7c-ed21f61b30b5", "coczero");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
@@ -291,7 +290,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateClient();
 
-      var response = await client.Track.GetTopTagsByName("Blind", "Korn");
+      var response = await client.Track.GetTopTagsByNameAsync("Blind", "Korn");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(response.IsSuccess, Is.True);
@@ -419,7 +418,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       var client = TestEnvironment.CreateAuthenticatedClient();
 
       // check initial state
-      var userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
+      var userTags = await client.Track.GetTagsByNameAsync("Blind", "Korn");
       Assume.That(userTags.Data, Is.Empty, "Initial state is not correct.");
 
       try
@@ -429,7 +428,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
         await Task.Delay(SAFETYBUFFER);
 
-        userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
+        userTags = await client.Track.GetTagsByNameAsync("Blind", "Korn");
         Assert.That(userTags.Data, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
@@ -470,7 +469,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       await Task.Delay(SAFETYBUFFER);
 
       // check initial state
-      var userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
+      var userTags = await client.Track.GetTagsByNameAsync("Blind", "Korn");
       Assume.That(userTags.Data, Has.Count.EqualTo(2), "Initial state is not correct.");
 
       try
@@ -480,7 +479,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
 
         await Task.Delay(SAFETYBUFFER);
 
-        userTags = await client.Track.GetUserTagsByName("Blind", "Korn");
+        userTags = await client.Track.GetTagsByNameAsync("Blind", "Korn");
         Assert.That(userTags.Data, Is.Empty);
       }
       catch (Exception ex)
@@ -545,7 +544,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
 
-      var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync(limit: 1);
+      var initialCurrentTracksResponse = await client.User.GetRecentTracksAsync("coctest", limit: 1);
       Assume.That(initialCurrentTracksResponse.IsSuccess, Is.True, "Initial state could not be checked.");
       Assume.That(initialCurrentTracksResponse.Data, Is.Not.Null, "Initial state could not be checked.");
       if (initialCurrentTracksResponse.Data.Items[0].IsNowPlaying)
@@ -559,7 +558,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       await Task.Delay(SAFETYBUFFER);
 
       // do now playing check immediately after
-      var currentTracksResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: false, limit: 1);
+      var currentTracksResponse = await client.User.GetRecentTracksAsync("coctest", ignoreNowPlaying: false, limit: 1);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(currentTracksResponse.IsSuccess, Is.True);
@@ -601,7 +600,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       // safety buffer
       await Task.Delay(SAFETYBUFFER);
 
-      var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 1);
+      var userResponse = await client.User.GetRecentTracksAsync("coctest", ignoreNowPlaying: true, limit: 1);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(userResponse.IsSuccess, Is.True);
@@ -727,7 +726,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
       // safety buffer
       await Task.Delay(SAFETYBUFFER);
 
-      var userResponse = await client.User.GetRecentTracksAsync(ignoreNowPlaying: true, limit: 5);
+      var userResponse = await client.User.GetRecentTracksAsync("coctest", ignoreNowPlaying: true, limit: 5);
       using (Assert.EnterMultipleScope())
       {
         Assert.That(userResponse.IsSuccess, Is.True);

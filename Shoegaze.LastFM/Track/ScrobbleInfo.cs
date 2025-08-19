@@ -13,26 +13,76 @@ namespace Shoegaze.LastFM.Track
     ScrobbleLimitExceeded
   }
 
+  /// <summary>
+  /// Response of a scrobble request.
+  /// </summary>
   public class ScrobbleInfo : IJsonDeserializable<ScrobbleInfo>
   {
     #region Properties
 
+    /// <summary>
+    /// Name of the track that was scrobbled.
+    /// </summary>
     public required string TrackName { get; set; }
 
+    /// <summary>
+    /// If the name of the scrobbled track was corrected.
+    /// </summary>
     public bool IsTrackNameCorrected { get; private set; }
 
+    /// <summary>
+    /// Name of the artist that was scrobbled.
+    /// </summary>
     public required string ArtistName { get; set; }
 
+    /// <summary>
+    /// If the name of the scrobbled artist was corrected.
+    /// </summary>
     public bool IsArtistNameCorrected { get; private set; }
 
+    /// <summary>
+    /// Time when this scrobble was scrobbled.
+    /// </summary>
     public DateTime? Timestamp { get; private set; }
 
+    /// <summary>
+    /// Name of the album that was scrobbled.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.ScrobbleAsync(IEnumerable{ScrobbleData}, CancellationToken)"/> with album info.
+    /// </remarks>
     public string? AlbumName { get; private set; }
 
+    /// <summary>
+    /// If the name of the scrobbled album was corrected.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.ScrobbleAsync(IEnumerable{ScrobbleData}, CancellationToken)"/> with album info.
+    /// </remarks>
     public bool? IsAlbumNameCorrected { get; private set; }
 
+    /// <summary>
+    /// Name of the album artist that was scrobbled.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.ScrobbleAsync(IEnumerable{ScrobbleData}, CancellationToken)"/> with album artist info.
+    /// </remarks>
     public string? AlbumArtistName { get; private set; }
 
+    /// <summary>
+    /// If the name of the scrobbled album artist was corrected.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// Guaranteed to be available when using:
+    /// - <see cref="ITrackApi.ScrobbleAsync(IEnumerable{ScrobbleData}, CancellationToken)"/> with album artist info.
+    /// </remarks>
     public bool? IsAlbumArtistNameCorrected { get; private set; }
 
     /// <summary>
@@ -53,8 +103,8 @@ namespace Shoegaze.LastFM.Track
 
     internal static ScrobbleInfo FromJson(JsonElement root)
     {
-      var trackName = ReadText(root, "track") ?? throw new InvalidDataException("Track name could not be parsed");
-      var artistName = ReadText(root, "artist") ?? throw new InvalidDataException("Artist name could not be parsed");
+      var trackName = ReadText(root, "track") ?? throw new JsonException("Track name could not be parsed");
+      var artistName = ReadText(root, "artist") ?? throw new JsonException("Artist name could not be parsed");
 
       var albumName = NullIfEmpty(ReadText(root, "album"));
       var albumArtistName = NullIfEmpty(ReadText(root, "albumArtist"));

@@ -1,14 +1,12 @@
 ﻿using Shoegaze.LastFM.Artist;
 using Shoegaze.LastFM.Tag;
 using Shoegaze.LastFM.Track;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Chart
 {
+  /// <summary>
+  /// Access to chart-related api endpoints.
+  /// </summary>
   public class ChartApi : IChartApi
   {
     private readonly ILastfmApiInvoker _invoker;
@@ -18,13 +16,20 @@ namespace Shoegaze.LastFM.Chart
       _invoker = invoker;
     }
 
+    /// <summary>
+    /// Get the global top artists.
+    /// </summary>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of the global top artists, or error information.</returns>
     public async Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
       var result = await _invoker.SendAsync("chart.getTopArtists", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -43,13 +48,20 @@ namespace Shoegaze.LastFM.Chart
       }
     }
 
+    /// <summary>
+    /// Get the global top tags.
+    /// </summary>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of the global top tags, or error information.</returns>
     public async Task<ApiResult<PagedResult<TagInfo>>> GetTopTagsAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
       var result = await _invoker.SendAsync("chart.getTopTags", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TagInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TagInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {
@@ -72,13 +84,20 @@ namespace Shoegaze.LastFM.Chart
       }
     }
 
+    /// <summary>
+    /// Get the global top tracks.
+    /// </summary>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of the global top tracks, or error information.</returns>
     public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
 
       var result = await _invoker.SendAsync("chart.getTopTracks", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<TrackInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {

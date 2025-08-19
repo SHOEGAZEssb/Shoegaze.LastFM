@@ -1,13 +1,10 @@
 ﻿using Shoegaze.LastFM.Artist;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shoegaze.LastFM.Library
 {
+  /// <summary>
+  /// Access to library-related api endpoints.
+  /// </summary>
   public class LibraryApi : ILibraryApi
   {
     private readonly ILastfmApiInvoker _invoker;
@@ -17,6 +14,14 @@ namespace Shoegaze.LastFM.Library
       _invoker = invoker;
     }
 
+    /// <summary>
+    /// Get a list of all the artists in a users library.
+    /// </summary>
+    /// <param name="username">Name of the user.</param>
+    /// <param name="limit">Number of results per page (defaults to 50).</param>
+    /// <param name="page">Page number (defaults to first page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result that contains a list of artists in the users library, or error information.</returns>
     public async Task<ApiResult<PagedResult<ArtistInfo>>> GetArtistsAsync(string username, int? limit = null, int? page = null, CancellationToken ct = default)
     {
       var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
@@ -24,7 +29,7 @@ namespace Shoegaze.LastFM.Library
 
       var result = await _invoker.SendAsync("library.getArtists", parameters, false, ct);
       if (!result.IsSuccess || result.Data == null)
-        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.Status, result.HttpStatus, result.ErrorMessage);
+        return ApiResult<PagedResult<ArtistInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
       try
       {

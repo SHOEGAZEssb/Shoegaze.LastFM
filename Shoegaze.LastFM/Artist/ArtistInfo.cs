@@ -1,9 +1,13 @@
 ﻿using Shoegaze.LastFM.Tag;
+using Shoegaze.LastFM.User;
 using System.Text.Json;
 
 namespace Shoegaze.LastFM.Artist
 {
-  public sealed class ArtistInfo : IChartable, ITagable, IJsonDeserializable<ArtistInfo>
+  /// <summary>
+  /// A last.fm artist.
+  /// </summary>
+  public sealed class ArtistInfo : IUserChartable, IUserTagable, IJsonDeserializable<ArtistInfo>
   {
     /// <summary>
     /// Name of this artist.
@@ -31,6 +35,12 @@ namespace Shoegaze.LastFM.Artist
     /// </remarks>
     public IReadOnlyDictionary<ImageSize, Uri> Images { get; private set; } = new Dictionary<ImageSize, Uri>();
 
+    /// <summary>
+    /// If this artist is streamable through last.fm
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// </remarks>
     public bool? IsStreamable { get; private set; }
 
     /// <summary>
@@ -104,6 +114,12 @@ namespace Shoegaze.LastFM.Artist
     /// </remarks>
     public IReadOnlyList<TagInfo> Tags { get; private set; } = [];
 
+    /// <summary>
+    /// Biography of this artist.
+    /// </summary>
+    /// <remarks>
+    /// May be null.
+    /// </remarks>
     public WikiInfo? Biography { get; private set; }
 
     internal static ArtistInfo FromJson(JsonElement root)

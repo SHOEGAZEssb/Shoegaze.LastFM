@@ -2,12 +2,35 @@
 
 namespace Shoegaze.LastFM
 {
+  /// <summary>
+  /// A result that contains the items of a single page request.
+  /// </summary>
+  /// <typeparam name="T">Type of the result items.</typeparam>
   public class PagedResult<T>
   {
+    /// <summary>
+    /// The result items.
+    /// </summary>
     public IReadOnlyList<T> Items { get; private set; } = [];
+
+    /// <summary>
+    /// The page that has been fetched.
+    /// </summary>
     public int Page { get; private set; }
+
+    /// <summary>
+    /// Total amount of pages.
+    /// </summary>
     public int TotalPages { get; private set; }
+
+    /// <summary>
+    /// Total amount of items.
+    /// </summary>
     public int TotalItems { get; private set; }
+
+    /// <summary>
+    /// Amount of items per page.
+    /// </summary>
     public int PerPage { get; private set; }
 
     internal static PagedResult<T> FromJson(JsonElement element, IReadOnlyList<T> items)

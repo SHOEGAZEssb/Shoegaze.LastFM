@@ -90,7 +90,7 @@ namespace Shoegaze.LastFM.Tests.Api
         Assert.That(user.Age, Is.Zero);
         Assert.That(user.Gender, Is.EqualTo("n"));
         Assert.That(user.IsSubscriber, Is.True);
-        Assert.That(user.Playcount, Is.EqualTo(256598));
+        Assert.That(user.PlayCount, Is.EqualTo(256598));
         Assert.That(user.ArtistCount, Is.EqualTo(9348));
         Assert.That(user.TrackCount, Is.EqualTo(39235));
         Assert.That(user.AlbumCount, Is.EqualTo(17904));
@@ -124,7 +124,7 @@ namespace Shoegaze.LastFM.Tests.Api
       {
         Assert.That(result.IsSuccess, Is.False, "Call should not succeed");
         Assert.That(result.Data, Is.Null, "Data should be null");
-        Assert.That(result.Status, Is.EqualTo(LastFmStatusCode.AuthenticationFailed));
+        Assert.That(result.LastFmStatus, Is.EqualTo(LastFmStatusCode.AuthenticationFailed));
         Assert.That(result.HttpStatus, Is.EqualTo(System.Net.HttpStatusCode.Unauthorized));
         Assert.That(result.ErrorMessage, Is.EqualTo("Session key is missing or invalid."));
       }
@@ -784,12 +784,12 @@ namespace Shoegaze.LastFM.Tests.Api
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmApiInvoker>();
       invoker
-        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
 
       var api = new UserApi(invoker.Object);
 
-      var result = await api.GetRecentTracksAsync();
+      var result = await api.GetRecentTracksAsync("some user");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(result.IsSuccess, Is.True);
@@ -858,12 +858,12 @@ namespace Shoegaze.LastFM.Tests.Api
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmApiInvoker>();
       invoker
-        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
 
       var api = new UserApi(invoker.Object);
 
-      var result = await api.GetRecentTracksAsync();
+      var result = await api.GetRecentTracksAsync("some user");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(result.IsSuccess, Is.True);
@@ -898,12 +898,12 @@ namespace Shoegaze.LastFM.Tests.Api
       var jsonDoc = JsonDocument.Parse(json);
       var invoker = new Mock<ILastfmApiInvoker>();
       invoker
-        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), true, It.IsAny<CancellationToken>()))
+        .Setup(x => x.SendAsync("user.getRecentTracks", It.IsAny<IDictionary<string, string>>(), false, It.IsAny<CancellationToken>()))
         .ReturnsAsync(ApiResult<JsonDocument>.Success(jsonDoc));
 
       var api = new UserApi(invoker.Object);
 
-      var result = await api.GetRecentTracksAsync();
+      var result = await api.GetRecentTracksAsync("some user");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(result.IsSuccess, Is.True);

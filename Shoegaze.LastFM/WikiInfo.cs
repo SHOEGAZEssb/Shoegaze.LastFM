@@ -3,10 +3,24 @@ using System.Text.Json;
 
 namespace Shoegaze.LastFM
 {
-  public sealed class WikiInfo
+  /// <summary>
+  /// The wiki of a last.fm object.
+  /// </summary>
+  public sealed class WikiInfo : IJsonDeserializable<WikiInfo>
   {
+    /// <summary>
+    /// When the wiki was published.
+    /// </summary>
     public DateTime? Published { get; private set; }
+
+    /// <summary>
+    /// Shorter summary of the wiki.
+    /// </summary>
     public string Summary { get; private set; } = "";
+
+    /// <summary>
+    /// The wiki content.
+    /// </summary>
     public string Content { get; private set; } = "";
 
     internal static WikiInfo FromJson(JsonElement root)

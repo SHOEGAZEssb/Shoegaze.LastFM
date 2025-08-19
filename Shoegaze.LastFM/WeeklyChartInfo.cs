@@ -2,12 +2,21 @@
 
 namespace Shoegaze.LastFM
 {
+  /// <summary>
+  /// Info about a specific weekly chart of a last.fm user.
+  /// </summary>
   public class WeeklyChartInfo : IJsonDeserializable<WeeklyChartInfo>
   {
     #region Properties
 
+    /// <summary>
+    /// Date start point.
+    /// </summary>
     public DateTime From { get; private set; }
 
+    /// <summary>
+    /// Date end point.
+    /// </summary>
     public DateTime To { get; private set; }
 
     #endregion Propertis
@@ -16,8 +25,8 @@ namespace Shoegaze.LastFM
     {
       return new WeeklyChartInfo
       {
-        From = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("from").GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime,
-        To = DateTimeOffset.FromUnixTimeSeconds(long.Parse(root.GetProperty("to").GetString()!, System.Globalization.CultureInfo.InvariantCulture)).DateTime,
+        From = DateTimeOffset.FromUnixTimeSeconds(JsonHelper.ParseNumber<long>(root.GetProperty("from"))).DateTime,
+        To = DateTimeOffset.FromUnixTimeSeconds(JsonHelper.ParseNumber<long>(root.GetProperty("to"))).DateTime
       };
     }
   }

@@ -200,7 +200,7 @@ namespace Shoegaze.LastFM
 
     public static void AddAutoCorrectParameter(IDictionary<string, string> target, bool autoCorrect)
     {
-      target.Add("autocorrect", autoCorrect ? "1" : "0");
+      target.Add("autoCorrect", autoCorrect ? "1" : "0");
     }
   }
 

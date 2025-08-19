@@ -10,7 +10,7 @@ using Shoegaze.LastFM.User;
 namespace Shoegaze.LastFM;
 
 /// <summary>
-/// High-level entry point to access Last.fm API features.
+/// Grants access to last.fms api.
 /// </summary>
 public interface ILastfmClient
 {
@@ -49,6 +49,9 @@ public interface ILastfmClient
   /// </summary>
   IGeoApi Geo { get; }
 
+  /// <summary>
+  /// Access to library-related API endpoints.
+  /// </summary>
   ILibraryApi Library { get; }
 
   /// <summary>
