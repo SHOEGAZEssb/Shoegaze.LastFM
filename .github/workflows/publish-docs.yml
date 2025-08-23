@@ -24,14 +24,16 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Install XmlDocMarkdown.Console
-      run: dotnet restore XmlDocMarkdown.Console --source https://api.nuget.org/v3/index.json /p:PackageVersion=2.4.0 /p:RestorePackagesPath=./tools
+    - name: Install NuGet CLI
+      run: dotnet tool install --global NuGet.CommandLine
 
+    - name: Install XmlDocMarkdown.Console
+      run: nuget install XmlDocMarkdown.Console -Version 2.4.0 -OutputDirectory ./tools
 
     - name: Generate Markdown Docs
       run: |
         mkdir md-docs
-        dotnet exec ./tools/xmldocmarkdown.console/2.4.0/tools/net8.0/any/XmlDocMarkdown.Console.dll \
+        dotnet exec ./tools/XmlDocMarkdown.Console.2.4.0/tools/net8.0/any/XmlDocMarkdown.Console.dll \
           src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs \
           --source src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll \
           --newline lf
