@@ -1,11 +1,11 @@
-name: Publish Docs to Wiki
+name: Publish Docs to Wiki (Debug)
 
 on:
   push:
     branches: [ main ]
 
 permissions:
-  contents: write   # allow pushing commits (needed for updating the wiki)
+  contents: write
 
 jobs:
   build-docs:
@@ -31,13 +31,20 @@ jobs:
         mkdir tools
         tar -xf xmldoc.nupkg -C tools
 
+    - name: List extracted files
+      shell: pwsh
+      run: |
+        Write-Host "Extracted contents of tools/:"
+        Get-ChildItem -Recurse tools
+
     - name: Generate Markdown Docs
       shell: pwsh
       run: |
         mkdir md-docs
-        ./tools/xmldocmarkdown.2.9.0/tools/XmlDocMarkdown.exe `
-          src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs `
-          --source src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll `
+        # run with explicit path + PowerShell syntax
+        .\tools\XmlDocMarkdown.2.9.0\tools\XmlDocMarkdown.exe `
+          src\Shoegaze.LastFM\Shoegaze.LastFM.csproj md-docs `
+          --source src\Shoegaze.LastFM\bin\Release\net9.0\Shoegaze.LastFM.dll `
           --newline lf
 
     - name: Checkout Wiki
