@@ -5,11 +5,11 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: write   # allow pushing commits (needed for updating the wiki)
 
 jobs:
   build-docs:
-    runs-on: ubuntu-latest   # Linux is fine now
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
@@ -31,7 +31,13 @@ jobs:
     - name: Generate Markdown Docs
       run: |
         mkdir md-docs
-        xmldocmd ./src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll md-docs --newline lf
+        DLL=$(find ./ -type f -path "*/bin/Release/*/Shoegaze.LastFM.dll" | head -n 1)
+        echo "Using DLL: $DLL"
+        if [ -z "$DLL" ]; then
+          echo "ERROR: Could not find Shoegaze.LastFM.dll"
+          exit 1
+        fi
+        xmldocmd "$DLL" md-docs --newline lf
 
     - name: Checkout Wiki
       uses: actions/checkout@v4
