@@ -1,14 +1,15 @@
 name: Publish Docs to Wiki
-permissions:
-  contents: write   # allow pushing commits (needed for updating the wiki)
 
 on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write   # allow pushing commits (needed for updating the wiki)
+
 jobs:
   build-docs:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
@@ -24,18 +25,19 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Download XmlDocMarkdown.Console from NuGet
+    - name: Download XmlDocMarkdown from NuGet
       run: |
-        curl -L https://www.nuget.org/api/v2/package/XmlDocMarkdown.Console/2.4.0 -o xmldoc.nupkg
+        curl -L https://api.nuget.org/v3-flatcontainer/xmldocmarkdown/2.9.0/xmldocmarkdown.2.9.0.nupkg -o xmldoc.nupkg
         mkdir tools
-        unzip xmldoc.nupkg -d tools
+        tar -xf xmldoc.nupkg -C tools
 
     - name: Generate Markdown Docs
+      shell: pwsh
       run: |
         mkdir md-docs
-        dotnet exec ./tools/tools/net8.0/any/XmlDocMarkdown.Console.dll \
-          src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs \
-          --source src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll \
+        ./tools/xmldocmarkdown.2.9.0/tools/XmlDocMarkdown.exe `
+          src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs `
+          --source src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll `
           --newline lf
 
     - name: Checkout Wiki
@@ -46,15 +48,17 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Copy Generated Markdown to Wiki
+      shell: pwsh
       run: |
-        rm -rf wiki/*
-        cp -r md-docs/* wiki/
+        Remove-Item wiki\* -Recurse -Force
+        Copy-Item md-docs\* wiki\ -Recurse
 
     - name: Commit & Push to Wiki
+      shell: pwsh
       run: |
         cd wiki
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Update docs from ${{ github.sha }}" || echo "No changes to commit"
+        git commit -m "Update docs from ${{ github.sha }}" -ErrorAction SilentlyContinue
         git push
