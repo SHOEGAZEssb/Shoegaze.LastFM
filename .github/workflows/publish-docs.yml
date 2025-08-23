@@ -24,11 +24,13 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Install DocFX
-      run: dotnet tool install -g docfx
+    - name: Install XmlDocMarkdown
+      run: dotnet tool install --global XmlDocMarkdown
 
-    - name: Generate Docs
-      run: docfx docfx.json
+    - name: Generate Markdown Docs
+      run: |
+        mkdir md-docs
+        xmldocmarkdown src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs --source Shoegaze.LastFM.dll --newline lf
 
     - name: Checkout Wiki
       uses: actions/checkout@v4
@@ -37,10 +39,10 @@ jobs:
         path: wiki
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Copy Generated Docs
+    - name: Copy Generated Markdown to Wiki
       run: |
         rm -rf wiki/*
-        cp -r _site/* wiki/
+        cp -r md-docs/* wiki/
 
     - name: Commit & Push to Wiki
       run: |
