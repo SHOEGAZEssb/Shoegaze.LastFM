@@ -35,11 +35,13 @@ jobs:
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
     - name: SonarCloud Begin
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: >
         dotnet sonarscanner begin
         /k:"SHOEGAZEssb_Shoegaze.LastFM"
         /o:"shoegazessb"
-        /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        /d:sonar.login=$SONAR_TOKEN
         /d:sonar.host.url="https://sonarcloud.io"
         /d:sonar.cs.opencover.reportsPaths="TestResults/**/*.opencover.xml"
 
@@ -58,7 +60,9 @@ jobs:
         -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
     - name: SonarCloud End
-      run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: dotnet sonarscanner end /d:sonar.login=$SONAR_TOKEN
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
