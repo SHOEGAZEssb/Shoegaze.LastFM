@@ -190,7 +190,7 @@ public class UserApi : IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of the recent tracks, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getRecentTracks"/>.
-  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string username, bool? extended = null, DateTime? fromDate = null, DateTime? toDate = null, bool ignoreNowPlaying = false, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(string username, bool? extended = null, DateTimeOffset? fromDate = null, DateTimeOffset? toDate = null, bool ignoreNowPlaying = false, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
     parameters.Add("user", username);
@@ -198,9 +198,9 @@ public class UserApi : IUserApi
     if (extended != null)
       parameters["extended"] = extended.Value ? "1" : "0";
     if (fromDate != null)
-      parameters["from"] = new DateTimeOffset(fromDate.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+      parameters["from"] = fromDate.Value.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
     if (toDate != null)
-      parameters["to"] = new DateTimeOffset(toDate.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+      parameters["to"] = toDate.Value.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     var result = await _invoker.SendAsync("user.getRecentTracks", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
@@ -420,7 +420,7 @@ public class UserApi : IUserApi
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyArtistChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyTrackChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyAlbumChart"/>.
-  public async Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default) where T : IUserChartable
+  public async Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTimeOffset? fromDate = null, DateTimeOffset? toDate = null, CancellationToken ct = default) where T : IUserChartable
   {
     var parameters = new Dictionary<string, string>
     {
@@ -428,9 +428,9 @@ public class UserApi : IUserApi
     };
 
     if (fromDate != null)
-      parameters["from"] = new DateTimeOffset(fromDate.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+      parameters["from"] = fromDate.Value.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
     if (toDate != null)
-      parameters["to"] = new DateTimeOffset(toDate.Value.ToUniversalTime()).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+      parameters["to"] = toDate.Value.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     var iChartablePropertyName = GetTypeJsonPropertyName(typeof(T));
     var result = await _invoker.SendAsync($"user.getWeekly{iChartablePropertyName}Chart", parameters, false, ct);

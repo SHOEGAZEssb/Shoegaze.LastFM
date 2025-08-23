@@ -125,8 +125,8 @@ public interface IUserApi
   Task<ApiResult<PagedResult<TrackInfo>>> GetRecentTracksAsync(
     string username,
     bool? extended = null,
-    DateTime? fromDate = null,
-    DateTime? toDate = null,
+    DateTimeOffset? fromDate = null,
+    DateTimeOffset? toDate = null,
     bool ignoreNowPlaying = false,
     int? limit = null,
     int? page = null,
@@ -205,5 +205,5 @@ public interface IUserApi
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyArtistChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyTrackChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyAlbumChart"/>.
-  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default) where T : IUserChartable;
+  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTimeOffset? fromDate = null, DateTimeOffset? toDate = null, CancellationToken ct = default) where T : IUserChartable;
 }

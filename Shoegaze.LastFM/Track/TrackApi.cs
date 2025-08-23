@@ -522,7 +522,7 @@ namespace Shoegaze.LastFM.Track
         // mandatory params
         parameters.Add($"artist{i}", scrobbleArray[i].ArtistName);
         parameters.Add($"track{i}", scrobbleArray[i].TrackName);
-        parameters.Add($"timestamp{i}", new DateTimeOffset(scrobbleArray[i].Timestamp.UtcDateTime).ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
+        parameters.Add($"timestamp{i}", scrobbleArray[i].Timestamp.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         // optional params
         if (scrobbleArray[i].AlbumName != null)
