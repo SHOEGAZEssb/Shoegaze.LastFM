@@ -56,6 +56,16 @@ public class LastfmClient : ILastfmClient
   /// </summary>
   public ILibraryApi Library { get; }
 
+  /// <summary>
+  /// Indicates if this client can make
+  /// authenticated requests.
+  /// </summary>
+  /// <remarks>
+  /// This only checks if a session key has been set.
+  /// It does not check that key for validity.
+  /// </remarks>
+  public bool IsAuthenticated => !string.IsNullOrEmpty(_invoker.SessionKey);
+
   private readonly LastfmApiInvoker _invoker;
 
   #endregion Properties

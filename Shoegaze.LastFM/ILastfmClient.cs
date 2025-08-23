@@ -55,6 +55,16 @@ public interface ILastfmClient
   ILibraryApi Library { get; }
 
   /// <summary>
+  /// Indicates if this client can make
+  /// authenticated requests.
+  /// </summary>
+  /// <remarks>
+  /// This only checks if a session key has been set.
+  /// It does not check that key for validity.
+  /// </remarks>
+  bool IsAuthenticated { get; }
+
+  /// <summary>
   /// Sets or updates the session key for authenticated requests.
   /// </summary>
   void SetSessionKey(string sessionKey);

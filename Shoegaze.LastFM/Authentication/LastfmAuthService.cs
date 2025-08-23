@@ -13,26 +13,26 @@ namespace Shoegaze.LastFM.Authentication;
 /// <summary>
 /// Handles OAuth 1.0a authentication with the Last.fm API.
 /// </summary>
-public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiSecret, string callbackUrl) : IAuthService
+public class LastfmAuthService(string apiKey, string apiSecret, HttpClient? httpClient = null) : IAuthService
 {
   private const string SessionUrl = "https://ws.audioscrobbler.com/2.0/";
   private static readonly CompositeFormat UnformatedAuthUrl = CompositeFormat.Parse("https://www.last.fm/api/auth/?api_key={0}&cb={1}");
 
   private readonly string _apiKey = apiKey;
   private readonly string _apiSecret = apiSecret;
-  private readonly string _callbackUrl = callbackUrl;
-  private readonly HttpClient _http = httpClient;
+  private readonly HttpClient _http = httpClient ?? new HttpClient();
 
   /// <summary>
   /// Generates the authorization URL that the user must visit to grant access.
   /// </summary>
+  /// <param name="callbackUrl">The callback url to redirect to.</param>
   /// <returns>
   /// A <see cref="Uri"/> pointing to the Last.fm authentication page with the
   /// configured API key and callback URL.
   /// </returns>
-  public Task<Uri> GetAuthorizationUrlAsync()
+  public Task<Uri> GetAuthorizationUrlAsync(string callbackUrl)
   {
-    var encodedCallback = HttpUtility.UrlEncode(_callbackUrl);
+    var encodedCallback = HttpUtility.UrlEncode(callbackUrl);
     var authUrl = string.Format(CultureInfo.InvariantCulture, UnformatedAuthUrl, _apiKey, encodedCallback);
     return Task.FromResult(new Uri(authUrl));
   }
@@ -41,14 +41,12 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
   /// Exchanges a temporary token for a permanent Last.fm session.
   /// </summary>
   /// <param name="token">The request token received from Last.fm after user authorization.</param>
-  /// <param name="tokenSecret">Unused in Last.fm’s implementation of OAuth 1.0a, can be passed as an empty string.</param>
-  /// <param name="verifier">Unused in Last.fm’s implementation of OAuth 1.0a, can be passed as an empty string.</param>
   /// <returns>
   /// An <see cref="AuthSession"/> containing the authorized user’s name and session key.
   /// </returns>
   /// <exception cref="HttpRequestException">Thrown if the HTTP request fails or Last.fm returns a non-success status code.</exception>
   /// <exception cref="JsonException">Thrown if the response cannot be parsed as valid JSON.</exception>
-  public async Task<AuthSession> GetSessionAsync(string token, string tokenSecret, string verifier)
+  public async Task<AuthSession> GetSessionAsync(string token)
   {
     var parameters = new Dictionary<string, string>
         {
@@ -174,7 +172,7 @@ public class LastfmAuthService(HttpClient httpClient, string apiKey, string apiS
     if (string.IsNullOrWhiteSpace(token))
       throw new InvalidOperationException("No token received from Last.fm callback.");
 
-    return await GetSessionAsync(token, "", "");
+    return await GetSessionAsync(token);
   }
 
   internal static int GetFreePort()

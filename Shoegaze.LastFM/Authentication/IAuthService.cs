@@ -6,17 +6,31 @@
 public interface IAuthService
 {
   /// <summary>
-  /// Generates the URL the user must visit to authorize the app.
+  /// Generates the authorization URL that the user must visit to grant access.
   /// </summary>
-  Task<Uri> GetAuthorizationUrlAsync();
+  /// <param name="callbackUrl">The callback url to redirect to.</param>
+  /// <returns>
+  /// A <see cref="Uri"/> pointing to the Last.fm authentication page with the
+  /// configured API key and callback URL.
+  /// </returns>
+  Task<Uri> GetAuthorizationUrlAsync(string callbackUrl);
 
   /// <summary>
-  /// Exchanges the token for a session key after user authorization.
+  /// Exchanges a temporary token for a permanent Last.fm session.
   /// </summary>
-  Task<AuthSession> GetSessionAsync(string token, string tokenSecret, string verifier);
+  /// <param name="token">The request token received from Last.fm after user authorization.</param>
+  /// <returns>
+  /// An <see cref="AuthSession"/> containing the authorized user’s name and session key.
+  /// </returns>
+  Task<AuthSession> GetSessionAsync(string token);
 
   /// <summary>
-  /// Fully authenticates the user by opening the browser, waiting for redirect, and exchanging token.
+  /// Starts the full authentication process, including opening the system browser,
+  /// listening for the Last.fm callback, and exchanging the temporary token for a session key.
   /// </summary>
+  /// <param name="cancellationToken">A token that can be used to cancel the operation.</param>
+  /// <returns>
+  /// An <see cref="AuthSession"/> containing the authorized user’s name and session key.
+  /// </returns>
   Task<AuthSession> AuthenticateAsync(CancellationToken cancellationToken = default);
 }

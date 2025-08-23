@@ -83,7 +83,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/> with included username.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/> with included username.
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
-    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/> with extended = true.
+    /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/> with extended = true.
     /// </remarks>
     public bool? UserLoved { get; internal set; }
 
@@ -169,7 +169,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
+    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
     /// </remarks>
     public DateTime? PlayedAtUtc { get; private set; }
 
@@ -179,7 +179,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be absent.
     /// Guaranteed to be available when using:
-    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTime?, DateTime?, bool, int?, int?, CancellationToken)"/>.
+    /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/>.
     /// </remarks>
     public bool IsNowPlaying { get; private set; }
 

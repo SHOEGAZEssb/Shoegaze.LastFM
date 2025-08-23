@@ -11,12 +11,10 @@ namespace Shoegaze.LastFM.Tests.Authentication
     [Test]
     public async Task GetAuthorizationUrlAsync_ReturnsCorrectUrl()
     {
-      var http = new HttpClient(); // not used
       var apiKey = "abc123";
       var callbackUrl = "http://localhost:12345/";
-
-      var auth = new LastfmAuthService(http, apiKey, "secret", callbackUrl);
-      var result = await auth.GetAuthorizationUrlAsync();
+      var auth = new LastfmAuthService(apiKey, "secret");
+      var result = await auth.GetAuthorizationUrlAsync(callbackUrl);
 
       Assert.That(result.ToString(), Is.EqualTo($"https://www.last.fm/api/auth/?api_key={apiKey}&cb={HttpUtility.UrlEncode(callbackUrl)}"));
     }
@@ -47,9 +45,9 @@ namespace Shoegaze.LastFM.Tests.Authentication
         return fakeResponse;
       });
 
-      var auth = new LastfmAuthService(httpClient, "api_key", "secret", "http://localhost");
+      var auth = new LastfmAuthService("api_key", "secret", httpClient);
 
-      var session = await auth.GetSessionAsync("token", "", "");
+      var session = await auth.GetSessionAsync("token");
       using (Assert.EnterMultipleScope())
       {
         Assert.That(session.Username, Is.EqualTo("tim"));
