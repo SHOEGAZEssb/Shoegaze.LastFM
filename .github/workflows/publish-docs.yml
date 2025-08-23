@@ -24,13 +24,16 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Install XmlDocMarkdown
-      run: dotnet tool install --global XmlDocMarkdown
+    - name: Install XmlDocMarkdown.Console
+      run: dotnet add package XmlDocMarkdown.Console --version 2.4.0 --package-directory ./tools
 
     - name: Generate Markdown Docs
       run: |
         mkdir md-docs
-        xmldocmarkdown src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs --source Shoegaze.LastFM.dll --newline lf
+        dotnet exec ./tools/xmldocmarkdown.console/2.4.0/tools/net8.0/any/XmlDocMarkdown.Console.dll \
+          src/Shoegaze.LastFM/Shoegaze.LastFM.csproj md-docs \
+          --source src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll \
+          --newline lf
 
     - name: Checkout Wiki
       uses: actions/checkout@v4
