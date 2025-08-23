@@ -1,4 +1,4 @@
-name: Publish Docs to Wiki (Debug)
+name: Publish Docs to Wiki
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build-docs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest   # Linux is fine now
 
     steps:
     - name: Checkout repository
@@ -25,25 +25,13 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Download XmlDocMarkdown from NuGet
-      run: |
-        curl -L https://api.nuget.org/v3-flatcontainer/xmldocmarkdown/2.9.0/xmldocmarkdown.2.9.0.nupkg -o xmldoc.nupkg
-        mkdir tools
-        tar -xf xmldoc.nupkg -C tools
-
-    - name: List extracted files
-      shell: pwsh
-      run: |
-        Write-Host "Extracted contents of tools/:"
-        Get-ChildItem -Recurse tools
+    - name: Install xmldocmd
+      run: dotnet tool install -g xmldocmd
 
     - name: Generate Markdown Docs
-      shell: pwsh
       run: |
         mkdir md-docs
-        .\tools\tools\XmlDocMarkdown.exe `
-          .\bin\Release\net9.0\Shoegaze.LastFM.dll md-docs `
-          --newline lf
+        xmldocmd ./src/Shoegaze.LastFM/bin/Release/net9.0/Shoegaze.LastFM.dll md-docs --newline lf
 
     - name: Checkout Wiki
       uses: actions/checkout@v4
@@ -53,17 +41,15 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Copy Generated Markdown to Wiki
-      shell: pwsh
       run: |
-        Remove-Item wiki\* -Recurse -Force
-        Copy-Item md-docs\* wiki\ -Recurse
+        rm -rf wiki/*
+        cp -r md-docs/* wiki/
 
     - name: Commit & Push to Wiki
-      shell: pwsh
       run: |
         cd wiki
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add .
-        git commit -m "Update docs from ${{ github.sha }}" -ErrorAction SilentlyContinue
+        git commit -m "Update docs from ${{ github.sha }}" || echo "No changes to commit"
         git push
