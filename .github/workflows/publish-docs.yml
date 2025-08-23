@@ -25,7 +25,8 @@ jobs:
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
     - name: Install XmlDocMarkdown.Console
-      run: dotnet add package XmlDocMarkdown.Console --version 2.4.0 --package-directory ./tools
+      run: dotnet restore XmlDocMarkdown.Console --source https://api.nuget.org/v3/index.json /p:PackageVersion=2.4.0 /p:RestorePackagesPath=./tools
+
 
     - name: Generate Markdown Docs
       run: |
