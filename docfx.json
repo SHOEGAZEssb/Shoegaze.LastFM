@@ -16,6 +16,6 @@
       { "files": [ "**/*.md" ], "cwd": "articles" }
     ],
     "dest": "md-docs",
-    "template": [ "markdown" ]
+    "template": [ "templates/markdown" ]
   }
 }

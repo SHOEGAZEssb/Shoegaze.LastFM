@@ -31,8 +31,12 @@ jobs:
     - name: Generate DocFX Metadata
       run: docfx metadata docfx.json
 
-    - name: Export DocFX Markdown Template
-      run: docfx template export "markdown"
+    - name: Fetch Markdown Template
+      run: |
+        mkdir -p templates
+        git clone --depth 1 https://github.com/dotnet/docfx-seed.git temp-docfx
+        cp -r temp-docfx/templates/markdown ./templates/
+        rm -rf temp-docfx
 
     - name: Build Markdown Docs
       run: docfx build docfx.json
