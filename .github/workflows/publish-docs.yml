@@ -41,8 +41,7 @@ jobs:
       shell: pwsh
       run: |
         mkdir md-docs
-        # run with explicit path + PowerShell syntax
-        .\tools\XmlDocMarkdown.2.9.0\tools\XmlDocMarkdown.exe `
+        .\tools\tools\XmlDocMarkdown.exe `
           src\Shoegaze.LastFM\Shoegaze.LastFM.csproj md-docs `
           --source src\Shoegaze.LastFM\bin\Release\net9.0\Shoegaze.LastFM.dll `
           --newline lf
