@@ -70,7 +70,7 @@ public interface IUserApi
   /// </returns>
   /// <seealso href="https://www.last.fm/api/show/user.getFriends"/>.
   Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(
-      string? username = null,
+      string username,
       bool includeRecentTracks = false,
       int? limit = null,
       int? page = null,
@@ -86,7 +86,7 @@ public interface IUserApi
   /// <returns>Result that contains a list of the loved tracks, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getLovedTracks"/>.
   Task<ApiResult<PagedResult<TrackInfo>>> GetLovedTracksAsync(
-    string? username = null,
+    string username,
     int? limit = null,
     int? page = null,
     CancellationToken ct = default);
@@ -102,7 +102,7 @@ public interface IUserApi
   /// <returns>Result that contains a list of the top tracks, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getTopTracks"/>.
   Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(
-    string? username = null,
+    string username,
     TimePeriod? period = null,
     int? limit = null,
     int? page = null,
@@ -157,7 +157,12 @@ public interface IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of taggings, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getPersonalTags"/>.
-  Task<ApiResult<IReadOnlyList<T>>> GetPersonalTagsAsync<T>(string username, string tag, int? limit = null, int? page = null, CancellationToken ct = default) where T : IUserTagable;
+  Task<ApiResult<IReadOnlyList<T>>> GetPersonalTagsAsync<T>(
+    string username,
+    string tag,
+    int? limit = null,
+    int? page = null,
+    CancellationToken ct = default) where T : IUserTagable;
 
   /// <summary>
   /// Get the top artists listened to by a user.
@@ -169,7 +174,12 @@ public interface IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of top artists, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getTopArtists"/>.
-  Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
+  Task<ApiResult<PagedResult<ArtistInfo>>> GetTopArtistsAsync(
+    string username,
+    TimePeriod? period = null,
+    int? limit = null,
+    int? page = null,
+    CancellationToken ct = default);
 
   /// <summary>
   /// Get the top albums listened to by a user.
@@ -181,7 +191,12 @@ public interface IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of top albums, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getTopAlbums"/>.
-  Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default);
+  Task<ApiResult<PagedResult<AlbumInfo>>> GetTopAlbumsAsync(
+    string username,
+    TimePeriod? period = null,
+    int? limit = null,
+    int? page = null,
+    CancellationToken ct = default);
 
   /// <summary>
   /// Get a list of available charts for a user.
@@ -190,7 +205,9 @@ public interface IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains the list of charts, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyChartList"/>.
-  Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(string username, CancellationToken ct = default);
+  Task<ApiResult<IReadOnlyList<WeeklyChartInfo>>> GetWeeklyChartListAsync(
+    string username,
+    CancellationToken ct = default);
 
   /// <summary>
   /// Get a weekly chart for a user.
@@ -205,5 +222,9 @@ public interface IUserApi
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyArtistChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyTrackChart"/>.
   /// <seealso href="https://www.last.fm/api/show/user.getWeeklyAlbumChart"/>.
-  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(string username, DateTimeOffset? fromDate = null, DateTimeOffset? toDate = null, CancellationToken ct = default) where T : IUserChartable;
+  Task<ApiResult<IReadOnlyList<T>>> GetWeeklyChartAsync<T>(
+    string username,
+    DateTimeOffset? fromDate = null,
+    DateTimeOffset? toDate = null,
+    CancellationToken ct = default) where T : IUserChartable;
 }

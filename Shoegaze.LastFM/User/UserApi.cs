@@ -62,19 +62,16 @@ public class UserApi : IUserApi
   /// Result that contains a list with the users friends, or error information.
   /// </returns>
   /// <seealso href="https://www.last.fm/api/show/user.getFriends"/>.
-  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string? username = null, bool includeRecentTracks = false, int? limit = null, int ? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<UserInfo>>> GetFriendsAsync(string username, bool includeRecentTracks = false, int? limit = null, int ? page = null, CancellationToken ct = default)
   {
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
-    var requireAuth = string.IsNullOrWhiteSpace(username);
-
-    if (!requireAuth)
-      parameters["user"] = username!;
+    parameters.Add("user", username);
 
     // todo: check if recenttracks is actually supported or deprecated
     if (includeRecentTracks)
       parameters["recenttracks"] = "1";
 
-    var result = await _invoker.SendAsync("user.getFriends", parameters, requireAuth, ct);
+    var result = await _invoker.SendAsync("user.getFriends", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<UserInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
@@ -106,15 +103,12 @@ public class UserApi : IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of the loved tracks, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getLovedTracks"/>.
-  public async Task<ApiResult<PagedResult<TrackInfo>>> GetLovedTracksAsync(string? username = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetLovedTracksAsync(string username, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+    parameters.Add("user", username);
 
-    var requireAuth = string.IsNullOrWhiteSpace(username);
-    if (!requireAuth)
-      parameters["user"] = username!;
-
-    var result = await _invoker.SendAsync("user.getLovedTracks", parameters, requireAuth, ct);
+    var result = await _invoker.SendAsync("user.getLovedTracks", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 
@@ -145,17 +139,15 @@ public class UserApi : IUserApi
   /// <param name="ct">Cancellation token.</param>
   /// <returns>Result that contains a list of the top tracks, or error information.</returns>
   /// <seealso href="https://www.last.fm/api/show/user.getTopTracks"/>.
-  public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string? username = null, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
+  public async Task<ApiResult<PagedResult<TrackInfo>>> GetTopTracksAsync(string username, TimePeriod? period = null, int? limit = null, int? page = null, CancellationToken ct = default)
   {
     var parameters = ParameterHelper.MakeLimitAndPageParameters(limit, page);
+    parameters.Add("user", username);
 
-    var requireAuth = string.IsNullOrWhiteSpace(username);
-    if (!requireAuth)
-      parameters["user"] = username!;
     if (period.HasValue)
       parameters["period"] = period.Value.ToApiString();
 
-    var result = await _invoker.SendAsync("user.getTopTracks", parameters, requireAuth, ct);
+    var result = await _invoker.SendAsync("user.getTopTracks", parameters, false, ct);
     if (!result.IsSuccess || result.Data == null)
       return ApiResult<PagedResult<TrackInfo>>.Failure(result.LastFmStatus, result.HttpStatus, result.ErrorMessage);
 

@@ -18,3 +18,75 @@ A modern C# wrapper for the LastFM API.
 | Tag            | [![100%](https://img.shields.io/badge/Progress-100%25-brightgreen)](https://github.com/SHOEGAZEssb/Shoegaze.LastFM/blob/main/Shoegaze.LastFM/Tag/ITagApi.cs) |
 | Track          | [![100%](https://img.shields.io/badge/Progress-100%25-brightgreen)](https://github.com/SHOEGAZEssb/Shoegaze.LastFM/blob/main/Shoegaze.LastFM/Track/ITrackApi.cs) |
 | User           | [![100%](https://img.shields.io/badge/Progress-100%25-brightgreen)](https://github.com/SHOEGAZEssb/Shoegaze.LastFM/blob/main/Shoegaze.LastFM/User/IUserApi.cs) |
+
+## Quickstart
+
+### Creating a Client
+
+To do any API requests at all you need to instanciate a `LastfmClient`. You will need to supply your **API key** and your **API secret** that you can obtain by [creating an API account](https://www.last.fm/api/account/create).
+
+```csharp
+var client = new LastfmClient(apiKey, apiSecret, httpClient);
+
+// you can then call any method that does not require user authentication
+var response = await client.user.GetRecentTracksAsync("testUser");
+var tracks = response.Data.Items;
+```
+
+All API responses contain error information in case something went wrong.
+
+### Getting a Session Key
+
+To be able to do authenticated requests (like scrobbling or adding tracks) you will need a session key granted by the user.
+
+There are two ways to obtain a session key:
+
+#### 1. Automatic Desktop Flow
+
+Use `AuthenticateAsync()`. This opens the user’s default browser, listens on a temporary `http://localhost:{port}/` URL, and automatically exchanges the returned token for a session key.
+
+```csharp
+var auth = new LastfmAuthService(apiKey, apiSecret, httpClient);
+var session = await auth.AuthenticateAsync();
+Console.WriteLine($"Logged in as {session.User} with key {session.Key}");
+```
+
+#### 2. Manual Flow
+
+Use `GetAuthorizationUrlAsync(callbackUrl)` with your own callback URL (e.g. a webserver endpoint or custom URI scheme). Redirect the user there, capture the token from Last.fm’s redirect, and then call `GetSessionAsync(token)` to complete authentication and get a session key.
+
+```csharp
+var auth = new LastfmAuthService(http, apiKey, apiSecret);
+var authUrl = await auth.GetAuthorizationUrlAsync("https://myapp.com/callback");
+
+// redirect the user to authUrl and receive the ?token=... in your callback handler
+var token = "...";
+var session = await auth.GetSessionAsync(token);
+Console.WriteLine($"Logged in as {session.User} with key {session.Key}");
+```
+
+### Authenticated Requests
+
+After creating a `LastfmClient` and getting your session key, you can 'authenticate' the client.
+
+```csharp
+var auth = new LastfmAuthService(apiKey, apiSecret, httpClient);
+var session = await auth.AuthenticateAsync();
+
+var client = new LastfmClient(apiKey, apiSecret, httpClient);
+client.SetSessionKey(session.Key);
+
+// you can then call any method on the client that requires authentication
+var response = await client.Artist.AddTagsAsync("My Bloody Valentine", "shoegaze");
+```
+
+### Scrobbling
+
+You can scrobble batches of up to 50 scrobbles at once.
+Scrobbling requires an **authenticated client**.
+
+```csharp
+var scrobble = new ScrobbleData(artistName: "My Bloody Valentine", trackName: "Loomer", playedAt: DateTime.UtcNow);
+
+var response = await client.Track.ScrobbleAsync(scrobble);
+```

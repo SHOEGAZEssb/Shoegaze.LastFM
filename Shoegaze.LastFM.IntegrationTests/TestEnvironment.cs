@@ -48,9 +48,9 @@
       }
     }
 
-    public static ILastfmClient CreateClient(HttpClient? http = null)
+    public static ILastfmClient CreateClient(HttpClient? httpClient = null)
     {
-      return new LastfmClient(ApiKey, ApiSecret, http ?? new HttpClient());
+      return new LastfmClient(ApiKey, ApiSecret, httpClient);
     }
 
     public static ILastfmClient CreateAuthenticatedClient(HttpClient? http = null)

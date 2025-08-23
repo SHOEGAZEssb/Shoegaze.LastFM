@@ -575,7 +575,7 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     public async Task ScrobbleAsync_Single_Simple_IntegrationTest()
     {
       var client = TestEnvironment.CreateAuthenticatedClient();
-
+      
       var date = DateTime.UtcNow;
       var scrobble = new ScrobbleData("SHOEGAZELASTFM", "TestSimple", date);
 

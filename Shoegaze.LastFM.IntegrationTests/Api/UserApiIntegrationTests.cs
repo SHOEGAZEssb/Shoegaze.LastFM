@@ -223,58 +223,6 @@ namespace Shoegaze.LastFM.IntegrationTests.Api
     }
 
     [Test]
-    public async Task GetTopTracksAsync_Authenticated_IntegrationTest()
-    {
-      var client = TestEnvironment.CreateAuthenticatedClient();
-
-      var response = await client.User.GetTopTracksAsync();
-      using (Assert.EnterMultipleScope())
-      {
-        Assert.That(response.IsSuccess, Is.True);
-        Assert.That(response.Data, Is.Not.Null);
-      }
-
-      var pages = response.Data;
-      using (Assert.EnterMultipleScope())
-      {
-        Assert.That(pages.Page, Is.EqualTo(1));
-        Assert.That(pages.TotalPages, Is.GreaterThanOrEqualTo(1));
-        Assert.That(pages.TotalItems, Is.GreaterThan(1));
-      }
-
-      var tracks = pages.Items;
-      foreach (var track in tracks)
-      {
-        using (Assert.EnterMultipleScope())
-        {
-          Assert.That(track.Name, Is.Not.Empty);
-          Assert.That(track.Url.ToString(), Is.Not.Empty);
-          Assert.That(track.IsStreamable, Is.Not.Null);
-          Assert.That(track.Mbid, Is.Not.Null);
-          Assert.That(track.UserPlayCount, Is.GreaterThan(1));
-          Assert.That(track.Duration, Is.Not.Null);
-          Assert.That(track.Images, Contains.Key(ImageSize.Small));
-          Assert.That(track.Images, Contains.Key(ImageSize.Medium));
-          Assert.That(track.Images, Contains.Key(ImageSize.Large));
-          Assert.That(track.Images, Contains.Key(ImageSize.ExtraLarge));
-          Assert.That(track.Album, Is.Null);
-          Assert.That(track.PlayCount, Is.Null);
-          Assert.That(track.PlayedAtUtc, Is.Null);
-          Assert.That(track.IsNowPlaying, Is.False);
-        }
-
-        var artist = track.Artist;
-        Assert.That(artist, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-          Assert.That(artist.Name, Is.Not.Empty);
-          Assert.That(artist.Mbid, Is.Not.Null);
-          Assert.That(artist.Url.IsWellFormedOriginalString(), Is.True);
-        }
-      }
-    }
-
-    [Test]
     public async Task GetTopTracksAsync_InvalidUser_IntegrationTest()
     {
       var client = TestEnvironment.CreateClient();
