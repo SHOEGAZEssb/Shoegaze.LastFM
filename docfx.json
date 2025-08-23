@@ -1,0 +1,18 @@
+{
+  "metadata": [
+    {
+      "src": [
+        { "files": [ "Shoegaze.LastFM/*.csproj" ], "cwd": "src" }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": [ "**/*.yml" ], "cwd": "api" },
+      { "files": [ "**/*.md" ], "cwd": "articles" }
+    ],
+    "dest": "md-docs",
+    "template": [ "markdown" ]
+  }
+}

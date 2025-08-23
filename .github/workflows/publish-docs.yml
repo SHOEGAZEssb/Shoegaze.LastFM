@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write   # allow pushing commits (needed for updating the wiki)
+  contents: write
 
 jobs:
   build-docs:
@@ -22,22 +22,17 @@ jobs:
       with:
         dotnet-version: '9.0.x'
 
-    - name: Restore & build (with XML docs)
+    - name: Install DocFX
+      run: dotnet tool install -g docfx
+
+    - name: Build project (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Install xmldocmd
-      run: dotnet tool install -g xmldocmd
+    - name: Generate DocFX Metadata
+      run: docfx metadata docfx.json
 
-    - name: Generate Markdown Docs
-      run: |
-        mkdir md-docs
-        DLL=$(find ./ -type f -path "*/bin/Release/*/Shoegaze.LastFM.dll" | head -n 1)
-        echo "Using DLL: $DLL"
-        if [ -z "$DLL" ]; then
-          echo "ERROR: Could not find Shoegaze.LastFM.dll"
-          exit 1
-        fi
-        xmldocmd "$DLL" md-docs --newline lf
+    - name: Build Markdown Docs
+      run: docfx build docfx.json
 
     - name: Checkout Wiki
       uses: actions/checkout@v4
