@@ -2,7 +2,10 @@
   "metadata": [
     {
       "src": [
-        { "files": [ "Shoegaze.LastFM/*.csproj" ], "cwd": "src" }
+        {
+          "files": [ "Shoegaze.LastFM/*.csproj" ],
+          "cwd": "src"
+        }
       ],
       "dest": "api"
     }

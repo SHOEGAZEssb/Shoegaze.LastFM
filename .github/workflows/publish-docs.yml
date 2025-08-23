@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write
+  contents: write   # required to push into the wiki repo
 
 jobs:
   build-docs:
@@ -30,6 +30,9 @@ jobs:
 
     - name: Generate DocFX Metadata
       run: docfx metadata docfx.json
+
+    - name: Export DocFX Markdown Template
+      run: docfx template export "markdown"
 
     - name: Build Markdown Docs
       run: docfx build docfx.json
