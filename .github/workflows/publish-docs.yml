@@ -42,7 +42,7 @@ jobs:
       run: |
         mkdir md-docs
         .\tools\tools\XmlDocMarkdown.exe `
-          bin\Release\net9.0\Shoegaze.LastFM.dll md-docs `
+          .\bin\Release\net9.0\Shoegaze.LastFM.dll md-docs `
           --newline lf
 
     - name: Checkout Wiki
