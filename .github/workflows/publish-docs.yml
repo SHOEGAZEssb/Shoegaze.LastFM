@@ -1,0 +1,52 @@
+name: Publish Docs to Wiki
+permissions:
+  contents: write   # allow pushing commits (needed for updating the wiki)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore & build (with XML docs)
+      run: dotnet build Shoegaze.LastFM.sln --configuration Release
+
+    - name: Install DocFX
+      run: dotnet tool install -g docfx
+
+    - name: Generate Docs
+      run: docfx docfx.json
+
+    - name: Checkout Wiki
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.repository }}.wiki
+        path: wiki
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Copy Generated Docs
+      run: |
+        rm -rf wiki/*
+        cp -r _site/* wiki/
+
+    - name: Commit & Push to Wiki
+      run: |
+        cd wiki
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update docs from ${{ github.sha }}" || echo "No changes to commit"
+        git push

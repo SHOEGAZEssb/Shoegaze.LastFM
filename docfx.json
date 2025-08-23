@@ -1,0 +1,18 @@
+{
+  "metadata": [
+    {
+      "src": [
+        { "files": [ "Shoegaze.LastFM/*.csproj" ] }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": [ "api/**.yml" ] },
+      { "files": [ "articles/**.md" ] }
+    ],
+    "dest": "_site",
+    "markdownEngineName": "markdig"
+  }
+}
