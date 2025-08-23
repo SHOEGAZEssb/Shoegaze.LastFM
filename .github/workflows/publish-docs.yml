@@ -24,9 +24,6 @@ jobs:
     - name: Restore & build (with XML docs)
       run: dotnet build Shoegaze.LastFM.sln --configuration Release
 
-    - name: Install NuGet CLI
-      run: dotnet tool install --global NuGet.CommandLine
-
     - name: Install XmlDocMarkdown.Console
       run: nuget install XmlDocMarkdown.Console -Version 2.4.0 -OutputDirectory ./tools
 
