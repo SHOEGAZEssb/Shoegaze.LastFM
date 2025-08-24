@@ -1,10 +1,11 @@
 name: Publish NuGet Package
-permissions:
-  contents: write   # needed to upload assets to the release
 
 on:
   release:
     types: [created]
+
+permissions:
+  contents: write   # needed to upload assets to the release
 
 jobs:
   build-and-publish:
@@ -22,9 +23,15 @@ jobs:
     - name: Get version from tag
       id: get_version
       run: |
-        # Strip leading 'v' if present (e.g. v1.2.3 -> 1.2.3)
         VERSION="${GITHUB_REF_NAME#v}"
+        if [ -z "$VERSION" ]; then
+          echo "❌ No version could be extracted from tag '${GITHUB_REF_NAME}'"
+          exit 1
+        fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Show detected version
+      run: echo "📦 Package version = ${{ steps.get_version.outputs.version }}"
 
     - name: Restore dependencies
       run: dotnet restore Shoegaze.LastFM.sln
@@ -33,11 +40,7 @@ jobs:
       run: dotnet build Shoegaze.LastFM.sln --configuration Release --no-restore
 
     - name: Pack NuGet package
-      run: dotnet pack src/Shoegaze.LastFM/Shoegaze.LastFM.csproj \
-             --configuration Release \
-             --no-build \
-             -p:PackageVersion=${{ steps.get_version.outputs.version }} \
-             -o ./artifacts
+      run: dotnet pack src/Shoegaze.LastFM/Shoegaze.LastFM.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.get_version.outputs.version }} -o ./artifacts
 
     - name: Upload package to GitHub Release
       uses: softprops/action-gh-release@v2
@@ -47,7 +50,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish to NuGet.org
-      run: dotnet nuget push ./artifacts/*.nupkg \
-             --api-key ${{ secrets.NUGET_API_KEY }} \
-             --source https://api.nuget.org/v3/index.json \
-             --skip-duplicate
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
