@@ -1,0 +1,53 @@
+name: Publish NuGet Package
+permissions:
+  contents: write   # needed to upload assets to the release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Get version from tag
+      id: get_version
+      run: |
+        # Strip leading 'v' if present (e.g. v1.2.3 -> 1.2.3)
+        VERSION="${GITHUB_REF_NAME#v}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Restore dependencies
+      run: dotnet restore Shoegaze.LastFM.sln
+
+    - name: Build solution
+      run: dotnet build Shoegaze.LastFM.sln --configuration Release --no-restore
+
+    - name: Pack NuGet package
+      run: dotnet pack src/Shoegaze.LastFM/Shoegaze.LastFM.csproj \
+             --configuration Release \
+             --no-build \
+             -p:PackageVersion=${{ steps.get_version.outputs.version }} \
+             -o ./artifacts
+
+    - name: Upload package to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./artifacts/*.nupkg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish to NuGet.org
+      run: dotnet nuget push ./artifacts/*.nupkg \
+             --api-key ${{ secrets.NUGET_API_KEY }} \
+             --source https://api.nuget.org/v3/index.json \
+             --skip-duplicate
