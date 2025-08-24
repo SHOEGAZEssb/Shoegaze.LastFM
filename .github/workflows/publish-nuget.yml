@@ -40,7 +40,10 @@ jobs:
       run: dotnet build Shoegaze.LastFM.sln --configuration Release --no-restore
 
     - name: Pack NuGet package
-      run: dotnet pack src/Shoegaze.LastFM/Shoegaze.LastFM.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.get_version.outputs.version }} -o ./artifacts
+      run: dotnet pack Shoegaze.LastFM/Shoegaze.LastFM.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.get_version.outputs.version }} -o ./artifacts
+
+    - name: Show packaged artifacts
+      run: ls -lh ./artifacts
 
     - name: Upload package to GitHub Release
       uses: softprops/action-gh-release@v2
