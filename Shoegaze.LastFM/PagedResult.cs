@@ -6,32 +6,38 @@ namespace Shoegaze.LastFM
   /// A result that contains the items of a single page request.
   /// </summary>
   /// <typeparam name="T">Type of the result items.</typeparam>
-  public class PagedResult<T>
+  public class PagedResult<T>(IReadOnlyList<T> items, int page, int totalPages, int totalItems, int perPage)
   {
+    #region Properties
+
     /// <summary>
     /// The result items.
     /// </summary>
-    public IReadOnlyList<T> Items { get; private set; } = [];
+    public IReadOnlyList<T> Items { get; } = items ?? [];
 
     /// <summary>
     /// The page that has been fetched.
     /// </summary>
-    public int Page { get; private set; }
+    public int Page { get; } = page;
 
     /// <summary>
     /// Total amount of pages.
     /// </summary>
-    public int TotalPages { get; private set; }
+    public int TotalPages { get; } = totalPages;
 
     /// <summary>
     /// Total amount of items.
     /// </summary>
-    public int TotalItems { get; private set; }
+    public int TotalItems { get; } = totalItems;
 
     /// <summary>
     /// Amount of items per page.
     /// </summary>
-    public int PerPage { get; private set; }
+    public int PerPage { get; } = perPage;
+
+    #endregion Properties
+
+    #region JSON Parsing
 
     internal static PagedResult<T> FromJson(JsonElement element, IReadOnlyList<T> items)
     {
@@ -47,7 +53,7 @@ namespace Shoegaze.LastFM
       else
       {
         var attr = element.GetProperty("@attr");
-        if (attr.TryGetProperty("offset", out var offsetProp)) // assume offset format
+        if (attr.TryGetProperty("offset", out var offsetProp)) // offset format
         {
           totalItems = JsonHelper.ParseNumber<int>(attr.GetProperty("total"));
           perPage = JsonHelper.ParseNumber<int>(attr.GetProperty("num_res"));
@@ -56,7 +62,7 @@ namespace Shoegaze.LastFM
             parsedPage = 1;
           totalPages = (int)Math.Ceiling((double)totalItems / perPage);
         }
-        else // assume default page format
+        else // default page format
         {
           parsedPage = int.TryParse(attr.GetProperty("page").GetString(), out var p) ? p : 1;
           totalPages = int.TryParse(attr.GetProperty("totalPages").GetString(), out var tp) ? tp : 1;
@@ -65,16 +71,9 @@ namespace Shoegaze.LastFM
         }
       }
 
-      var paged = new PagedResult<T>
-      {
-        Items = items,
-        Page = parsedPage,
-        TotalPages = totalPages,
-        TotalItems = totalItems,
-        PerPage = perPage
-      };
-
-      return paged;
+      return new PagedResult<T>(items, parsedPage, totalPages, totalItems, perPage);
     }
+
+    #endregion JSON Parsing
   }
 }

@@ -491,7 +491,7 @@ namespace Shoegaze.LastFM.Track
     public async Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(ScrobbleData scrobble, CancellationToken ct = default)
     {
       var response = await ScrobbleAsync([scrobble], ct);
-      return new ApiResult<ScrobbleInfo> { Data = response.Data?[0], LastFmStatus = response.LastFmStatus, HttpStatus = response.HttpStatus, ErrorMessage = response.ErrorMessage };
+      return new ApiResult<ScrobbleInfo>(response.Data?[0], response.LastFmStatus, response.HttpStatus, response.ErrorMessage );
     }
 
     /// <summary>
