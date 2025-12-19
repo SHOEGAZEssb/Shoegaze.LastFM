@@ -22,7 +22,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be null or empty.
     /// </remarks>
-    public string? Mbid { get; private set; }
+    public string? Mbid { get; set; }
 
     /// <summary>
     /// Url to the last.fm page of this track.
@@ -35,7 +35,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be null.
     /// </remarks>
-    public TimeSpan? Duration { get; private set; }
+    public TimeSpan? Duration { get; set; }
 
     /// <summary>
     /// Amount of listeners this track has.
@@ -49,7 +49,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public int? ListenerCount { get; private set; }
+    public int? ListenerCount { get; set; }
 
     /// <summary>
     /// Amount of plays this track has.
@@ -60,7 +60,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public int? PlayCount { get; internal set; }
+    public int? PlayCount { get; set; }
 
     /// <summary>
     /// Amount of plays the user has for which the request has been made.
@@ -72,7 +72,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/> with included username.
     /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/> with included username.
     /// </remarks>
-    public int? UserPlayCount { get; internal set; }
+    public int? UserPlayCount { get; set; }
 
     /// <summary>
     /// Indicates if the user for which the request has been made has loved this track.
@@ -85,7 +85,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/> with extended = true.
     /// </remarks>
-    public bool? UserLoved { get; internal set; }
+    public bool? UserLoved { get; set; }
 
     /// <summary>
     /// The time when the user for which the request has been made has loved this track.
@@ -95,7 +95,7 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="User.IUserApi.GetLovedTracksAsync(string?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public DateTime? UserLovedDate { get; private set; }
+    public DateTime? UserLovedDate { get; set; }
 
     /// <summary>
     /// Indicates the match score of a track for which similar
@@ -106,7 +106,7 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="ITrackApi.GetSimilarByNameAsync(string, string, bool, int?, CancellationToken)"/>.
     /// </remarks>
-    public double? Match { get; private set; }
+    public double? Match { get; set; }
 
     /// <summary>
     /// Info about the artist of this track.
@@ -119,7 +119,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public ArtistInfo? Artist { get; private set; }
+    public ArtistInfo? Artist { get; set; }
 
     /// <summary>
     /// Info about the album this track is on.
@@ -130,7 +130,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public AlbumInfo? Album { get; private set; }
+    public AlbumInfo? Album { get; set; }
 
     /// <summary>
     /// The wiki of this track.
@@ -141,7 +141,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public WikiInfo? Wiki { get; private set; }
+    public WikiInfo? Wiki { get; set; }
 
     /// <summary>
     /// List of most used tags for this tracks.
@@ -152,7 +152,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="ITrackApi.GetInfoByNameAsync(string, string, string?, bool, CancellationToken)"/>.
     /// - <see cref="ITrackApi.GetInfoByMbidAsync(string, string?, CancellationToken)"/>.
     /// </remarks>
-    public IReadOnlyList<TagInfo>? TopTags { get; private set; }
+    public IReadOnlyList<TagInfo>? TopTags { get; set; }
 
     /// <summary>
     /// List of images for this track.
@@ -160,7 +160,7 @@ namespace Shoegaze.LastFM.Track
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public IReadOnlyDictionary<ImageSize, Uri> Images { get; private set; } = new Dictionary<ImageSize, Uri>();
+    public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
     /// <summary>
     /// The time the user for which the request has been made has played this track.
@@ -171,7 +171,7 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/> except when <see cref="IsNowPlaying"/> is true.
     /// </remarks>
-    public DateTime? PlayedAtUtc { get; private set; }
+    public DateTime? PlayedAtUtc { get; set; }
 
     /// <summary>
     /// If the user for which the request has been made is currently listening to this track.
@@ -181,7 +181,7 @@ namespace Shoegaze.LastFM.Track
     /// Guaranteed to be available when using:
     /// - <see cref="IUserApi.GetRecentTracksAsync(string?, bool?, DateTimeOffset?, DateTimeOffset?, bool, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public bool IsNowPlaying { get; private set; }
+    public bool IsNowPlaying { get; set; }
 
     /// <summary>
     /// If the track can be streamed / previewed on the last.fm website.
@@ -193,7 +193,7 @@ namespace Shoegaze.LastFM.Track
     /// - <see cref="IArtistApi.GetTopTracksByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopTracksByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public bool? IsStreamable { get; private set; }
+    public bool? IsStreamable { get; set; }
 
     internal static TrackInfo FromJson(JsonElement root)
     {

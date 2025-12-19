@@ -11,17 +11,17 @@ namespace Shoegaze.LastFM
     /// <summary>
     /// When the wiki was published.
     /// </summary>
-    public DateTime? Published { get; private set; }
+    public DateTime? Published { get; set; }
 
     /// <summary>
     /// Shorter summary of the wiki.
     /// </summary>
-    public string Summary { get; private set; } = "";
+    public string Summary { get; set; } = "";
 
     /// <summary>
     /// The wiki content.
     /// </summary>
-    public string Content { get; private set; } = "";
+    public string Content { get; set; } = "";
 
     internal static WikiInfo FromJson(JsonElement root)
     {

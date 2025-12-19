@@ -127,7 +127,7 @@ public enum ImageSize
 /// <summary>
 /// The result of an api call.
 /// </summary>
-public class ApiResult(LastFmStatusCode? lastFmStatus = null, HttpStatusCode? httpStatus = null, string? errorMessage = null)
+public class ApiResult(LastFmStatusCode? lastFmStatus, HttpStatusCode? httpStatus, string? errorMessage)
 {
   /// <summary>
   /// Http status code.
@@ -155,7 +155,7 @@ public class ApiResult(LastFmStatusCode? lastFmStatus = null, HttpStatusCode? ht
   public bool IsSuccess => LastFmStatus == LastFmStatusCode.Success;
 
   internal static ApiResult Success(HttpStatusCode httpStatus = HttpStatusCode.OK)
-    => new(lastFmStatus: LastFmStatusCode.Success, httpStatus: httpStatus);
+    => new(lastFmStatus: LastFmStatusCode.Success, httpStatus: httpStatus, errorMessage: null);
 
   internal static ApiResult Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
     => new(status, httpStatus, error);
