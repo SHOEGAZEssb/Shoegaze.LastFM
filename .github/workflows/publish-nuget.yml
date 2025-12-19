@@ -47,8 +47,8 @@ jobs:
       run: ls -lh ./artifacts
 
     - name: Upload package to GitHub Release
-      # softprops/action-gh-release v2.3.2
-      uses: softprops/action-gh-release@72f2c25
+      # softprops/action-gh-release v2.5.0
+      uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
       with:
         files: ./artifacts/*.nupkg
       env:

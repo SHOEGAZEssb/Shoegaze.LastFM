@@ -7,7 +7,23 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Title>SHOEGAZE.LastFM</Title>
+    <Authors>SHOEGAZEssb</Authors>
+    <Description>A modern .net wrapper for the last.fm api.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SHOEGAZEssb/Shoegaze.LastFM</RepositoryUrl>
+    <PackageTags>lastfm</PackageTags>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
+    <FileVersion>1.1.0</FileVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
