@@ -26,7 +26,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="Track.ITrackApi.GetTopTagsByNameAsync(string, string, bool, CancellationToken)"/>.
     /// </remarks>
-    public int? CountOnTrack { get; internal set; }
+    public int? CountOnTrack { get; set; }
 
     /// <summary>
     /// A weighted count of how often the tag was applied
@@ -37,7 +37,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="Album.IAlbumApi.GetTopTagsByNameAsync(string, string, bool, CancellationToken)"/>.
     /// </remarks>
-    public int? WeightOnAlbum { get; internal set; }
+    public int? WeightOnAlbum { get; set; }
 
     /// <summary>
     /// Amount of users that have used this tag.
@@ -48,7 +48,7 @@ namespace Shoegaze.LastFM.Tag
     /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
     /// - <see cref="Chart.IChartApi.GetTopTagsAsync(int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public int? Reach { get; private set; }
+    public int? Reach { get; set; }
 
     /// <summary>
     /// Total number of times this tag has been used.
@@ -59,7 +59,7 @@ namespace Shoegaze.LastFM.Tag
     /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
     /// - <see cref="Chart.IChartApi.GetTopTagsAsync(int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public int? Taggings { get; internal set; }
+    public int? Taggings { get; set; }
 
     /// <summary>
     /// Amount of times this tag has been used by the user.
@@ -69,7 +69,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be included when using:
     /// - <see cref="User.IUserApi.GetTopTracksAsync(string?, User.TimePeriod?, int?, int?, CancellationToken)"/> with included username.
     /// </remarks>
-    public int? UserUsedCount { get; internal set; }
+    public int? UserUsedCount { get; set; }
 
     /// <summary>
     /// The wiki of this tag.
@@ -79,7 +79,7 @@ namespace Shoegaze.LastFM.Tag
     /// Guaranteed to be available when using:
     /// - <see cref="ITagApi.GetInfoAsync(string, CancellationToken)"/>.
     /// </remarks>
-    public WikiInfo? Wiki { get; private set; }
+    public WikiInfo? Wiki { get; set; }
 
     internal static TagInfo FromJson(JsonElement root)
     {

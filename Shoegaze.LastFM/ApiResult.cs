@@ -53,12 +53,12 @@ public enum LastFmStatusCode
   OperationFailed = 8,
 
   /// <summary>
-  /// Invalid session key - Please re-authenticate.
+  /// Invalid session key - please re-authenticate.
   /// </summary>
   InvalidSessionKey = 9,
 
   /// <summary>
-  /// You must be granted a valid key by last.fm.
+  /// You must be granted a valid key by Last.fm.
   /// </summary>
   InvalidApiKey = 10,
 
@@ -127,27 +127,27 @@ public enum ImageSize
 /// <summary>
 /// The result of an api call.
 /// </summary>
-public class ApiResult
+public class ApiResult(LastFmStatusCode? lastFmStatus, HttpStatusCode? httpStatus, string? errorMessage)
 {
   /// <summary>
   /// Http status code.
   /// May be null in case an error was encountered
   /// before any http request was sent.
   /// </summary>
-  public HttpStatusCode? HttpStatus { get; internal set; }
+  public HttpStatusCode? HttpStatus { get; } = httpStatus;
 
   /// <summary>
   /// Error message describing the cause of the error.
   /// May be null in case of an unknown error.
   /// </summary>
-  public string? ErrorMessage { get; internal set; }
+  public string? ErrorMessage { get; } = errorMessage;
 
   /// <summary>
   /// The last.fm api status code.
   /// May be null in case the error was not reported by
   /// the last.fm api.
   /// </summary>
-  public LastFmStatusCode? LastFmStatus { get; internal set; }
+  public LastFmStatusCode? LastFmStatus { get; } = lastFmStatus;
 
   /// <summary>
   /// If the api request returned successfully.
@@ -155,25 +155,26 @@ public class ApiResult
   public bool IsSuccess => LastFmStatus == LastFmStatusCode.Success;
 
   internal static ApiResult Success(HttpStatusCode httpStatus = HttpStatusCode.OK)
-          => new() { HttpStatus = httpStatus, LastFmStatus = LastFmStatusCode.Success };
+    => new(lastFmStatus: LastFmStatusCode.Success, httpStatus: httpStatus, errorMessage: null);
 
   internal static ApiResult Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
-      => new() { LastFmStatus = status, HttpStatus = httpStatus, ErrorMessage = error };
+    => new(status, httpStatus, error);
 }
 
 /// <summary>
 /// The result of an api call that returned data.
 /// </summary>
-public sealed class ApiResult<T> : ApiResult
+public sealed class ApiResult<T>(T? data = default, LastFmStatusCode? lastFmStatus = null, HttpStatusCode? httpStatus = null, string? errorMessage = null)
+  : ApiResult(lastFmStatus, httpStatus, errorMessage)
 {
   /// <summary>
   /// The returned data from the api call.
   /// </summary>
-  public T? Data { get; internal set; }
+  public T? Data { get; } = data;
 
   internal static ApiResult<T> Success(T data, HttpStatusCode httpStatus = HttpStatusCode.OK)
-          => new() { Data = data, HttpStatus = httpStatus, LastFmStatus = LastFmStatusCode.Success };
+    => new(data, LastFmStatusCode.Success, httpStatus);
 
   internal new static ApiResult<T> Failure(LastFmStatusCode? status = null, HttpStatusCode? httpStatus = null, string? error = null)
-      => new() { LastFmStatus = status, HttpStatus = httpStatus, ErrorMessage = error };
+      => new(default, status, httpStatus, error);
 }

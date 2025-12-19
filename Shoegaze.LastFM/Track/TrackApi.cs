@@ -491,7 +491,7 @@ namespace Shoegaze.LastFM.Track
     public async Task<ApiResult<ScrobbleInfo>> ScrobbleAsync(ScrobbleData scrobble, CancellationToken ct = default)
     {
       var response = await ScrobbleAsync([scrobble], ct);
-      return new ApiResult<ScrobbleInfo> { Data = response.Data?[0], LastFmStatus = response.LastFmStatus, HttpStatus = response.HttpStatus, ErrorMessage = response.ErrorMessage };
+      return new ApiResult<ScrobbleInfo>(response.Data?[0], response.LastFmStatus, response.HttpStatus, response.ErrorMessage );
     }
 
     /// <summary>
@@ -525,19 +525,19 @@ namespace Shoegaze.LastFM.Track
         parameters.Add($"timestamp{i}", scrobbleArray[i].Timestamp.ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         // optional params
-        if (scrobbleArray[i].AlbumName != null)
+        if (!string.IsNullOrEmpty(scrobbleArray[i].AlbumName))
           parameters.Add($"album{i}", scrobbleArray[i].AlbumName!);
-        if (scrobbleArray[i].AlbumArtistName != null)
+        if (!string.IsNullOrEmpty(scrobbleArray[i].AlbumArtistName))
           parameters.Add($"albumArtist{i}", scrobbleArray[i].AlbumArtistName!);
         if (scrobbleArray[i].Duration != null)
           parameters.Add($"duration{i}", scrobbleArray[i].Duration!.Value.Seconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
         if (scrobbleArray[i].TrackNumber != null)
           parameters.Add($"trackNumber{i}", scrobbleArray[i].TrackNumber!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        if (scrobbleArray[i].Mbid != null)
+        if (!string.IsNullOrEmpty(scrobbleArray[i].Mbid))
           parameters.Add($"mbid{i}", scrobbleArray[i].Mbid!);
         if (scrobbleArray[i].ChosenByUser != null)
           parameters.Add($"chosenByUser{i}", scrobbleArray[i].ChosenByUser!.Value ? "1" : "0");
-        if (scrobbleArray[i].Context != null)
+        if (!string.IsNullOrEmpty(scrobbleArray[i].Context))
           parameters.Add($"context{i}", scrobbleArray[i].Context!);
       }
 

@@ -27,7 +27,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public Uri? Url { get; private set; }
+    public Uri? Url { get; set; }
 
     /// <summary>
     /// Mbid of this album.
@@ -35,7 +35,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be null.
     /// </remarks>
-    public string? Mbid { get; private set; }
+    public string? Mbid { get; set; }
 
     /// <summary>
     /// Number of people who listened to this album.
@@ -46,7 +46,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// </remarks>
-    public int? Listeners { get; private set; }
+    public int? Listeners { get; set; }
 
     /// <summary>
     /// Total amount of plays this album has.
@@ -59,7 +59,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IArtistApi.GetTopAlbumsByNameAsync(string, bool, int?, int?, CancellationToken)"/>
     /// - <see cref="IArtistApi.GetTopAlbumsByMbidAsync(string, int?, int?, CancellationToken)"/>
     /// </remarks>
-    public int? PlayCount { get; internal set; }
+    public int? PlayCount { get; set; }
 
     /// <summary>
     /// Amount of plays of this album the user has for which the request has been made.
@@ -71,7 +71,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/> with provided username.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public int? UserPlayCount { get; internal set; }
+    public int? UserPlayCount { get; set; }
 
     /// <summary>
     /// If this album can be streamed (previewed or full) on last.fm.
@@ -81,7 +81,7 @@ namespace Shoegaze.LastFM.Album
     /// Guaranteed to be available when using:
     /// - <see cref="IAlbumApi.SearchAsync(string, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public bool? IsStreamable { get; private set; }
+    public bool? IsStreamable { get; set; }
 
     /// <summary>
     /// Images associated with this album.
@@ -89,7 +89,7 @@ namespace Shoegaze.LastFM.Album
     /// <remarks>
     /// May be empty.
     /// </remarks>
-    public Dictionary<ImageSize, Uri> Images { get; private set; } = [];
+    public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
     /// <summary>
     /// Info about the artist of this album.
@@ -102,7 +102,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="Tag.ITagApi.GetTopAlbumsAsync(string, int?, int?, CancellationToken)"/>.
     /// - <see cref="User.IUserApi.GetTopAlbumsAsync(string, User.TimePeriod?, int?, int?, CancellationToken)"/>.
     /// </remarks>
-    public ArtistInfo? Artist { get; private set; }
+    public ArtistInfo? Artist { get; set; }
 
     /// <summary>
     /// The track list of this album.
@@ -113,7 +113,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// </remarks>
-    public IReadOnlyList<TrackInfo> Tracks { get; private set; } = [];
+    public IReadOnlyList<TrackInfo> Tracks { get; set; } = [];
 
     /// <summary>
     /// List of most used tags for this album.
@@ -124,7 +124,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// </remarks>
-    public IReadOnlyList<TagInfo> TopTags { get; private set; } = [];
+    public IReadOnlyList<TagInfo> TopTags { get; set; } = [];
 
     /// <summary>
     /// The wiki of this album
@@ -135,7 +135,7 @@ namespace Shoegaze.LastFM.Album
     /// - <see cref="IAlbumApi.GetInfoByNameAsync(string, string, string?, bool, string?, CancellationToken)"/>.
     /// - <see cref="IAlbumApi.GetInfoByMbidAsync(string, string?, bool, string?, CancellationToken)"/>.
     /// </remarks>
-    public WikiInfo? Wiki { get; private set; }
+    public WikiInfo? Wiki { get; set; }
 
     internal static AlbumInfo FromJson(JsonElement root)
     {

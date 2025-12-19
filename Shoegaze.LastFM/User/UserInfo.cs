@@ -18,7 +18,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null or empty.
   /// </remarks>
-  public string? RealName { get; private set; }
+  public string? RealName { get; set; }
 
   /// <summary>
   /// The last.fm url of the user.
@@ -31,7 +31,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null or empty.
   /// </remarks>
-  public string? Country { get; private set; }
+  public string? Country { get; set; }
 
   /// <summary>
   /// The age of the user.
@@ -39,7 +39,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null or 0.
   /// </remarks>
-  public int? Age { get; private set; }
+  public int? Age { get; set; }
 
   /// <summary>
   /// The gender of the user.
@@ -47,7 +47,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null.
   /// </remarks>
-  public string? Gender { get; private set; }
+  public string? Gender { get; set; }
 
   /// <summary>
   /// Indicates if the user is a last.fm pro user.
@@ -55,7 +55,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null.
   /// </remarks>
-  public bool? IsSubscriber { get; private set; }
+  public bool? IsSubscriber { get; set; }
 
   /// <summary>
   /// The total amount of plays the user has.
@@ -63,7 +63,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null.
   /// </remarks>
-  public int? PlayCount { get; private set; }
+  public int? PlayCount { get; set; }
 
   /// <summary>
   /// Number of artists this user has listened to.
@@ -73,7 +73,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? ArtistCount { get; private set; }
+  public int? ArtistCount { get; set; }
 
   /// <summary>
   /// Number of individual tracks this user has listened to.
@@ -83,7 +83,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? TrackCount { get; private set; }
+  public int? TrackCount { get; set; }
 
   /// <summary>
   /// Number of albums this user has listened to.
@@ -93,7 +93,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// Guaranteed to be available when using:
   /// - <see cref="IUserApi.GetInfoAsync(string?, CancellationToken)"/>
   /// </remarks>
-  public int? AlbumCount { get; private set; }
+  public int? AlbumCount { get; set; }
 
   /// <summary>
   /// Amount of playlists this user has.
@@ -101,7 +101,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null or 0.
   /// </remarks>
-  public int? Playlists { get; private set; }
+  public int? Playlists { get; set; }
 
   /// <summary>
   /// When this user registered on last.fm.
@@ -109,7 +109,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be null.
   /// </remarks>
-  public DateTime? RegisteredDate { get; private set; }
+  public DateTime? RegisteredDate { get; set; }
 
   /// <summary>
   /// Images of this user.
@@ -117,7 +117,7 @@ public sealed class UserInfo : IJsonDeserializable<UserInfo>
   /// <remarks>
   /// May be empty.
   /// </remarks>
-  public IReadOnlyDictionary<ImageSize, Uri> Images { get; private set; } = new Dictionary<ImageSize, Uri>();
+  public IReadOnlyDictionary<ImageSize, Uri> Images { get; set; } = new Dictionary<ImageSize, Uri>();
 
   /// <summary>
   /// Gets the largest available image of this user.
